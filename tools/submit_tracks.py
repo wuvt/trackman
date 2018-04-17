@@ -14,7 +14,7 @@ with open(args.playlist) as f:
         path = line.strip()
         track = mutagen.File(path)
         r = requests.post(
-            'http://localhost:9090/trackman/api/automation/log',
+            'http://localhost:9070/api/automation/log',
             data={
                 'password': "hackme",
                 'title': track.get('title', ''),

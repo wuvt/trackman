@@ -1,20 +1,10 @@
-## wuvt-site
-This is the next-generation website for [WUVT-FM](https://www.wuvt.vt.edu), 
-Virginia Tech's student radio station.
-
-It has several main components:
-- A Content Management System (CMS) to store both blog-style *articles* and 
-  static *pages*. These can be managed at the `/admin` endpoint. One *admin*
-  user capable of administrative access exists; all other users have full 
-  control of articles and pages and may upload files. 
-- **Trackman**, a track logger with a UI and an API compatible with WinAmp's
-  POST plugin, [mpd-automation](https://github.com/wuvt/mpd-automation),
-  and [johnny-six](https://github.com/wuvt/johnny-six). The included SSE
-  endpoint can be used by external scripts for live track updates, similar to
-  how it is used on the website. It also provides access to previous playlists
-  and can generate charts of what has been played.
-- A simple donation system with Stripe integration for processing credit
-  card/Bitcoin transactions.
+## Trackman
+Trackman is a track logger with a UI and an API compatible with WinAmp's POST
+plugin, [mpd-automation](https://github.com/wuvt/mpd-automation), and
+[johnny-six](https://github.com/wuvt/johnny-six). The included SSE endpoint can
+be used by external scripts for live track updates, similar to how it is used
+on the WUVT website. It also provides access to previous playlists and can
+generate charts of what has been played.
 
 ### Deployment
 These instructions are for Linux; instructions for other platforms may vary.
@@ -27,15 +17,15 @@ services inside the container itself.
 
 For Dockerfile.dev:
 ```
-git clone https://github.com/wuvt/wuvt-site.git
-cd wuvt-site
+git clone https://github.com/wuvt/trackman.git
+cd trackman
 echo "SECRET_KEY = \"$(xxd -l 28 -p /dev/urandom)\"" > wuvt/config.py
-docker build -t wuvt-site -f Dockerfile.dev .
+docker build -t trackman -f Dockerfile.dev .
 ```
 
 Now run it:
 ```
-docker run --rm -p 9090:8080 wuvt-site:latest
+docker run --rm -p 9090:8080 trackman:latest
 ```
 
 You can now access the site at <http://localhost:9090/>. An admin user account
@@ -71,8 +61,8 @@ separate dependencies:
 
 ```
 mkdir -p ~/.local/share/virtualenv
-virtualenv ~/.local/share/virtualenv/wuvt-site
-source ~/.local/share/virtualenv/wuvt-site/bin/activate
+virtualenv ~/.local/share/virtualenv/trackman
+source ~/.local/share/virtualenv/trackman/bin/activate
 ```
 
 Now, within this virtualenv, install the dependencies:
@@ -84,8 +74,8 @@ pip install -r requirements.txt
 Next, clone the repo:
 
 ```
-git clone https://github.com/wuvt/wuvt-site.git
-cd wuvt-site
+git clone https://github.com/wuvt/trackman.git
+cd trackman
 ```
 
 Create a blank file, wuvt/config.py; you can override any of the default
@@ -95,7 +85,7 @@ database, and add some sample content to the site:
 
 ```
 export FLASK_APP=$PWD/wuvt/__init__.py
-flask render_images && flask initdb && flask sampledata
+flask initdb && flask sampledata
 ```
 
 Finally, start uWSGI:
@@ -104,7 +94,7 @@ Finally, start uWSGI:
 uwsgi --ini uwsgi.ini:dev
 ```
 
-You can now access the site at http://localhost:9090/
+You can now access Trackman at http://localhost:9090/
 
 ### API
 TODO
@@ -114,11 +104,11 @@ Look at submit_tracks.py for an example of sending metadata to Trackman.
 
 ### License
 
-Besides the exceptions noted below, the entirety of this software is available
-under the GNU Affero General Public License:
+The entirety of this software is available under the GNU Affero General Public
+License:
 
 ```
-Copyright 2012-2017 James Schwinabart, Calvin Winkowski, Matt Hazinski.
+Copyright 2012-2018 James Schwinabart, Calvin Winkowski, Matt Hazinski.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -134,14 +124,5 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ```
 
-The following files are JavaScript libraries, freely available under the MIT
-license as noted in their headers:
-* wuvt/static/js/jquery.js
-* wuvt/static/js/jquery.dataTables.min.js
-* wuvt/static/js/moment.min.js
-
-The following font file was designed by Humberto Gregorio and is in the public
-domain:
-* wuvt/static/fonts/sohoma_extrabold.woff
-
-Other included fonts (in wuvt/static/fonts) are not covered under this license.
+If you have special requirements, please contact us to inquire about commercial
+licensing.

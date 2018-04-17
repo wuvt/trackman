@@ -1,4 +1,3 @@
-bleach
 celery
 click
 Flask
@@ -24,6 +23,5 @@ redis
 requests
 sqlalchemy>=1.2.0
 SQLAlchemy-Utils
-stripe
 Unidecode
 -e git+https://github.com/wuvt/python-musicbrainzngs#egg=musicbrainzngs

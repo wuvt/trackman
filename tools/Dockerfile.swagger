@@ -1,7 +1,7 @@
-FROM wuvt-site:latest
+FROM trackman:latest
 
 RUN pip install --no-cache-dir flask_swagger
 
 VOLUME ["/data"]
 
-ENTRYPOINT ["flaskswagger", "wuvt:app", "--out-dir", "/data"]
+ENTRYPOINT ["flaskswagger", "trackman:app", "--out-dir", "/data"]
