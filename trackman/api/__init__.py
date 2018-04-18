@@ -15,10 +15,12 @@ from .v1.charts import Charts, AlbumCharts, DJAlbumCharts, ArtistCharts, \
 from .v1.playlists import NowPlaying, Last15Tracks, LatestTrack, \
     PlaylistsByDay, PlaylistsByDateRange, PlaylistDJs, PlaylistAllDJs, \
     PlaylistsByDJ, Playlist, PlaylistTrack
+from flask_restful.utils import cors
 
 
 api_bp = Blueprint('trackman_api', __name__)
 api = Api(api_bp)
+api.decorators = [cors.crossdomain(origin='*')]
 api.add_resource(AutomationLog, '/automation/log')
 api.add_resource(DJ, '/dj/<int:dj_id>')
 api.add_resource(DJSet, '/djset/<int:djset_id>')
