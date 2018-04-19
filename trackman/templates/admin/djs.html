@@ -13,14 +13,14 @@
     </tr>
     <tr>
         <th>On-air Name</th>
-        <th>Real Name</th>
+        <th>Created</th>
         <th>Visible</th>
         <th>Actions</th>
     </tr>
 {% for dj in djs %}
     <tr>
         <td>{{ dj.airname }}</td>
-        <td>{{ dj.name }}</td>
+        <td>{{ dj.time_added|datetime }}</td>
         <td>{{ dj.visible }}</td>
         <td class="row-options">
             <a href="{{ url_for('admin.dj_edit', id=dj.id) }}" class="btn btn-default btn-sm">Edit</a>
