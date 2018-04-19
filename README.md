@@ -19,7 +19,7 @@ For Dockerfile.dev:
 ```
 git clone https://github.com/wuvt/trackman.git
 cd trackman
-echo "SECRET_KEY = \"$(xxd -l 28 -p /dev/urandom)\"" > wuvt/config.py
+echo "SECRET_KEY = \"$(xxd -l 28 -p /dev/urandom)\"" > trackman/config.py
 docker build -t trackman -f Dockerfile.dev .
 ```
 
