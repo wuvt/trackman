@@ -1,8 +1,8 @@
 import base64
 import datetime
 import os
-from flask import abort, flash, make_response, redirect, request, session, \
-    url_for, _request_ctx_stack
+from flask import abort, flash, json, make_response, redirect, request, \
+    session, url_for, _request_ctx_stack
 from functools import wraps
 
 from .models import User, UserSession
@@ -49,14 +49,14 @@ class AuthManager(object):
             user_session = UserSession.query.get(session_id)
             if user_session is not None and \
                     now > user_session.login_at and now < user_session.expires:
-                ctx.user = user_session.user
+                ctx.user = User(json.loads(user_session.id_token))
                 ctx.user_roles = user_session.roles
             else:
                 ctx.user = AnonymousUserMixin()
                 ctx.user_roles = set([])
 
-    def load_user(self, user_id):
-        return User.query.get(user_id)
+    def load_user(self, id_token):
+        return User(id_token)
 
     def unauthorized(self):
         flash(self.login_message, self.login_message_category)
@@ -90,7 +90,7 @@ class AuthManager(object):
 
         user_session = UserSession(
             session_id=session_id,
-            user_id=user.id,
+            id_token=user.id_token,
             expires=datetime.datetime.utcnow() + self.app.permanent_session_lifetime,
             user_agent=str(request.user_agent),
             remote_addr=request.remote_addr,

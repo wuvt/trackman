@@ -1,5 +1,4 @@
 from trackman import db
-from trackman.auth.models import User
 from trackman.models import DJ, Rotation, Track
 
 
@@ -13,12 +12,6 @@ def initdb(username, password):
     except:
         db.session.rollback()
         raise
-
-    # Create the first account
-    user = User(str(username), str(username),
-                "{0}@localhost".format(username))
-    user.set_password(str(password))
-    db.session.add(user)
 
     # The first Rotation is always the default
     db.session.add(Rotation("None"))

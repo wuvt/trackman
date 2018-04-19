@@ -31,7 +31,6 @@ markdown==2.6.11
 markupsafe==1.0           # via jinja2, mako
 netaddr==0.7.19
 oauth2client==4.1.2       # via flask-oidc
-passlib==1.7.1
 psycopg2==2.7.4 --no-binary psycopg2
 pyasn1-modules==0.2.1
 pyasn1==0.4.2

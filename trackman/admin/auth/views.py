@@ -4,8 +4,7 @@ from flask import abort, flash, jsonify, make_response, redirect, \
 from trackman import app, auth_manager, db
 from trackman.admin import bp
 from trackman.auth import current_user, current_user_roles, login_required
-from trackman.auth.models import User, UserRole, GroupRole
-from trackman.admin.auth.forms import UserAddForm, UserEditForm
+from trackman.auth.models import UserRole, GroupRole
 
 
 @bp.route('/roles/users/add', methods=['GET', 'POST'])
@@ -18,19 +17,15 @@ def role_add_user():
         if role not in auth_manager.all_roles:
             error_fields.append('role')
 
-        user = User.query.get(request.form['user'])
-        if user is None:
-            error_fields.append('user')
-
         if len(error_fields) <= 0:
-            user_id = int(request.form['user'])
+            sub = request.form['sub']
 
             existing = UserRole.query.filter_by(
-                user_id=user_id, role=role).count()
+                sub=sub, role=role).count()
             if existing > 0:
                 flash("That role was already assigned to that user.")
             else:
-                db.session.add(UserRole(user_id, role))
+                db.session.add(UserRole(sub, role))
 
                 try:
                     db.session.commit()
@@ -42,9 +37,7 @@ def role_add_user():
 
             return redirect(url_for('.roles'), 303)
 
-    users = User.query.order_by('name').all()
-
-    return render_template('admin/role_add_user.html', users=users,
+    return render_template('admin/role_add_user.html',
                            roles=sorted(auth_manager.all_roles),
                            error_fields=error_fields)
 
@@ -127,7 +120,7 @@ def role_remove_group(id):
 @bp.route('/roles')
 @auth_manager.check_access('admin')
 def roles():
-    user_roles = UserRole.query.join(User).order_by('role').all()
+    user_roles = UserRole.query.order_by('role').all()
     group_roles = GroupRole.query.order_by('role').all()
 
     return render_template('admin/roles.html', user_roles=user_roles,
@@ -140,90 +133,3 @@ def roles_js():
     resp = make_response(render_template('admin/roles.js'))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
     return resp
-
-
-@bp.route('/users/new', methods=['GET', 'POST'])
-@auth_manager.check_access('admin')
-def user_add():
-    if app.config['AUTH_METHOD'] != "local":
-        abort(404)
-
-    form = UserAddForm()
-
-    if form.validate_on_submit():
-        db.session.add(User(form.username.data, form.name.data,
-                            form.email.data))
-
-        try:
-            db.session.commit()
-        except:
-            db.session.rollback()
-            raise
-
-        user = User.query.filter_by(username=form.username.data).first()
-        user.set_password(form.data.password)
-
-        try:
-            db.session.commit()
-        except:
-            db.session.rollback()
-            raise
-
-        flash("User added.")
-        return redirect(url_for('admin.users'), 303)
-
-    return render_template('admin/user_add.html', form=form)
-
-
-@bp.route('/users/<int:id>', methods=['GET', 'POST'])
-@login_required
-def user_edit(id):
-    if app.config['AUTH_METHOD'] != "local":
-        abort(404)
-
-    user = User.query.get_or_404(id)
-    form = UserEditForm(name=user.name, email=user.email)
-
-    # Only admins can edit users other than themselves
-    if 'admin' not in current_user_roles and current_user.id != id:
-        abort(403)
-
-    if form.validate_on_submit():
-        # You can't change a username or ID
-        # TODO allow users to be disabled
-
-        # update user's: name, email
-        user.name = form.name.data
-        user.email = form.email.data
-
-        # if user entered a new pw
-        if len(form.newpass.data) > 0:
-            user.set_password(form.newpass.data)
-        # TODO reset password to pw
-
-        try:
-            db.session.commit()
-        except:
-            db.session.rollback()
-            raise
-
-        flash('User updated.')
-        return redirect(url_for('admin.users'), 303)
-
-    return render_template('admin/user_edit.html', user=user, form=form)
-
-
-@bp.route('/users')
-@login_required
-def users():
-    if 'admin' in current_user_roles:
-        users = User.query.order_by('name').all()
-        is_admin = True
-    elif app.config['AUTH_METHOD'] == "local":
-        users = User.query.filter(
-            User.username == current_user.username).order_by('name').all()
-        is_admin = False
-    else:
-        abort(404)
-
-    return render_template('admin/users.html', users=users, is_admin=is_admin)

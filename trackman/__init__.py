@@ -112,9 +112,8 @@ auth_manager = AuthManager()
 auth_manager.db = db
 auth_manager.init_app(app)
 
-if app.config['AUTH_METHOD'] == 'oidc':
-    from trackman.auth.oidc import OpenIDConnect
-    oidc = OpenIDConnect(app)
+from trackman.auth.oidc import OpenIDConnect
+oidc = OpenIDConnect(app)
 
 
 @app.context_processor

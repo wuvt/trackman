@@ -30,7 +30,7 @@
         {%- for tracklog in group.list %}
         {%- if tracklog.djset_id > 0 %}
         <li class="list-group-item">
-            <a href="{{ url_for('trackman.playlist', set_id=tracklog.djset_id) }}"><time datetime="{{ tracklog.played|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ tracklog.played|datetime("%Y-%m-%d %H:%M") }}</time></a> by <a href="{{ url_for('trackman_library.dj', id=tracklog.dj.id) }}">{{ tracklog.dj.airname }}</a>
+            <time datetime="{{ tracklog.played|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ tracklog.played|datetime("%Y-%m-%d %H:%M") }}</time> by <a href="{{ url_for('trackman_library.dj', id=tracklog.dj.id) }}">{{ tracklog.dj.airname }}</a>
         </li>
         {%- endif %}
         {%- endfor %}

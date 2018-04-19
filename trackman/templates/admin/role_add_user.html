@@ -11,11 +11,8 @@
     <div class="form-group{% if 'user' in error_fields %} has-error{% endif %}">
         <label for="id_user" class="col-sm-3 control-label">User</label>
         <div class="col-sm-9">
-            <select id="id_user" name="user" class="form-control">
-                {% for user in users %}
-                <option value="{{ user.id }}">{{ user.name }} ({{ user.username }})</option>
-                {% endfor %}
-            </select>
+            <input type="text" name="sub" id="id_sub"
+                value="" required="required" class="form-control" />
         </div>
     </div>
 

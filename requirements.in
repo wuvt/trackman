@@ -10,7 +10,6 @@ Flask-WTF
 humanize
 Markdown
 netaddr
-passlib
 psycopg2
 pyasn1
 pyasn1-modules

@@ -43,13 +43,10 @@ CHART_MAIL_DEST = "charts@localhost"
 PROXY_FIX = False
 PROXY_FIX_NUM_PROXIES = 1
 
-MIN_PASSWORD_LENGTH = 8
-
 # Allow CSRF tokens to last for 31 days
 WTF_CSRF_TIME_LIMIT = 2678400
 
-AUTH_METHOD = 'local'
-AUTH_SUPERADMINS = ['admin']
+AUTH_SUPERADMINS = []
 AUTH_ROLE_GROUPS = {
     'admin': ['webmasters'],
     'library': ['librarians'],

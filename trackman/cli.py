@@ -1,7 +1,5 @@
 import click
 import os
-import random
-import string
 from flask import json
 from . import app, db_utils, lib, redis_conn
 
@@ -17,14 +15,7 @@ def init_embedded_db():
         return
 
     click.echo("Initialize the database...")
-
-    # Generate a random password for the admin user
-    password = ''.join(random.SystemRandom().sample(
-        string.ascii_letters + string.digits, 12))
-    click.echo('Password for admin will be set to: {0}'.format(password))
-
-    db_utils.initdb('admin', password)
-
+    db_utils.initdb()
     click.echo("Database initialized.")
 
     click.echo("Add sample data...")
@@ -33,12 +24,10 @@ def init_embedded_db():
 
 
 @app.cli.command()
-@click.option('--username', default="admin")
-@click.password_option()
-def initdb(username, password):
+def initdb():
     """Initialize the database."""
     click.echo("Initialize the database...")
-    db_utils.initdb(username, password)
+    db_utils.initdb()
     click.echo("Database initialized.")
 
 

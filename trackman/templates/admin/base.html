@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
 
-        <title>{% if page_title %}{{ page_title }} &ndash; {% endif %}WUVT Administration</title>
+        <title>{% if page_title %}{{ page_title }} &ndash; {% endif %}{{ config.TRACKMAN_NAME }} Administration</title>
 
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap-theme.min.css') }}" />
@@ -24,12 +24,11 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="{{ url_for('admin.index') }}">WUVT Admin</a>
+                <a class="navbar-brand" href="{{ url_for('admin.index') }}">{{ config.TRACKMAN_NAME }} Admin</a>
             </div>
             <div class="collapse navbar-collapse" id="admin-top-navbar">
                 <ul class="nav navbar-nav">
                     {% block nav_admin_index %}<li><a href="{{ url_for('admin.index') }}">Home</a></li>{% endblock %}
-                    {% if 'admin' in current_user_roles or config.AUTH_METHOD == "local" %}{% block nav_admin_users %}<li><a href="{{ url_for('admin.users') }}">Users</a></li>{% endblock %}{% endif %}
                     {% if 'admin' in current_user_roles %}{% block nav_admin_roles %}<li><a href="{{ url_for('admin.roles') }}">Roles</a></li>{% endblock %}{% endif %}
                     {% if 'library' in current_user_roles %}{% block nav_admin_library %}<li><a href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}{% endif %}
                 </ul>
@@ -41,7 +40,7 @@
                     </button>
                 </form>
                 <p class="navbar-text navbar-right">
-                    Logged in as {{ current_user.name }}
+                    Logged in as {{ current_user.id_token.name }}
                 </p>
             </div>
         </nav>
