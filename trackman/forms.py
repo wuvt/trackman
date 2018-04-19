@@ -75,6 +75,26 @@ class DJEditForm(FlaskForm):
                                     validators.Optional()])
 
 
+class DJAdminEditForm(FlaskForm):
+    airname = StringField('On-air Name', filters=[strip_field],
+                          validators=[validators.Length(min=1, max=255),
+                                      validators.DataRequired()])
+    name = StringField('Real Name', filters=[strip_field],
+                       validators=[validators.Length(min=1, max=255),
+                                   validators.DataRequired()])
+    email = StringField('Email Address', filters=[strip_field],
+                        validators=[validators.Length(min=1, max=255),
+                                    validators.Email(),
+                                    validators.Optional()])
+    phone = StringField('Phone Number', filters=[strip_field],
+                        validators=[validators.Length(min=10, max=12),
+                                    validators.Optional()])
+    genres = StringField('Genres you can DJ', filters=[strip_field],
+                         validators=[validators.Length(min=1, max=255),
+                                     validators.Optional()])
+    visible = BooleanField('Visible', validators=[validators.Optional()])
+
+
 class TrackAddForm(FlaskForm):
     title = StringField('Title', filters=[strip_field],
                         validators=[validators.DataRequired()])

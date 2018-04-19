@@ -30,6 +30,7 @@
                 <ul class="nav navbar-nav">
                     {% block nav_admin_index %}<li><a href="{{ url_for('admin.index') }}">Home</a></li>{% endblock %}
                     {% if 'admin' in current_user_roles %}{% block nav_admin_roles %}<li><a href="{{ url_for('admin.roles') }}">Roles</a></li>{% endblock %}{% endif %}
+                    {% if 'admin' in current_user_roles %}{% block nav_admin_djs %}<li><a href="{{ url_for('admin.djs') }}">DJs</a></li>{% endblock %}{% endif %}
                     {% if 'library' in current_user_roles %}{% block nav_admin_library %}<li><a href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}{% endif %}
                 </ul>
                 <form action="{{ url_for('auth.logout') }}" method="post" class="navbar-form navbar-right">
