@@ -49,15 +49,7 @@ def dj_add():
 def dj_edit(id):
     dj = DJ.query.get_or_404(id)
     form = DJAdminEditForm()
-
-    def validate_airname(self, field):
-        if dj.airname == field.data:
-            return
-
-        matching = DJ.query.filter(DJ.airname == field.data).count()
-        if matching > 0:
-            raise ValidationError("Your on-air name must be unique.")
-    form.validate_airname = validate_airname
+    form.dj = dj
 
     if form.validate_on_submit():
         dj.airname = form.airname.data

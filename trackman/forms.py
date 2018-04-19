@@ -94,6 +94,14 @@ class DJAdminEditForm(FlaskForm):
                                      validators.Optional()])
     visible = BooleanField('Visible', validators=[validators.Optional()])
 
+    def validate_airname(self, field):
+        if self.dj.airname == field.data:
+            return
+
+        matching = DJ.query.filter(DJ.airname == field.data).count()
+        if matching > 0:
+            raise ValidationError("Your on-air name must be unique.")
+
 
 class TrackAddForm(FlaskForm):
     title = StringField('Title', filters=[strip_field],
