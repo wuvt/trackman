@@ -1,13 +1,8 @@
 {% extends "admin/base.html" %}
 {% set page_title="Reports: BMI Report" %}
-{% block nav_admin_library %}<li class="active"><a href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}
+{% block nav_admin_reports %}<li class="active"><a href="{{ url_for('admin.reports') }}">Reports</a></li>{% endblock %}
 
 {% block content %}
-<ol class="breadcrumb">
-    <li><a href="{{ url_for('trackman_library.reports') }}">Library</a></li>
-    <li class="active">Reports: BMI Report</li>
-</ol>
-
 <h1>Reports: BMI Report</h1>
 
 <div class="panel-body">
@@ -40,7 +35,7 @@
                 Generate BMI Report
             </button>
 
-            <a href="{{ url_for('trackman_library.reports') }}" class="btn btn-default">
+            <a href="{{ url_for('admin.reports') }}" class="btn btn-default">
                 <span class="glyphicon glyphicon-remove"></span>
                 Cancel
             </a>

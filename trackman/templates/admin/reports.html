@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+{% set page_title="Reports" %}
+{% block nav_admin_reports %}<li class="active"><a href="{{ url_for('admin.reports') }}">Reports</a></li>{% endblock %}
+
+{% block content %}
+<h1>Reports</h1>
+
+<div class="panel-body">
+    <div class="list-group">
+        <a href="{{ url_for('admin.reports_bmi') }}" class="list-group-item">BMI Report</a>
+    </div>
+</div>
+{% endblock %}

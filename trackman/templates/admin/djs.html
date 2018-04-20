@@ -1,9 +1,12 @@
+{% import "library/macros.html" as macros %}
 {% extends "admin/base.html" %}
 {% set page_title="DJs" %}
 {% block nav_admin_djs %}<li class="active"><a href="{{ url_for('admin.djs') }}">DJs</a></li>{% endblock %}
 
 {% block content %}
 <h1>DJs</h1>
+
+{{ macros.render_pagination(djs, 'admin.djs') }}
 
 <table class="table table-striped table-hover">
     <tr>
@@ -17,10 +20,10 @@
         <th>Visible</th>
         <th>Actions</th>
     </tr>
-{% for dj in djs %}
+{% for dj in djs.items %}
     <tr>
         <td>{{ dj.airname }}</td>
-        <td>{{ dj.time_added|datetime }}</td>
+        <td>{{ dj.time_added|datetime("%Y-%m-%d %H:%M:%S") }}</td>
         <td>{{ dj.visible }}</td>
         <td class="row-options">
             <a href="{{ url_for('admin.dj_edit', id=dj.id) }}" class="btn btn-default btn-sm">Edit</a>
@@ -33,4 +36,6 @@
         </td>
     </tr>
 </table>
+
+{{ macros.render_pagination(djs, 'admin.djs') }}
 {% endblock %}

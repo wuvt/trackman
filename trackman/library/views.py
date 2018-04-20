@@ -1,8 +1,5 @@
 from flask import abort, current_app, flash, render_template, redirect, \
     request, url_for
-import csv
-import dateutil.parser
-import io
 import string
 import uuid
 
@@ -410,42 +407,3 @@ def track_spins(id):
 
     return render_template('library/track_spins.html', track=track,
                            edit_from=edit_from, tracklogs=tracklogs)
-
-
-@library_bp.route('/reports')
-@auth_manager.check_access('library')
-def reports():
-    return render_template('library/reports.html')
-
-
-@library_bp.route('/reports/bmi', methods=['GET', 'POST'])
-@auth_manager.check_access('library')
-def reports_bmi():
-    if request.method == 'POST':
-        start = dateutil.parser.parse(request.form['dtstart'])
-        end = dateutil.parser.parse(request.form['dtend'])
-        end = end.replace(hour=23, minute=59, second=59)
-
-        f = io.StringIO()
-        writer = csv.writer(f)
-
-        tracks = TrackLog.query.filter(TrackLog.played >= start,
-                                       TrackLog.played <= end).all()
-        for track in tracks:
-            writer.writerow([
-                current_app.config['TRACKMAN_NAME'],
-                format_datetime(track.played),
-                track.track.title,
-                track.track.artist,
-            ])
-
-        f.seek(0)
-
-        filename = end.strftime("bmirep-%Y-%m-%d.csv")
-        return f.read(), {
-            "Content-Type": "text/csv; charset=utf-8",
-            "Content-Disposition":
-                "attachment; filename=\"{0}\"".format(filename),
-        }
-    else:
-        return render_template('library/reports_bmi.html')

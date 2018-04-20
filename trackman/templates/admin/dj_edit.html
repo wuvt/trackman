@@ -89,7 +89,7 @@
     <div class="form-group">
         <label class="col-sm-3 control-label">Created</label>
         <div class="col-sm-9">
-            <p class="form-control-static">{{ dj.time_added|datetime }}</p>
+            <p class="form-control-static">{{ dj.time_added|datetime("%Y-%m-%d %H:%M:%S") }}</p>
         </div>
     </div>
 
