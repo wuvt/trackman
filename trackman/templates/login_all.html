@@ -1,13 +1,8 @@
-{% import "macros.html" as macros %}
 {% extends "base.html" %}
 {% set page_title="Show All DJs" %}
+{% block nav_login_all %}<li class="nav-item"><a class="nav-link active" href="{{ url_for('trackman_private.login_all') }}">All DJs</a></li>{% endblock %}
 {% block content %}
-
 <div class="container">
-<h1>{{ trackman_name }}</h1>
-
-{{ macros.render_preshow_nav('login_all') }}
-
 <h2>DJ Login: All DJs</h2>
 
 <form method="post">
@@ -15,17 +10,21 @@
 
     <div class="list-group">
         {% for dj in djs %}
-        <button type="submit" name="dj" value="{{ dj.id }}" class="list-group-item">
-            <span class="badge">
-                {%- if dj.visible -%}
-                Active
-                {%- else -%}
-                Inactive
-                {%- endif -%}
-            </span>
+        <button type="submit" name="dj" value="{{ dj.id }}" class="list-group-item btn-dark">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="list-group-item-heading">{{ dj.airname|wordwrap }}</h4>
+                <span class="badge badge-primary badge-pill">
+                    {%- if dj.visible -%}
+                    Active
+                    {%- else -%}
+                    Inactive
+                    {%- endif -%}
+                </span>
+            </div>
 
-            <h4 class="list-group-item-heading">{{ dj.airname|wordwrap }}</h4>
-            <p>Created <time datetime="{{ dj.time_added|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ dj.time_added|datetime("%Y-%m-%d %H:%M") }}</time></p>
+            <div class="d-flex">
+                <p>Created <time datetime="{{ dj.time_added|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ dj.time_added|datetime("%Y-%m-%d %H:%M") }}</time></p>
+            </div>
         </button>
         {% endfor %}
     </div>

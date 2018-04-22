@@ -1,11 +1,7 @@
-{% import "macros.html" as macros %}
 {% extends "base.html" %}
 {% set page_title="DJ Reactivation" %}
 {% block content %}
-
 <div class="container">
-<h1>{{ trackman_name }}</h1>
-
 <h2>DJ Reactivation</h2>
 
 <div class="alert alert-info">
@@ -17,22 +13,22 @@
 <form method="post" class="form-horizontal" role="form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
-    <div class="form-group">
-        <label for="id_airname" class="col-sm-3 control-label">On-Air Name</label>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label control-label">On-Air Name</label>
         <div class="col-sm-9">
-            <p class="form-control-static">{{ dj.airname }}</p>
+            <span class="form-control-plaintext">{{ dj.airname }}</span>
         </div>
     </div>
 
-    <div class="form-group">
-        <label for="id_name" class="col-sm-3 control-label">Real Name</label>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label control-label">Real Name</label>
         <div class="col-sm-9">
-            <p class="form-control-static">{{ dj.name }}</p>
+            <span class="form-control-plaintext">{{ dj.name }}</span>
         </div>
     </div>
 
-    <div class="form-group{% if form.email.errors|length > 0 %} has-error{% endif %}">
-        <label for="id_email" class="col-sm-3 control-label">Email Address</label>
+    <div class="form-group row{% if form.email.errors|length > 0 %} has-error{% endif %}">
+        <label for="id_email" class="col-sm-3 col-form-label control-label">Email Address</label>
         <div class="col-sm-9">
             <input type="text" name="email" id="id_email"
                 value="{{ form.email.data or "" }}" required="required"
@@ -43,8 +39,8 @@
         </div>
     </div>
 
-    <div class="form-group{% if form.phone.errors|length > 0 %} has-error{% endif %}">
-        <label for="id_phone" class="col-sm-3 control-label">Phone Number</label>
+    <div class="form-group row{% if form.phone.errors|length > 0 %} has-error{% endif %}">
+        <label for="id_phone" class="col-sm-3 col-form-label control-label">Phone Number</label>
         <div class="col-sm-9">
             <input type="text" name="phone" id="id_phone"
                 class="form-control" required="required"
@@ -57,21 +53,21 @@
         </div>
     </div>
 
-    <div class="form-group">
-        <label for="id_genres" class="col-sm-3 control-label">Genres you can DJ</label>
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label control-label">Genres you can DJ</label>
         <div class="col-sm-9">
-            <p class="form-control-static">{{ dj.genres }}</p>
+            <span class="form-control-plaintext">{{ dj.genres }}</span>
         </div>
     </div>
 
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">
-            <span class="glyphicon glyphicon-ok"></span>
+            <span class="oi oi-check"></span>
             Reactivate DJ
         </button>
 
-        <a href="{{ url_for('trackman_private.login') }}" class="btn btn-default">
-            <span class="glyphicon glyphicon-remove"></span>
+        <a href="{{ url_for('trackman_private.login') }}" class="btn btn-secondary">
+            <span class="oi oi-x"></span>
             Cancel
         </a>
     </div>

@@ -1,74 +1,72 @@
 {% extends "base.html" %}
 {% block header %}
-<nav class="navbar navbar-default trackman-header">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#trackman-top-collapse" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark trackman-header mb-2">
+    <div class="navbar-header mr-sm-3">
         <span class="navbar-brand">{{ trackman_name }}</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#trackman-top-collapse" aria-controls="trackman-top-collapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
     </div>
 
     <div class="collapse navbar-collapse" id="trackman-top-collapse">
-        <p class="navbar-text trackman-dj-name">{{ dj.airname }}</p>
+        <span class="navbar-text trackman-dj-name">{{ dj.airname }}</span>
 
-        <form class="navbar-form navbar-right">
-            <label class="checkbox-inline">
+        <form class="navbar-form navbar-right ml-auto">
+            <label class="checkbox-inline mr-sm-2">
                 <input type="checkbox" name="email_playlist" value="true"
                     id="id_email_playlist" />
                 Email me my playlist
             </label>
 
-            <label class="checkbox-inline">
+            <label class="checkbox-inline mr-sm-2">
                 <input type="checkbox" name="extend_autologout"
                     id="id_extend_autologout" />
                 Let me play longer songs
             </label>
 
             <div class="btn-group" role="group">
-                <button type="button" class="btn btn-default" id="on_air_btn">
-                    <span class="glyphicon glyphicon-flash"></span>
+                <button type="button" class="btn btn-outline-primary" id="on_air_btn">
+                    <span class="oi oi-bullhorn"></span>
                     On Air
                 </button>
 
-                <button type="button" class="btn btn-warning" id="trackman_logout_btn">
-                    <span class="glyphicon glyphicon-log-out"></span>
+                <button type="button" class="btn btn-outline-warning" id="trackman_logout_btn">
+                    <span class="oi oi-account-logout"></span>
                     Logout
                 </button>
             </div>
         </form>
     </div>
-
-    <div class="text-center trackman-metadata-reminder">
-        <h4>
-            <span class="glyphicon glyphicon-flag"></span>
-            If you can't fill in the blanks, you can't play it.
-        </h4>
-        <p>You may find these sites helpful to find missing information:</p>
-        <ul class="list-inline">
-            <li><a href="http://www.allmusic.com/"
-                rel="external noopener noreferrer"
-                target="_blank">AllMusic</a></li>
-            <li><a href="http://www.amazon.com/music/"
-                rel="external noopener noreferrer"
-                target="_blank">Amazon.com Music</a></li>
-            <li><a href="http://www.discogs.com/"
-                rel="external noopener noreferrer"
-                target="_blank">Discogs</a></li>
-            <li><a href="http://musicbrainz.org/search.html"
-                rel="external noopener noreferrer"
-                target="_blank">MusicBrainz</a></li>
-            <li><a href="http://metal-archives.com" 
-                rel="external noopener noreferrer"
-                target="_blank">Metal Archives</a></li>
-        </ul>
-    </div>
 </nav>
 {% endblock %}
 
 {% block content %}
+<div class="text-center trackman-metadata-reminder p-2">
+    <h4>
+        <span class="oi oi-flag"></span>
+        If you can't fill in the blanks, you can't play it.
+    </h4>
+    <p>You may find these sites helpful to find missing information:</p>
+    <ul class="list-inline">
+        <li class="list-inline-item"><a href="http://www.allmusic.com/"
+            rel="external noopener noreferrer"
+            target="_blank">AllMusic</a></li>
+        <li class="list-inline-item"><a href="http://www.amazon.com/music/"
+            rel="external noopener noreferrer"
+            target="_blank">Amazon.com Music</a></li>
+        <li class="list-inline-item"><a href="http://www.discogs.com/"
+            rel="external noopener noreferrer"
+            target="_blank">Discogs</a></li>
+        <li class="list-inline-item"><a
+            href="http://musicbrainz.org/search.html"
+            rel="external noopener noreferrer"
+            target="_blank">MusicBrainz</a></li>
+        <li class="list-inline-item"><a href="http://metal-archives.com" 
+            rel="external noopener noreferrer"
+            target="_blank">Metal Archives</a></li>
+    </ul>
+</div>
+
 <div class="floating-alerts" id="trackman_alerts"></div> 
 
 <div class="panel panel-default trackman-panel" id="trackman_playlist_panel">
@@ -101,59 +99,53 @@
     <div class="row">
         <div class="form-group col-md-3">
             <div class="input-group">
-                <span class="input-group-addon">Artist</span>
+                <label for="artist" class="col-form-label mr-2">Artist</label>
                 <input type="text" name="artist" id="artist" value="" class="form-control"
                     title="Enter the name of the artist for the track. If there is no clear artist listed, please use Various Artists as the artist."/>
             </div>
         </div>
         <div class="form-group col-md-3">
             <div class="input-group">
-                <span class="input-group-addon">Title</span>
+                <label for="title" class="col-form-label mr-2">Title</label>
                 <input type="text" name="title" id="title" value="" class="form-control"
                     title="Enter the name of the track. Please log multiple tracks separately, even if they are on the same album."/>
             </div>
         </div>
         <div class="form-group col-md-3">
             <div class="input-group">
-                <span class="input-group-addon">Album</span>
+                <label for="album" class="col-form-label mr-2">Album</label>
                 <input type="text" name="album" id="album" value="" class="form-control"
                     title="Enter the name of the release this track is on. For historical reasons, this is referred to as an album even if it is not."/>
             </div>
         </div>
         <div class="form-group col-md-3">
             <div class="input-group">
-                <span class="input-group-addon">Label</span>
+                <label for="rlabel" class="col-form-label mr-2">Label</label>
                 <input type="text" name="rlabel" id="rlabel" value="" class="form-control"
                     title="Enter the record label for the release the track is on. Please be as specific as possible and include only one label; for example, use Sub Pop Records instead of the parent company, Warner Music Group."/>
             </div>
         </div>
     </div>
     <div class="row lookup-controls">
-        <div class="col-md-4 text-center">
-            <div class="form-inline">
-                <div class="form-group">
-                    <div class="input-group">
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="request" name="request"/>
-                            Request
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="vinyl" name="vinyl"/>
-                            Vinyl
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" class="new" name="new"/>
-                            New
-                        </label>
-                    </div>
-                </div>
-            </div>
+        <div class="col-md-4 col-form-label text-center">
+            <label class="checkbox-inline mr-sm-2">
+                <input type="checkbox" class="request" name="request"/>
+                Request
+            </label>
+            <label class="checkbox-inline mr-sm-2">
+                <input type="checkbox" class="vinyl" name="vinyl"/>
+                Vinyl
+            </label>
+            <label class="checkbox-inline">
+                <input type="checkbox" class="new" name="new"/>
+                New
+            </label>
         </div>
         <div class="col-md-2">
             <div class="form-inline">
                 <div class="form-group">
                     <div class="input-group">
-                        <span class="input-group-addon">Rotation</span>
+                        <label for="rotation" class="col-form-label mr-2">Rotation</label>
                         <select class="rotation form-control" id="rotation">
                         </select>
                     </div>
@@ -164,17 +156,17 @@
             <div class="btn-group">
                 <button id="new-queue" class="btn btn-primary"
                     title="Add this track to the queue below so it can be easily logged later.">
-                    <span class="glyphicon glyphicon-plus"></span>
+                    <span class="oi oi-plus"></span>
                     Queue New Track
                 </button>
-                <button id="new-log" class="btn btn-default"
+                <button id="new-log" class="btn btn-secondary"
                     title="Immediately log this track.">
-                    <span class="glyphicon glyphicon-play"></span>
+                    <span class="oi oi-media-play"></span>
                     Log New Track
                 </button>
-                <button id="clear-form" class="btn btn-default"
+                <button id="clear-form" class="btn btn-secondary"
                     title="Clear the track entry form.">
-                    <span class="glyphicon glyphicon-erase"></span>
+                    <span class="oi oi-delete"></span>
                     Clear Form
                 </button>
             </div>
@@ -186,27 +178,27 @@
 <div class="control-panel">
     <div class="row psa-controls">
         <button id="new-queue" class="btn btn-primary">
-            <span class="glyphicon glyphicon-plus"></span>
+            <span class="oi oi-plus"></span>
             Station ID
         </button>
         <button id="new-queue" class="btn btn-primary">
-            <span class="glyphicon glyphicon-plus"></span>
+            <span class="oi oi-plus"></span>
             Statement of Ownership
         </button>
-        <button id="new-log" class="btn btn-default">
-            <span class="glyphicon glyphicon-play"></span>
+        <button id="new-log" class="btn btn-secondary">
+            <span class="oi oi-media-play"></span>
             PSA
         </button>
-        <button id="new-delay" class="btn btn-default">
-            <span class="glyphicon glyphicon-time"></span>
+        <button id="new-delay" class="btn btn-secondary">
+            <span class="oi oi-timer"></span>
             Underwriting
         </button>
-        <button id="new-delay" class="btn btn-default">
-            <span class="glyphicon glyphicon-time"></span>
+        <button id="new-delay" class="btn btn-secondary">
+            <span class="oi oi-timer"></span>
             Promo
         </button>
-        <button id="new-delay" class="btn btn-default">
-            <span class="glyphicon glyphicon-time"></span>
+        <button id="new-delay" class="btn btn-secondary">
+            <span class="oi oi-timer"></span>
             Weather
         </button>
     </div>
@@ -272,12 +264,12 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" aria-label="Close" data-dismiss="modal">
-                    <span aria-hidden="true">×</span>
-                </button>
                 <h4 class="modal-title" id="report_modal_label">
                     Report Track
                 </h4>
+                <button type="button" class="close" aria-label="Close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                </button>
             </div>
             <div class="modal-body">
                 <table class="table table-condensed">
@@ -301,7 +293,7 @@
                     </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-default" data-dismiss="modal">
+                <button class="btn btn-secondary" data-dismiss="modal">
                     Cancel
                 </button>
                 <button id="report_submit_btn" class="btn btn-primary">
@@ -314,6 +306,6 @@
 {% endblock %}
 {% block js %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/trackman.js', v=18) }}"></script>
+<script src="{{ url_for('static', filename='js/trackman.js', v=19) }}"></script>
 <script src="{{ url_for('trackman_private.log_js') }}"></script>
 {% endblock %}

@@ -1,13 +1,15 @@
 {% import "library/macros.html" as macros %}
 {% extends "admin/base.html" %}
 {% set page_title="Label: " + label %}
-{% block nav_admin_library %}<li class="active"><a href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}
+{% block nav_admin_library %}<li class="nav-item "><a class="nav-link active" href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}
 
 {% block content %}
-<ol class="breadcrumb">
-    <li><a href="{{ url_for('trackman_library.labels') }}">Library</a></li>
-    <li class="active">Label: {{ label }}</li>
-</ol>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('trackman_library.labels') }}">Library</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Label: {{ label }}</li>
+    </ol>
+</nav>
 
 <h1>Label: {{ label }}</h1>
 

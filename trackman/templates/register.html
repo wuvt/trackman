@@ -1,20 +1,16 @@
-{% import "macros.html" as macros %}
 {% extends "base.html" %}
 {% set page_title="DJ Registration" %}
+{% block nav_register %}<li class="nav-item"><a class="nav-link active" href="{{ url_for('trackman_private.register') }}">Register New DJ</a></li>{% endblock %}
 {% block content %}
 
 <div class="container">
-<h1>{{ trackman_name }}</h1>
-
-{{ macros.render_preshow_nav('register') }}
-
 <h2>DJ Registration</h2>
 
 <form method="post" class="form-horizontal" role="form">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
-    <div class="form-group{% if form.airname.errors|length > 0 %} has-error{% endif %}">
-        <label for="id_airname" class="col-sm-3 control-label">On-Air Name</label>
+    <div class="form-group row{% if form.airname.errors|length > 0 %} has-error{% endif %}">
+        <label for="id_airname" class="col-sm-3 col-form-label control-label">On-Air Name</label>
         <div class="col-sm-9">
             <input type="text" name="airname" id="id_airname"
                 value="{{ form.airname.data or "" }}" required="required"
@@ -25,8 +21,8 @@
         </div>
     </div>
 
-    <div class="form-group{% if form.name.errors|length > 0 %} has-error{% endif %}">
-        <label for="id_name" class="col-sm-3 control-label">Real Name</label>
+    <div class="form-group row{% if form.name.errors|length > 0 %} has-error{% endif %}">
+        <label for="id_name" class="col-sm-3 col-form-label control-label">Real Name</label>
         <div class="col-sm-9">
             <input type="text" name="name" id="id_name"
                 value="{{ form.name.data or "" }}" required="required"
@@ -37,8 +33,8 @@
         </div>
     </div>
 
-    <div class="form-group{% if form.email.errors|length > 0 %} has-error{% endif %}">
-        <label for="id_email" class="col-sm-3 control-label">Email Address</label>
+    <div class="form-group row{% if form.email.errors|length > 0 %} has-error{% endif %}">
+        <label for="id_email" class="col-sm-3 col-form-label control-label">Email Address</label>
         <div class="col-sm-9">
             <input type="text" name="email" id="id_email"
                 value="{{ form.email.data or "" }}" required="required"
@@ -49,8 +45,8 @@
         </div>
     </div>
 
-    <div class="form-group{% if form.phone.errors|length > 0 %} has-error{% endif %}">
-        <label for="id_phone" class="col-sm-3 control-label">Phone Number</label>
+    <div class="form-group row{% if form.phone.errors|length > 0 %} has-error{% endif %}">
+        <label for="id_phone" class="col-sm-3 col-form-label control-label">Phone Number</label>
         <div class="col-sm-9">
             <input type="text" name="phone" id="id_phone"
                 class="form-control" required="required"
@@ -63,8 +59,8 @@
         </div>
     </div>
 
-    <div class="form-group{% if form.genres.errors|length > 0 %} has-error{% endif %}">
-        <label for="id_genres" class="col-sm-3 control-label">Genres you can DJ</label>
+    <div class="form-group row{% if form.genres.errors|length > 0 %} has-error{% endif %}">
+        <label for="id_genres" class="col-sm-3 col-form-label control-label">Genres you can DJ</label>
         <div class="col-sm-9">
             <input type="text" name="genres" id="id_genres"
                  value="{{ form.genres.data or "" }}" required="required"
@@ -77,7 +73,7 @@
 
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">
-            <span class="glyphicon glyphicon-ok"></span>
+            <span class="oi oi-check"></span>
             Register DJ
         </button>
     </div>

@@ -2,8 +2,8 @@
 
 var timerlength = 30;
 
-var clockspan = "<span class='glyphicon glyphicon-time'></span>";
-var playlisttrue = "<span class='glyphicon glyphicon-ok green'></span>";
+var clockspan = "<span class='oi oi-timer'></span>";
+var playlisttrue = "<span class='oi oi-check green'></span>";
 var playlistfalse = "";
 
 // origin: 0 if newly entered, 1 if from history
@@ -847,16 +847,16 @@ Trackman.prototype.renderSearchRow = function(i, track) {
     var group = $('<div>');
     group.addClass('btn-group search-actions');
 
-    var btn1 = $("<button class='btn btn-default btn-sm search-queue' type='button' title='Add to the queue.'><span class='glyphicon glyphicon-plus blue'></span></button>");
+    var btn1 = $("<button class='btn btn-secondary btn-sm search-queue' type='button' title='Add to the queue.'><span class='oi oi-plus'></span></button>");
     group.append(btn1);
     
-    var btn2 = $("<button class='btn btn-default btn-sm search-log' type='button' title='Log this track now.'><span class='glyphicon glyphicon-play'></span></button>");
+    var btn2 = $("<button class='btn btn-secondary btn-sm search-log' type='button' title='Log this track now.'><span class='oi oi-media-play'></span></button>");
     group.append(btn2);
 
-    var btn3 = $("<button class='btn btn-default btn-sm search-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>");
+    var btn3 = $("<button class='btn btn-secondary btn-sm search-delay' type='button' title='Log this track in 30 seconds.'><span class='oi oi-timer'></span></button>");
     group.append(btn3);
 
-    var btn4 = $("<button class='btn btn-default btn-sm report' title='Report this track for editing'><span class='glyphicon glyphicon-flag'></span></button>");
+    var btn4 = $("<button class='btn btn-secondary btn-sm report' title='Report this track for editing'><span class='oi oi-flag'></span></button>");
     group.append(btn4);
 
     td.append(group);
@@ -970,12 +970,12 @@ Trackman.prototype.renderTrackRow = function(track, context) {
     if(context == 'playlist') {
         group.addClass('playlist-actions');
 
-        var editBtn = $("<button class='btn btn-default btn-sm playlist-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>");
+        var editBtn = $("<button class='btn btn-secondary btn-sm playlist-edit' title='Edit this track'><span class='oi oi-pencil'></span></button>");
         editBtn.bind('click', {'instance': this, 'context': 'playlist'},
                      this.inlineEditTrack);
         group.append(editBtn);
 
-        var reportBtn = $("<button class='btn btn-default btn-sm report' title='Report this track for editing'><span class='glyphicon glyphicon-flag'></span></button>");
+        var reportBtn = $("<button class='btn btn-secondary btn-sm report' title='Report this track for editing'><span class='oi oi-flag'></span></button>");
         reportBtn.bind('click', {'instance': this}, function(ev) {
             playlist_id = $(ev.target).parents("tr").prop("id").slice(1);
             tracklog = $.grep(playlist, function(e){ return e.tracklog_id == playlist_id;})[0];
@@ -984,7 +984,7 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         });
         group.append(reportBtn);
 
-        var deleteBtn = $("<button class='btn btn-danger btn-sm playlist-delete' title='Delete this track from playlist'><span class='glyphicon glyphicon-trash'></span></button>");
+        var deleteBtn = $("<button class='btn btn-danger btn-sm playlist-delete' title='Delete this track from playlist'><span class='oi oi-trash'></span></button>");
         deleteBtn.bind('click', {'instance': this}, function(ev) {
             ev.data.instance.deleteTrack(row);
         });
@@ -993,7 +993,7 @@ Trackman.prototype.renderTrackRow = function(track, context) {
     else if(context == 'queue') {
         group.addClass('queue-actions');
 
-        var logBtn = $("<button class='btn btn-default btn-sm queue-log' type='button' title='Log this track now!'><span class='glyphicon glyphicon-play'></span></button>");
+        var logBtn = $("<button class='btn btn-secondary btn-sm queue-log' type='button' title='Log this track now!'><span class='oi oi-media-play'></span></button>");
         logBtn.bind('click', {'instance': this}, function(ev) {
             ev.data.instance.logQueued(row);
             ev.data.instance.clearForm();
@@ -1001,7 +1001,7 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         });
         group.append(logBtn);
 
-        var logDelayBtn = $("<button class='btn btn-default btn-sm queue-delay' type='button' title='Log this track in 30 seconds.'><span class='glyphicon glyphicon-time'></span></button>");
+        var logDelayBtn = $("<button class='btn btn-secondary btn-sm queue-delay' type='button' title='Log this track in 30 seconds.'><span class='oi oi-timer'></span></button>");
         logDelayBtn.bind('click', {'instance': this}, function(ev) {
             var button = getParentIfSpan(ev.target);
             if(button.data('ticking') != true) {
@@ -1017,12 +1017,12 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         });
         group.append(logDelayBtn);
 
-        var editBtn = $("<button class='btn btn-default btn-sm queue-edit' title='Edit this track'><span class='glyphicon glyphicon-pencil'></span></button>");
+        var editBtn = $("<button class='btn btn-secondary btn-sm queue-edit' title='Edit this track'><span class='oi oi-pencil'></span></button>");
         editBtn.bind('click', {'instance': this, 'context': 'queue'},
                      this.inlineEditTrack);
         group.append(editBtn);
 
-        var deleteBtn = $("<button class='btn btn-danger btn-sm queue-delete' type='button' title='Delete this track from queue'><span class='glyphicon glyphicon-trash'></span></button>");
+        var deleteBtn = $("<button class='btn btn-danger btn-sm queue-delete' type='button' title='Delete this track from queue'><span class='oi oi-trash'></span></button>");
         deleteBtn.bind('click', {'instance': this}, function(ev) {
             ev.data.instance.removeFromQueue(row);
         });
@@ -1052,16 +1052,16 @@ Trackman.prototype.inlineEditTrack = function(ev) {
     }
 
     function startEditBtn(editBtn, cancelCallback) {
-        editBtn.removeClass('btn-default');
+        editBtn.removeClass('btn-secondary');
         editBtn.addClass('btn-success');
         editBtn.attr('title', "Save this track");
-        $('span.glyphicon', editBtn).removeClass('glyphicon-pencil');
-        $('span.glyphicon', editBtn).addClass('glyphicon-ok');
+        $('span.oi', editBtn).removeClass('oi-pencil');
+        $('span.oi', editBtn).addClass('oi-check');
 
         var cancelBtn = $('<button>');
-        cancelBtn.addClass('btn btn-default btn-sm cancel-edit');
+        cancelBtn.addClass('btn btn-secondary btn-sm cancel-edit');
         var cancelGlyph = $('<span>');
-        cancelGlyph.addClass('glyphicon glyphicon-remove');
+        cancelGlyph.addClass('oi oi-x');
         cancelBtn.html(cancelGlyph);
         editBtn.after(cancelBtn);
 
@@ -1279,7 +1279,7 @@ Trackman.prototype.initEventHandler = function() {
 };
 
 Trackman.prototype.adjustPanelHeights = function() {
-    var rowTableHeight = ($(window).height() - $('nav').height() - $('.trackman-entry').height() - 20 * 8) / 3 - $('#trackman_playlist_panel > .table:first-child').height();
+    var rowTableHeight = ($(window).height() - $('nav').height() - 2 - $('.trackman-metadata-reminder').height() - $('.trackman-entry').height() - 20 * 8) / 3 - $('#trackman_playlist_panel > .table:first-child').height();
 
     // enforce a minimum height of 50 pixels
     if(rowTableHeight < 50) {

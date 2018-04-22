@@ -1,7 +1,7 @@
 {% import "library/macros.html" as macros %}
 {% extends "admin/base.html" %}
 {% set page_title="DJs" %}
-{% block nav_admin_djs %}<li class="active"><a href="{{ url_for('admin.djs') }}">DJs</a></li>{% endblock %}
+{% block nav_admin_djs %}<li class="nav-item active"><a class="nav-link" href="{{ url_for('admin.djs') }}">DJs</a></li>{% endblock %}
 
 {% block content %}
 <h1>DJs</h1>
@@ -11,7 +11,7 @@
 <table class="table table-striped table-hover">
     <tr>
         <td colspan="4">
-            <a href="{{ url_for('admin.dj_add') }}" class="btn btn-default">Add DJ</a>
+            <a href="{{ url_for('admin.dj_add') }}" class="btn btn-secondary">Add DJ</a>
         </td>
     </tr>
     <tr>
@@ -26,13 +26,13 @@
         <td>{{ dj.time_added|datetime("%Y-%m-%d %H:%M:%S") }}</td>
         <td>{{ dj.visible }}</td>
         <td class="row-options">
-            <a href="{{ url_for('admin.dj_edit', id=dj.id) }}" class="btn btn-default btn-sm">Edit</a>
+            <a href="{{ url_for('admin.dj_edit', id=dj.id) }}" class="btn btn-secondary btn-sm">Edit</a>
         </td>
     </tr>
 {% endfor %}
     <tr>
         <td colspan="4">
-            <a href="{{ url_for('admin.dj_add') }}" class="btn btn-default">Add DJ</a>
+            <a href="{{ url_for('admin.dj_add') }}" class="btn btn-secondary">Add DJ</a>
         </td>
     </tr>
 </table>

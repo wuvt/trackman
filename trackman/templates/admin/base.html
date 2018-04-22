@@ -5,9 +5,9 @@
 
         <title>{% if page_title %}{{ page_title }} &ndash; {% endif %}{{ config.TRACKMAN_NAME }} Administration</title>
 
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" />
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap-theme.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css', v=3) }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='open-iconic/font/css/open-iconic-bootstrap.min.css') }}" />
 
         <link rel="shortcut icon"
             href="{{ url_for('static', filename='img/favicon.ico') }}" />
@@ -16,34 +16,31 @@
     </head>
     <body{% block bodyattrib %}{% endblock %}>
         {% block header %}
-        <nav class="navbar navbar-default">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#admin-top-navbar" aria-expanded="false">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-2">
+            <div class="container">
                 <a class="navbar-brand" href="{{ url_for('admin.index') }}">{{ config.TRACKMAN_NAME }} Admin</a>
-            </div>
-            <div class="collapse navbar-collapse" id="admin-top-navbar">
-                <ul class="nav navbar-nav">
-                    {% block nav_admin_index %}<li><a href="{{ url_for('admin.index') }}">Home</a></li>{% endblock %}
-                    {% if 'admin' in current_user_roles %}{% block nav_admin_roles %}<li><a href="{{ url_for('admin.roles') }}">Roles</a></li>{% endblock %}{% endif %}
-                    {% if 'admin' in current_user_roles %}{% block nav_admin_djs %}<li><a href="{{ url_for('admin.djs') }}">DJs</a></li>{% endblock %}{% endif %}
-                    {% if 'library' in current_user_roles %}{% block nav_admin_library %}<li><a href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}{% endif %}
-                    {% if 'library' in current_user_roles %}{% block nav_admin_reports %}<li><a href="{{ url_for('admin.reports') }}">Reports</a></li>{% endblock %}{% endif %}
-                </ul>
-                <form action="{{ url_for('auth.logout') }}" method="post" class="navbar-form navbar-right">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
-                    <button type="submit" class="btn btn-default">
-                        <span class="glyphicon glyphicon-log-out"></span>
-                        Logout
-                    </button>
-                </form>
-                <p class="navbar-text navbar-right">
-                    Logged in as {{ current_user.id_token.name }}
-                </p>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#admin-top-navbar" aria-controls="admin-top-navbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="admin-top-navbar">
+                    <ul class="nav navbar-nav">
+                        {% block nav_admin_index %}<li class="nav-item"><a class="nav-link" href="{{ url_for('admin.index') }}">Home</a></li>{% endblock %}
+                        {% if 'admin' in current_user_roles %}{% block nav_admin_roles %}<li class="nav-item"><a class="nav-link" href="{{ url_for('admin.roles') }}">Roles</a></li>{% endblock %}{% endif %}
+                        {% if 'admin' in current_user_roles %}{% block nav_admin_djs %}<li class="nav-item"><a class="nav-link" href="{{ url_for('admin.djs') }}">DJs</a></li>{% endblock %}{% endif %}
+                        {% if 'library' in current_user_roles %}{% block nav_admin_library %}<li class="nav-item"><a class="nav-link" href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}{% endif %}
+                        {% if 'library' in current_user_roles %}{% block nav_admin_reports %}<li class="nav-item"><a class="nav-link" href="{{ url_for('admin.reports') }}">Reports</a></li>{% endblock %}{% endif %}
+                    </ul>
+                    <span class="navbar-text ml-auto mr-sm-2">
+                        Logged in as {{ current_user.id_token.name }}
+                    </span>
+                    <form action="{{ url_for('auth.logout') }}" method="post" class="form-inline">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+                        <button type="submit" class="btn btn-outline-secondary">
+                            <span class="oi oi-account-logout"></span>
+                            Logout
+                        </button>
+                    </form>
+                </div>
             </div>
         </nav>
         {% endblock %}
@@ -62,7 +59,7 @@
 
 {% block js %}
 <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
-<script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 {% endblock %}
     </body>
 </html>

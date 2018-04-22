@@ -5,9 +5,9 @@
 
         <title>{% if page_title %}{{ page_title }} &ndash; {% endif %}{{ trackman_name }}</title>
 
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" />
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap-theme.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-slate.min.css') }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css', v=4) }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='open-iconic/font/css/open-iconic-bootstrap.min.css') }}" />
 
         <link rel="shortcut icon"
             href="{{ url_for('static', filename='img/favicon.ico') }}" />
@@ -16,6 +16,21 @@
     </head>
     <body{% block bodyattrib %}{% endblock %}>
 {% block header %}
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-2">
+            <div class="container">
+                <a class="navbar-brand" href="{{ url_for('trackman_private.login') }}">{{ config.TRACKMAN_NAME }}</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#trackman-top-navbar" aria-controls="trackman-top-navbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="trackman-top-navbar">
+                    <ul class="nav navbar-nav">
+                        {% block nav_login %}<li class="nav-item"><a class="nav-link" href="{{ url_for('trackman_private.login') }}">Home</a></li>{% endblock %}
+                        {% block nav_login_all %}<li class="nav-item"><a class="nav-link" href="{{ url_for('trackman_private.login_all') }}">All DJs</a></li>{% endblock %}
+                        {% block nav_register %}<li class="nav-item"><a class="nav-link" href="{{ url_for('trackman_private.register') }}">Register New DJ</a></li>{% endblock %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
 {% endblock %}
 
 <div class="container-fluid">
@@ -32,7 +47,7 @@
 
 {% block js %}
 <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
-<script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/global.js') }}"></script>
 {% endblock %}
     </body>
