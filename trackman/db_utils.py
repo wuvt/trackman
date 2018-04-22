@@ -2,7 +2,7 @@ from trackman import db
 from trackman.models import DJ, Rotation, Track
 
 
-def initdb(username, password):
+def initdb():
     db.create_all()
 
     dj = DJ("Automation", "Automation", False)
