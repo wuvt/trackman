@@ -5,7 +5,7 @@
 
         <title>{% if page_title %}{{ page_title }} &ndash; {% endif %}{{ trackman_name }}</title>
 
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-slate.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-darkly.min.css') }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css', v=4) }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='open-iconic/font/css/open-iconic-bootstrap.min.css') }}" />
 
@@ -16,7 +16,7 @@
     </head>
     <body{% block bodyattrib %}{% endblock %}>
 {% block header %}
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-2">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
             <div class="container">
                 <a class="navbar-brand" href="{{ url_for('trackman_private.login') }}">{{ config.TRACKMAN_NAME }}</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#trackman-top-navbar" aria-controls="trackman-top-navbar" aria-expanded="false" aria-label="Toggle navigation">

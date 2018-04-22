@@ -993,7 +993,7 @@ Trackman.prototype.renderTrackRow = function(track, context) {
     else if(context == 'queue') {
         group.addClass('queue-actions');
 
-        var logBtn = $("<button class='btn btn-secondary btn-sm queue-log' type='button' title='Log this track now!'><span class='oi oi-media-play'></span></button>");
+        var logBtn = $("<button class='btn btn-primary btn-sm queue-log' type='button' title='Log this track now!'><span class='oi oi-media-play'></span></button>");
         logBtn.bind('click', {'instance': this}, function(ev) {
             ev.data.instance.logQueued(row);
             ev.data.instance.clearForm();
@@ -1279,7 +1279,7 @@ Trackman.prototype.initEventHandler = function() {
 };
 
 Trackman.prototype.adjustPanelHeights = function() {
-    var rowTableHeight = ($(window).height() - $('nav').height() - 2 - $('.trackman-metadata-reminder').height() - $('.trackman-entry').height() - 20 * 8) / 3 - $('#trackman_playlist_panel > .table:first-child').height();
+    var rowTableHeight = ($(window).height() - $('nav').height() - $('.trackman-metadata-reminder').height() - $('.trackman-entry').height() - 20 * 8) / 3 - $('#trackman_playlist_panel > .table:first-child').height() - 10;
 
     // enforce a minimum height of 50 pixels
     if(rowTableHeight < 50) {
