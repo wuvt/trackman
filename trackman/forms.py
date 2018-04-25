@@ -163,3 +163,13 @@ class AirLogForm(FlaskForm):
     airtime = StringField('Air Time')
     logtype = IntegerField('Log Type', default=0)
     logid = IntegerField('Log ID', default=0)
+
+
+class RotationForm(FlaskForm):
+    rotation = StringField('Rotation', filters=[strip_field],
+                          validators=[validators.Length(min=1, max=255),
+                                      validators.DataRequired()])
+
+
+class RotationEditForm(FlaskForm):
+    visible = BooleanField('Visible', validators=[validators.Optional()])

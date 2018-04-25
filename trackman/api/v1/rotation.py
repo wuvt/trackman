@@ -19,7 +19,8 @@ class RotationList(TrackmanResource):
           description: The ID of an existing DJ
         """
         rotations = {}
-        for i in models.Rotation.query.order_by(models.Rotation.id).all():
+        for i in models.Rotation.query.filter_by(visible=True).order_by(
+                models.Rotation.id).all():
             rotations[i.id] = i.rotation
 
         return {

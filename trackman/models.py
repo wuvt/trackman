@@ -64,6 +64,7 @@ class Rotation(db.Model):
     __tablename__ = "rotation"
     id = db.Column(db.Integer, primary_key=True)
     rotation = db.Column(db.Unicode(255))
+    visible = db.Column(db.Boolean, default=True, nullable=False)
 
     def __init__(self, rotation):
         self.rotation = rotation
@@ -72,6 +73,7 @@ class Rotation(db.Model):
         return {
             'id': self.id,
             'rotation': self.rotation,
+            'visible': self.visible,
         }
 
 

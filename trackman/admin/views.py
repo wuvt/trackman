@@ -9,8 +9,9 @@ from trackman import auth_manager, db, format_datetime
 from trackman.auth import login_required
 from trackman.admin import bp
 from trackman.admin.auth import views as auth_views
-from trackman.forms import DJRegisterForm, DJAdminEditForm
-from trackman.models import DJ, TrackLog
+from trackman.forms import DJRegisterForm, DJAdminEditForm, RotationForm, \
+    RotationEditForm
+from trackman.models import DJ, Rotation, TrackLog
 
 
 @bp.route('/')
@@ -116,3 +117,52 @@ def reports_bmi():
         }
     else:
         return render_template('admin/reports_bmi.html')
+
+
+@bp.route('/rotations')
+@bp.route('/rotations/page<int:page>')
+@auth_manager.check_access('admin')
+def rotations(page=1):
+    rotations = Rotation.query.order_by(Rotation.rotation).paginate(
+        page, current_app.config['ARTISTS_PER_PAGE'])
+    return render_template('admin/rotations.html', rotations=rotations)
+
+
+@bp.route('/rotations/add', methods=['GET', 'POST'])
+@auth_manager.check_access('admin')
+def rotation_add():
+    form = RotationForm()
+    if form.validate_on_submit():
+        rotation = Rotation(form.rotation.data)
+        db.session.add(rotation)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
+
+        flash('Rotation added.')
+        return redirect(url_for('admin.rotations'), 303)
+
+    return render_template('admin/rotation_add.html', form=form)
+
+
+@bp.route('/rotations/<int:id>', methods=['GET', 'POST'])
+@auth_manager.check_access('admin')
+def rotation_edit(id):
+    rotation = Rotation.query.get_or_404(id)
+    form = RotationEditForm()
+
+    if form.validate_on_submit():
+        rotation.visible = form.visible.data
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
+
+        flash('Rotation edited.')
+        return redirect(url_for('admin.rotations'), 303)
+
+    return render_template('admin/rotation_edit.html', rotation=rotation,
+                           form=form)

@@ -25,10 +25,11 @@
                 <div class="collapse navbar-collapse" id="admin-top-navbar">
                     <ul class="nav navbar-nav">
                         {% block nav_admin_index %}<li class="nav-item"><a class="nav-link" href="{{ url_for('admin.index') }}">Home</a></li>{% endblock %}
-                        {% if 'admin' in current_user_roles %}{% block nav_admin_roles %}<li class="nav-item"><a class="nav-link" href="{{ url_for('admin.roles') }}">Roles</a></li>{% endblock %}{% endif %}
                         {% if 'admin' in current_user_roles %}{% block nav_admin_djs %}<li class="nav-item"><a class="nav-link" href="{{ url_for('admin.djs') }}">DJs</a></li>{% endblock %}{% endif %}
                         {% if 'library' in current_user_roles %}{% block nav_admin_library %}<li class="nav-item"><a class="nav-link" href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}{% endif %}
                         {% if 'library' in current_user_roles %}{% block nav_admin_reports %}<li class="nav-item"><a class="nav-link" href="{{ url_for('admin.reports') }}">Reports</a></li>{% endblock %}{% endif %}
+                        {% if 'admin' in current_user_roles %}{% block nav_admin_roles %}<li class="nav-item"><a class="nav-link" href="{{ url_for('admin.roles') }}">Roles</a></li>{% endblock %}{% endif %}
+                        {% if 'admin' in current_user_roles %}{% block nav_admin_rotations %}<li class="nav-item"><a class="nav-link" href="{{ url_for('admin.rotations') }}">Rotations</a></li>{% endblock %}{% endif %}
                     </ul>
                     <span class="navbar-text ml-auto mr-sm-2">
                         Logged in as {{ current_user.id_token.name }}

@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% set page_title="Add Rotation" %}
+{% block nav_admin_rotations %}<li class="nav-item active"><a class="nav-link" href="{{ url_for('admin.rotations') }}">Rotations</a></li>{% endblock %}
+
+{% block content %}
+<h1>Add Rotation</h1>
+
+<form method="post" class="form-horizontal" role="form">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+
+    <div class="form-group row{% if form.rotation.errors|length > 0 %} has-error{% endif %}">
+        <label for="id_rotation" class="col-sm-3 col-form-label control-label">Rotation</label>
+        <div class="col-sm-9">
+            <input type="text" name="rotation" id="id_rotation"
+                value="{{ form.rotation.data or "" }}" required="required"
+                class="form-control" />
+{% for error in form.rotation.errors %}
+            <div class="help-block">{{ error }}</div>
+{% endfor %}
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            <span class="oi oi-check"></span>
+            Add Rotation
+        </button>
+
+        <a href="{{ url_for('admin.rotations') }}" class="btn btn-secondary">
+            <span class="oi oi-x"></span>
+            Cancel
+        </a>
+    </div>
+</form>
+{% endblock %}
