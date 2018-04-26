@@ -1,6 +1,8 @@
 from flask import jsonify, render_template, request, send_from_directory
+import redis.exceptions
+import sqlalchemy.exc
 
-from . import app
+from . import app, db, redis_conn
 from .view_utils import IPAccessDeniedException, sse_response
 
 
@@ -55,6 +57,24 @@ def error500(error):
         return jsonify({'errors': "500 Internal Server Error"}), 500
 
     return send_from_directory(app.static_folder, '500.html'), 500
+
+
+@app.route('/healthz')
+def healthcheck():
+    try:
+        db_status = db.session.scalar(db.select([1]))
+    except sqlalchemy.exc.DBAPIError:
+        db_status = None
+
+    try:
+        redis_status = redis_conn.info()
+    except redis.exceptions.ConnectionError:
+        redis_status = None
+
+    if db_status is not None and redis_status is not None:
+        return "OK"
+    else:
+        return "fail", 500
 
 
 @app.route('/live')
