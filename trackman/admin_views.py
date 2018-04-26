@@ -6,11 +6,11 @@ from .blueprints import private_bp
 from .forms import DJRegisterForm, DJReactivateForm
 from .lib import enable_automation, renew_dj_lease
 from .models import DJ, DJSet
-from .view_utils import local_only, sse_response
+from .view_utils import dj_only, sse_response
 
 
 @private_bp.route('/', methods=['GET', 'POST'])
-@local_only
+@dj_only
 def login():
     if 'dj' in request.form and len(request.form['dj']) > 0:
         dj = DJ.query.get(request.form['dj'])
@@ -35,7 +35,7 @@ def login():
 
 
 @private_bp.route('/login/all', methods=['GET', 'POST'])
-@local_only
+@dj_only
 def login_all():
     if 'dj' in request.form and len(request.form['dj']) > 0:
         if int(request.form['dj']) == 1:
@@ -70,7 +70,7 @@ def login_all():
 
 
 @private_bp.route('/automation/start', methods=['POST'])
-@local_only
+@dj_only
 def start_automation():
     automation = redis_conn.get('automation_enabled') == b"true"
     if not automation:
@@ -85,7 +85,7 @@ def start_automation():
 
 
 @private_bp.route('/log')
-@local_only
+@dj_only
 def log():
     dj_id = session.get('dj_id', None)
     if dj_id is None:
@@ -110,7 +110,7 @@ def log():
 
 
 @private_bp.route('/js/log.js')
-@local_only
+@dj_only
 def log_js():
     dj_id = session.get('dj_id', None)
     if dj_id is None:
@@ -126,7 +126,7 @@ def log_js():
 
 
 @private_bp.route('/register', methods=['GET', 'POST'])
-@local_only
+@dj_only
 def register():
     form = DJRegisterForm()
     if form.is_submitted():
@@ -157,7 +157,7 @@ def register():
 
 
 @private_bp.route('/reactivate_dj', methods=['GET', 'POST'])
-@local_only
+@dj_only
 def reactivate_dj():
     dj_id = session.get('dj_id', None)
     if dj_id is None:
@@ -195,6 +195,6 @@ def reactivate_dj():
 
 
 @private_bp.route('/api/live')
-@local_only
+@dj_only
 def dj_live():
     return sse_response('trackman_dj_live')

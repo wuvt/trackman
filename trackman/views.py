@@ -46,7 +46,7 @@ def error403_ipaccess(error):
     if request.wants_json():
         return jsonify({'errors': "403 Forbidden"}), 403
 
-    return render_template('error403_ipaccess.html'), 403
+    return render_template('error403.html'), 403
 
 
 @app.errorhandler(500)

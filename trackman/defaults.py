@@ -50,4 +50,5 @@ AUTH_SUPERADMINS = []
 AUTH_ROLE_GROUPS = {
     'admin': ['webmasters'],
     'library': ['librarians'],
+    'dj': ['djs'],
 }
