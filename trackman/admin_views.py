@@ -2,10 +2,11 @@ from flask import current_app, flash, jsonify, render_template, \
         redirect, request, session, url_for, make_response, abort
 
 from . import db, redis_conn
+from .auth import current_user
 from .blueprints import private_bp
 from .forms import DJRegisterForm, DJReactivateForm
 from .lib import enable_automation, renew_dj_lease
-from .models import DJ, DJSet
+from .models import DJ, DJSet, DJClaim
 from .view_utils import dj_only, sse_response
 
 
@@ -13,6 +14,13 @@ from .view_utils import dj_only, sse_response
 @dj_only
 def login():
     if 'dj' in request.form and len(request.form['dj']) > 0:
+        if current_user.is_authenticated:
+            claim = DJClaim.query.join(DJ).filter(
+                DJ.id == request.form['dj'],
+                DJClaim.sub == current_user.sub).scalar()
+            if claim is None:
+                abort(403)
+
         dj = DJ.query.get(request.form['dj'])
 
         current_app.logger.warning(
@@ -28,9 +36,13 @@ def login():
 
     automation = redis_conn.get('automation_enabled') == b"true"
 
-    djs = DJ.query.filter(DJ.visible == True).order_by(DJ.airname).all()
+    if current_user.is_authenticated:
+        djs = DJ.query.join(DJ.claims).filter(DJClaim.sub == current_user.sub)
+    else:
+        djs = DJ.query.filter(DJ.id > 1, DJ.visible == True)
+
+    djs = djs.order_by(DJ.airname).all()
     return render_template('login.html',
-                           trackman_name=current_app.config['TRACKMAN_NAME'],
                            automation=automation, djs=djs)
 
 
@@ -41,6 +53,14 @@ def login_all():
         if int(request.form['dj']) == 1:
             # start automation if we selected DJ with ID 1
             return redirect(url_for('.start_automation'), 307)
+
+        if current_user.is_authenticated:
+            claim = DJClaim.query.join(DJ).filter(
+                DJ.id == request.form['dj'],
+                DJClaim.sub == current_user.sub).scalar()
+            if claim is None:
+                # TODO: start the DJ claim flow
+                abort(403)
 
         dj = DJ.query.get(request.form['dj'])
         dj.visible = True
@@ -63,9 +83,8 @@ def login_all():
 
     automation = redis_conn.get('automation_enabled') == b"true"
 
-    djs = DJ.query.order_by(DJ.airname).all()
+    djs = DJ.query.filter(DJ.id > 1).order_by(DJ.airname).all()
     return render_template('login_all.html',
-                           trackman_name=current_app.config['TRACKMAN_NAME'],
                            automation=automation, djs=djs)
 
 
@@ -105,7 +124,6 @@ def log():
     renew_dj_lease()
 
     return render_template('log.html',
-                           trackman_name=current_app.config['TRACKMAN_NAME'],
                            dj=dj)
 
 
@@ -119,7 +137,6 @@ def log_js():
     djset_id = session.get('djset_id', None)
 
     resp = make_response(render_template('log.js',
-                         trackman_name=current_app.config['TRACKMAN_NAME'],
                          dj_id=dj_id, djset_id=djset_id))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
     return resp
@@ -142,17 +159,25 @@ def register():
                 db.session.rollback()
                 raise
 
+            if current_user.is_authenticated:
+                claim = DJClaim(newdj.id, current_user.sub)
+                db.session.add(claim)
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
+
             if request.wants_json():
                 return jsonify(success=True)
             else:
-                flash("DJ added")
+                flash("DJ added.")
                 return redirect(url_for('.login'))
         elif request.wants_json():
             return jsonify(success=False, errors=form.errors)
 
     return render_template(
         'register.html',
-        trackman_name=current_app.config['TRACKMAN_NAME'],
         form=form)
 
 
@@ -189,7 +214,6 @@ def reactivate_dj():
 
     return render_template(
         'reactivate.html',
-        trackman_name=current_app.config['TRACKMAN_NAME'],
         form=form,
         dj=dj)
 
