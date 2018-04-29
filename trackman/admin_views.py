@@ -40,8 +40,10 @@ def login():
     automation = redis_conn.get('automation_enabled') == b"true"
 
     onair_djset_id = redis_conn.get('onair_djset_id')
-    if onair_djset_id is not None and int(onair_djset_id) > 1:
+    if onair_djset_id is not None:
         onair_djset = DJSet.query.get(int(onair_djset_id))
+        if onair_djset.dj_id <= 1:
+            onair_djset = None
     else:
         onair_djset = None
 
@@ -110,8 +112,10 @@ def login_all():
     automation = redis_conn.get('automation_enabled') == b"true"
 
     onair_djset_id = redis_conn.get('onair_djset_id')
-    if onair_djset_id is not None and int(onair_djset_id) > 1:
+    if onair_djset_id is not None:
         onair_djset = DJSet.query.get(int(onair_djset_id))
+        if onair_djset.dj_id <= 1:
+            onair_djset = None
     else:
         onair_djset = None
 
