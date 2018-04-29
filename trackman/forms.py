@@ -41,9 +41,14 @@ class DJRegisterForm(FlaskForm):
                         validators=[validators.Length(min=1, max=255),
                                     validators.Email(),
                                     validators.DataRequired()])
-    phone = StringField('Phone Number', filters=[strip_field],
-                        validators=[validators.Length(min=10, max=12),
-                                    validators.DataRequired()])
+    phone = StringField(
+        'Phone Number', filters=[strip_field],
+        validators=[validators.Length(min=10, max=12),
+                    validators.DataRequired(),
+                    validators.Regexp(
+                        r'^\d{3}\-\d{3}\-\d{4}$',
+                        message="Phone numbers must be of the form "
+                                "555-555-5555.")])
     genres = StringField('Genres you can DJ', filters=[strip_field],
                          validators=[validators.Length(min=1, max=255),
                                      validators.DataRequired()])
@@ -59,9 +64,14 @@ class DJReactivateForm(FlaskForm):
                         validators=[validators.Length(min=1, max=255),
                                     validators.Email(),
                                     validators.DataRequired()])
-    phone = StringField('Phone Number', filters=[strip_field],
-                        validators=[validators.Length(min=10, max=12),
-                                    validators.DataRequired()])
+    phone = StringField(
+        'Phone Number', filters=[strip_field],
+        validators=[validators.Length(min=10, max=12),
+                    validators.DataRequired(),
+                    validators.Regexp(
+                        r'^\d{3}\-\d{3}\-\d{4}$',
+                        message="Phone numbers must be of the form "
+                                "555-555-5555.")])
 
 
 class DJEditForm(FlaskForm):
@@ -70,9 +80,14 @@ class DJEditForm(FlaskForm):
                         validators=[validators.Length(min=1, max=255),
                                     validators.Email(),
                                     validators.Optional()])
-    phone = StringField('Phone Number', filters=[strip_field],
-                        validators=[validators.Length(min=10, max=12),
-                                    validators.Optional()])
+    phone = StringField(
+        'Phone Number', filters=[strip_field],
+        validators=[validators.Length(min=10, max=12),
+                    validators.Optional(),
+                    validators.Regexp(
+                        r'^\d{3}\-\d{3}\-\d{4}$',
+                        message="Phone numbers must be of the form "
+                                "555-555-5555.")])
 
 
 class DJAdminEditForm(FlaskForm):
@@ -86,9 +101,14 @@ class DJAdminEditForm(FlaskForm):
                         validators=[validators.Length(min=1, max=255),
                                     validators.Email(),
                                     validators.Optional()])
-    phone = StringField('Phone Number', filters=[strip_field],
-                        validators=[validators.Length(min=10, max=12),
-                                    validators.Optional()])
+    phone = StringField(
+        'Phone Number', filters=[strip_field],
+        validators=[validators.Length(min=10, max=12),
+                    validators.Optional(),
+                    validators.Regexp(
+                        r'^\d{3}\-\d{3}\-\d{4}$',
+                        message="Phone numbers must be of the form "
+                                "555-555-5555.")])
     genres = StringField('Genres you can DJ', filters=[strip_field],
                          validators=[validators.Length(min=1, max=255),
                                      validators.Optional()])
@@ -167,8 +187,8 @@ class AirLogForm(FlaskForm):
 
 class RotationForm(FlaskForm):
     rotation = StringField('Rotation', filters=[strip_field],
-                          validators=[validators.Length(min=1, max=255),
-                                      validators.DataRequired()])
+                           validators=[validators.Length(min=1, max=255),
+                                       validators.DataRequired()])
 
 
 class RotationEditForm(FlaskForm):
