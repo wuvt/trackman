@@ -9,7 +9,8 @@ import unidecode
 import urllib.parse
 from datetime import timedelta
 from urllib.parse import urljoin
-from . import app
+from . import app, auth_manager
+from .auth.utils import current_user, current_user_roles
 from .lib import perdelta, renew_dj_lease, check_onair
 
 
@@ -36,6 +37,22 @@ def local_only(f):
             raise IPAccessDeniedException()
         else:
             return f(*args, **kwargs)
+    return local_wrapper
+
+
+def dj_only(f):
+    auth_manager.all_roles.update(set('dj'))
+    internal_ipset = netaddr.IPSet(app.config['INTERNAL_IPS'])
+
+    @wraps(f)
+    def local_wrapper(*args, **kwargs):
+        if (current_user.is_authenticated and 'dj' in current_user_roles) or \
+                request.remote_addr in internal_ipset:
+            return f(*args, **kwargs)
+        elif not current_user.is_authenticated:
+            return auth_manager.unauthorized()
+        else:
+            abort(403)
     return local_wrapper
 
 

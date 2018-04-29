@@ -14,6 +14,8 @@ DJ_TIMEOUT = 30 * 60
 EXTENDED_DJ_TIMEOUT = 120 * 60
 NO_DJ_TIMEOUT = 5 * 60
 
+CLAIM_TOKEN_TIMEOUT = 86400
+
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_TIMEZONE = 'America/New_York'
@@ -50,4 +52,5 @@ AUTH_SUPERADMINS = []
 AUTH_ROLE_GROUPS = {
     'admin': ['webmasters'],
     'library': ['librarians'],
+    'dj': ['djs'],
 }

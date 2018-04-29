@@ -1,18 +1,29 @@
 from flask import current_app, flash, jsonify, render_template, \
         redirect, request, session, url_for, make_response, abort
+import datetime
+import hmac
 
 from . import db, redis_conn
+from .auth import current_user
 from .blueprints import private_bp
 from .forms import DJRegisterForm, DJReactivateForm
-from .lib import enable_automation, renew_dj_lease
-from .models import DJ, DJSet
-from .view_utils import local_only, sse_response
+from .lib import enable_automation, renew_dj_lease, generate_claim_token
+from .mail import send_claim_email
+from .models import DJ, DJSet, DJClaim, DJClaimToken
+from .view_utils import dj_only, sse_response
 
 
 @private_bp.route('/', methods=['GET', 'POST'])
-@local_only
+@dj_only
 def login():
     if 'dj' in request.form and len(request.form['dj']) > 0:
+        if current_user.is_authenticated:
+            claim = DJClaim.query.join(DJ).filter(
+                DJ.id == request.form['dj'],
+                DJClaim.sub == current_user.sub).scalar()
+            if claim is None:
+                abort(403)
+
         dj = DJ.query.get(request.form['dj'])
 
         current_app.logger.warning(
@@ -28,19 +39,47 @@ def login():
 
     automation = redis_conn.get('automation_enabled') == b"true"
 
-    djs = DJ.query.filter(DJ.visible == True).order_by(DJ.airname).all()
+    if current_user.is_authenticated:
+        djs = DJ.query.join(DJ.claims).filter(DJClaim.sub == current_user.sub)
+    else:
+        djs = DJ.query.filter(DJ.id > 1, DJ.visible == True)
+
+    djs = djs.order_by(DJ.airname).all()
     return render_template('login.html',
-                           trackman_name=current_app.config['TRACKMAN_NAME'],
                            automation=automation, djs=djs)
 
 
 @private_bp.route('/login/all', methods=['GET', 'POST'])
-@local_only
+@dj_only
 def login_all():
     if 'dj' in request.form and len(request.form['dj']) > 0:
         if int(request.form['dj']) == 1:
             # start automation if we selected DJ with ID 1
             return redirect(url_for('.start_automation'), 307)
+
+        if current_user.is_authenticated:
+            claim = DJClaim.query.join(DJ).filter(
+                DJ.id == request.form['dj'],
+                DJClaim.sub == current_user.sub).scalar()
+            if claim is None:
+                # start the DJ claim flow
+                dj = DJ.query.get(int(request.form['dj']))
+                token = generate_claim_token()
+
+                claim_token = DJClaimToken(
+                    dj.id, current_user.sub, dj.email, token)
+                db.session.add(claim_token)
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
+
+                send_claim_email(claim_token, request.remote_addr)
+                flash("An email with information on how to complete the "
+                      "claim process has been sent to the address associated "
+                      "with that DJ.")
+                return redirect(url_for('.login'))
 
         dj = DJ.query.get(request.form['dj'])
         dj.visible = True
@@ -63,14 +102,13 @@ def login_all():
 
     automation = redis_conn.get('automation_enabled') == b"true"
 
-    djs = DJ.query.order_by(DJ.airname).all()
+    djs = DJ.query.filter(DJ.id > 1).order_by(DJ.airname).all()
     return render_template('login_all.html',
-                           trackman_name=current_app.config['TRACKMAN_NAME'],
                            automation=automation, djs=djs)
 
 
 @private_bp.route('/automation/start', methods=['POST'])
-@local_only
+@dj_only
 def start_automation():
     automation = redis_conn.get('automation_enabled') == b"true"
     if not automation:
@@ -85,7 +123,7 @@ def start_automation():
 
 
 @private_bp.route('/log')
-@local_only
+@dj_only
 def log():
     dj_id = session.get('dj_id', None)
     if dj_id is None:
@@ -105,12 +143,11 @@ def log():
     renew_dj_lease()
 
     return render_template('log.html',
-                           trackman_name=current_app.config['TRACKMAN_NAME'],
                            dj=dj)
 
 
 @private_bp.route('/js/log.js')
-@local_only
+@dj_only
 def log_js():
     dj_id = session.get('dj_id', None)
     if dj_id is None:
@@ -119,16 +156,20 @@ def log_js():
     djset_id = session.get('djset_id', None)
 
     resp = make_response(render_template('log.js',
-                         trackman_name=current_app.config['TRACKMAN_NAME'],
                          dj_id=dj_id, djset_id=djset_id))
     resp.headers['Content-Type'] = "application/javascript; charset=utf-8"
     return resp
 
 
 @private_bp.route('/register', methods=['GET', 'POST'])
-@local_only
+@dj_only
 def register():
     form = DJRegisterForm()
+
+    if current_user.is_authenticated:
+        form.name.default = current_user.id_token['name']
+        form.email.default = current_user.id_token['email']
+
     if form.is_submitted():
         if form.validate():
             newdj = DJ(form.airname.data, form.name.data)
@@ -142,22 +183,30 @@ def register():
                 db.session.rollback()
                 raise
 
+            if current_user.is_authenticated:
+                claim = DJClaim(newdj.id, current_user.sub)
+                db.session.add(claim)
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
+
             if request.wants_json():
                 return jsonify(success=True)
             else:
-                flash("DJ added")
+                flash("DJ added.")
                 return redirect(url_for('.login'))
         elif request.wants_json():
             return jsonify(success=False, errors=form.errors)
 
     return render_template(
         'register.html',
-        trackman_name=current_app.config['TRACKMAN_NAME'],
         form=form)
 
 
 @private_bp.route('/reactivate_dj', methods=['GET', 'POST'])
-@local_only
+@dj_only
 def reactivate_dj():
     dj_id = session.get('dj_id', None)
     if dj_id is None:
@@ -189,12 +238,32 @@ def reactivate_dj():
 
     return render_template(
         'reactivate.html',
-        trackman_name=current_app.config['TRACKMAN_NAME'],
         form=form,
         dj=dj)
 
 
+@private_bp.route('/confirm_claim/<int:id>/<string:token>')
+@dj_only
+def confirm_claim(id, token):
+    claim_token = DJClaimToken.query.get_or_404(id)
+    cutoff = datetime.datetime.utcnow() - datetime.timedelta(
+        seconds=current_app.config['CLAIM_TOKEN_TIMEOUT'])
+
+    if claim_token.request_date >= cutoff and \
+            claim_token.sub == current_user.sub and \
+            hmac.compare_digest(claim_token.token, token):
+        claim = DJClaim(claim_token.dj_id, claim_token.sub)
+        db.session.add(claim)
+        db.session.delete(claim_token)
+        db.session.commit()
+
+        flash("DJ claimed.")
+        return redirect(url_for('.login'))
+    else:
+        return render_template('dj_claim_error.html'), 403
+
+
 @private_bp.route('/api/live')
-@local_only
+@dj_only
 def dj_live():
     return sse_response('trackman_dj_live')

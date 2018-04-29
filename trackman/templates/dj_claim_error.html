@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% set page_title="Claim Error" %}
+{% block content %}
+<div class="container">
+    <h2>Claim Error</h2>
+
+    <p>Unfortunately, your claim request could not be processed. The
+    confirmation link may have expired, or you may be logged in as a different
+    user than the one who initiated the claim.</p>
+
+    <p>Please try again. If you continue to run into issues, please contact the
+    {{ config.TRACKMAN_NAME }} administrators.</p>
+</div>
+{% endblock %}

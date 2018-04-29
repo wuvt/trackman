@@ -60,6 +60,35 @@ class DJSet(db.Model):
         }
 
 
+class DJClaim(db.Model):
+    __tablename__ = "dj_claim"
+    id = db.Column(db.Integer, primary_key=True)
+    dj_id = db.Column(db.Integer, db.ForeignKey('dj.id'))
+    dj = db.relationship('DJ', backref=db.backref('claims', lazy='dynamic'))
+    sub = db.Column(db.Unicode(255), nullable=False)
+
+    def __init__(self, dj_id, sub):
+        self.dj_id = dj_id
+        self.sub = sub
+
+
+class DJClaimToken(db.Model):
+    __tablename__ = "dj_claim_token"
+    id = db.Column(db.Integer, primary_key=True)
+    dj_id = db.Column(db.Integer, db.ForeignKey('dj.id'))
+    dj = db.relationship('DJ', backref=db.backref('claim_tokens', lazy='dynamic'))
+    sub = db.Column(db.Unicode(255), nullable=False)
+    email = db.Column(db.Unicode(255))
+    token = db.Column(db.Unicode(255))
+    request_date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+    def __init__(self, dj_id, sub, email, token):
+        self.dj_id = dj_id
+        self.sub = sub
+        self.email = email
+        self.token = token
+
+
 class Rotation(db.Model):
     __tablename__ = "rotation"
     id = db.Column(db.Integer, primary_key=True)

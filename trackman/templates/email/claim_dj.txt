@@ -1,0 +1,16 @@
+Hello {{ claim_token.dj.airname }},
+
+Someone recently submitted a request to claim this DJ and associate it with
+their user account. This will allow them to log tracks using this DJ. If this
+was you, please confirm this request by clicking the following link:
+
+{{ confirm_url }}
+
+If this was NOT you, please ignore this email. No changes will be made, and the
+request will automatically expire.
+
+Time of request: {{ claim_token.request_date|datetime }}
+IP address: {{ remote_addr }}
+
+If you have any questions or concerns regarding this request, please reach out
+to the {{ config.TRACKMAN_NAME }} administrators.

@@ -25,8 +25,8 @@
         <label for="id_name" class="col-sm-3 col-form-label control-label">Real Name</label>
         <div class="col-sm-9">
             <input type="text" name="name" id="id_name"
-                value="{{ form.name.data or "" }}" required="required"
-                class="form-control" />
+                value="{{ form.name.data or form.name.default or "" }}"
+                required="required" class="form-control" />
 {% for error in form.name.errors %}
             <div class="help-block">{{ error }}</div>
 {% endfor %}
@@ -37,8 +37,8 @@
         <label for="id_email" class="col-sm-3 col-form-label control-label">Email Address</label>
         <div class="col-sm-9">
             <input type="text" name="email" id="id_email"
-                value="{{ form.email.data or "" }}" required="required"
-                class="form-control" />
+                value="{{ form.email.data or form.email.default or "" }}"
+                required="required" class="form-control" />
 {% for error in form.email.errors %}
             <div class="help-block">{{ error }}</div>
 {% endfor %}

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
 
-        <title>{% if page_title %}{{ page_title }} &ndash; {% endif %}{{ trackman_name }}</title>
+        <title>{% if page_title %}{{ page_title }} &ndash; {% endif %}{{ config.TRACKMAN_NAME }}</title>
 
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-darkly.min.css') }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css', v=4) }}" />
@@ -28,19 +28,34 @@
                         {% block nav_login_all %}<li class="nav-item"><a class="nav-link" href="{{ url_for('trackman_private.login_all') }}">All DJs</a></li>{% endblock %}
                         {% block nav_register %}<li class="nav-item"><a class="nav-link" href="{{ url_for('trackman_private.register') }}">Register New DJ</a></li>{% endblock %}
                     </ul>
+
+{% if current_user.is_authenticated %}
+                    <span class="navbar-text ml-auto mr-sm-2">
+                        Logged in as {{ current_user.id_token.name }}
+                    </span>
+                    <form action="{{ url_for('auth.logout') }}" method="post" class="form-inline">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+                        <button type="submit" class="btn btn-outline-secondary">
+                            <span class="oi oi-account-logout"></span>
+                            Logout
+                        </button>
+                    </form>
+{% endif %}
                 </div>
             </div>
         </nav>
 {% endblock %}
 
-<div class="container-fluid">
+<div class="container">
     {% for msg in get_flashed_messages() %}
     <div class="alert alert-info">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         {{ msg }}
     </div>
     {% endfor %}
+</div>
 
+<div class="container-fluid">
 {% block content %}
 {% endblock %}
 </div>

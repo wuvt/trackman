@@ -3,10 +3,10 @@ from flask_restful import abort
 from trackman import db, models
 from trackman.forms import TrackAddForm
 from trackman.lib import find_or_add_track
-from .base import TrackmanResource, TrackmanStudioResource
+from .base import TrackmanResource, TrackmanDJResource
 
 
-class Track(TrackmanStudioResource):
+class Track(TrackmanDJResource):
     def get(self, track_id):
         """
         Get information about a Track
