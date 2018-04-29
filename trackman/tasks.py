@@ -3,7 +3,7 @@ from celery.task.schedules import crontab
 from datetime import timedelta
 from flask import json
 
-from . import app, redis_conn, lib
+from . import app, auth_manager, redis_conn, lib
 from .celeryconfig import make_celery
 
 celery = make_celery(app)
@@ -66,3 +66,10 @@ def publish_keepalive():
         redis_conn.publish('trackman_dj_live', json.dumps({
             'event': "keepalive",
         }))
+
+
+@periodic_task(run_every=crontab(hour=1, minute=0))
+def cleanup_sessions_and_claim_tokens():
+    with app.app_context():
+        auth_manager.cleanup_expired_sessions()
+        lib.cleanup_expired_claim_tokens()

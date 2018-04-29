@@ -7,7 +7,7 @@ from flask import current_app, json
 from redis_lock import Lock
 
 from . import db, redis_conn, mail, playlists_cache
-from .models import AirLog, Track, TrackLog, DJ, DJSet
+from .models import AirLog, Track, TrackLog, DJ, DJClaimToken, DJSet
 
 
 def get_duplicates(model, attrs, ignore_case=False):
@@ -451,3 +451,12 @@ def check_onair(djset_id):
 
 def generate_claim_token():
     return base64.urlsafe_b64encode(os.urandom(64)).decode('ascii')
+
+
+def cleanup_expired_claim_tokens():
+    cutoff = datetime.utcnow() - timedelta(
+        seconds=current_app.config['CLAIM_TOKEN_TIMEOUT'])
+    tokens = DJClaimToken.query.filter(DJClaimToken.request_date <= cutoff)
+    for token in tokens:
+        db.session.delete(token)
+    db.session.commit()
