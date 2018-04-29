@@ -1,4 +1,6 @@
+import base64
 import requests
+import os
 import urllib.parse
 from datetime import datetime, timedelta
 from flask import current_app, json
@@ -445,3 +447,7 @@ def check_onair(djset_id):
         return djset_id == int(onair_djset_id)
     else:
         return False
+
+
+def generate_claim_token():
+    return base64.urlsafe_b64encode(os.urandom(64)).decode('ascii')
