@@ -39,6 +39,12 @@ def login():
 
     automation = redis_conn.get('automation_enabled') == b"true"
 
+    onair_djset_id = redis_conn.get('onair_djset_id')
+    if onair_djset_id is not None:
+        onair_djset = DJSet.query.get(int(onair_djset_id))
+    else:
+        onair_djset = None
+
     if current_user.is_authenticated:
         djs = DJ.query.join(DJ.claims).filter(DJClaim.sub == current_user.sub)
     else:
@@ -46,7 +52,8 @@ def login():
 
     djs = djs.order_by(DJ.airname).all()
     return render_template('login.html',
-                           automation=automation, djs=djs)
+                           automation=automation, onair_djset=onair_djset,
+                           djs=djs)
 
 
 @private_bp.route('/login/all', methods=['GET', 'POST'])
@@ -102,9 +109,16 @@ def login_all():
 
     automation = redis_conn.get('automation_enabled') == b"true"
 
+    onair_djset_id = redis_conn.get('onair_djset_id')
+    if onair_djset_id is not None:
+        onair_djset = DJSet.query.get(int(onair_djset_id))
+    else:
+        onair_djset = None
+
     djs = DJ.query.filter(DJ.id > 1).order_by(DJ.airname).all()
     return render_template('login_all.html',
-                           automation=automation, djs=djs)
+                           automation=automation, onair_djset=onair_djset,
+                           djs=djs)
 
 
 @private_bp.route('/automation/start', methods=['POST'])

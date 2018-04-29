@@ -5,6 +5,15 @@
 <div class="container">
 <h2>DJ Login: All DJs</h2>
 
+{% if onair_djset is not none %}
+<div class="alert alert-warning" role="alert">
+    <h4 class="alert-heading">DJ On Air</h4>
+    <p class="mb-0"><strong>{{ onair_djset.dj.airname }}</strong> is currently
+    on air. If you login as another DJ and start logging tracks, they will be
+    logged out.</p>
+</div>
+{% endif %}
+
 <form method="post">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
 
