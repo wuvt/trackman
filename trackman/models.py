@@ -158,6 +158,10 @@ class TrackLog(db.Model):
     rotation = db.relationship('Rotation', backref=db.backref('tracks', lazy='dynamic'))
     # This should be recorded at the start of the song probably
     listeners = db.Column(db.Integer)
+    title = db.Column(db.Unicode(500).with_variant(db.Unicode, 'postgresql'))
+    artist = db.Column(db.Unicode(255).with_variant(db.Unicode, 'postgresql'), index=True)
+    album = db.Column(db.Unicode(255).with_variant(db.Unicode, 'postgresql'))
+    label = db.Column(db.Unicode(255).with_variant(db.Unicode, 'postgresql'))
 
     def __init__(self, track_id, djset_id, request=False, vinyl=False, new=False, rotation=None, listeners=0):
         self.track_id = track_id

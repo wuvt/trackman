@@ -160,7 +160,7 @@ def stream_listeners(url, mounts=None, timeout=5):
 
 
 def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
-              rotation=None):
+              rotation=None, track=None):
     tracklog = TrackLog(
         track_id,
         djset_id,
@@ -170,6 +170,13 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
         rotation=rotation,
         listeners=stream_listeners(current_app.config['ICECAST_URL'],
                                    current_app.config['ICECAST_MOUNTS']))
+
+    if track is not None:
+        tracklog.artist = track.artist
+        tracklog.title = track.title
+        tracklog.album = track.album
+        tracklog.label = track.label
+
     db.session.add(tracklog)
 
     try:

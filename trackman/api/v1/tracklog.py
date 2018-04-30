@@ -231,7 +231,8 @@ class TrackLogList(TrackmanOnAirResource):
                              request=form.request.data,
                              vinyl=form.vinyl.data,
                              new=form.new.data,
-                             rotation=rotation)
+                             rotation=rotation,
+                             track=track)
 
         return {
             'success': True,
