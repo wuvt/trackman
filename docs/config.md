@@ -3,7 +3,6 @@
 * `REDIS_URL` - URL to Redis instance used for key-value storage and cache
 * `ARTISTS_PER_PAGE` - Number of items to display per page in artist-style listings
 * `STATION_NAME` - Name of the station
-* `STATION_URL` - Website of the station
 * `DJ_TIMEOUT` - Session timeout used when a DJ is logged in
 * `EXTENDED_DJ_TIMEOUT` - Session timeout used for "let me play longer songs"
 * `NO_DJ_TIMEOUT` - Session timeout used when no DJ is active (i.e. to start automation)
