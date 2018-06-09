@@ -56,18 +56,6 @@ def autologout_check():
                 lib.enable_automation()
 
 
-@periodic_task(run_every=timedelta(seconds=55))
-def publish_keepalive():
-    with app.app_context():
-        redis_conn.publish('trackman_live', json.dumps({
-            'event': "keepalive",
-        }))
-
-        redis_conn.publish('trackman_dj_live', json.dumps({
-            'event': "keepalive",
-        }))
-
-
 @periodic_task(run_every=crontab(hour=1, minute=0))
 def cleanup_sessions_and_claim_tokens():
     with app.app_context():

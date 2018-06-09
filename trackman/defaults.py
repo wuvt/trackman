@@ -2,7 +2,7 @@ DEBUG = False
 # SESSION_COOKIE_SECURE = True
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-REDIS_URL = 'redis://localhost:6379/0'
+REDIS_URL = 'redis://redis:6379/0'
 
 ARTISTS_PER_PAGE = 500
 
@@ -54,3 +54,8 @@ AUTH_ROLE_GROUPS = {
     'library': ['librarians'],
     'dj': ['djs'],
 }
+
+PUBSUB_PUB_URL_PUBLIC = "http://nchan/pub"
+PUBSUB_SUB_URL_PUBLIC = "http://localhost:9075/sub"
+PUBSUB_PUB_URL_DJ = "http://nchan/dj/pub"
+PUBSUB_SUB_URL_DJ = "http://localhost:9075/dj/sub"

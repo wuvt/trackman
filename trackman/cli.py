@@ -1,7 +1,7 @@
 import click
 import os
 from flask import json
-from . import app, db_utils, lib, redis_conn
+from . import app, db_utils, lib, pubsub
 
 
 @app.cli.command()
@@ -75,8 +75,11 @@ def cleanup_dj_list():
 @click.option('--message', prompt=True)
 def send_message(message):
     """Send a message to the current DJ."""
-    r = redis_conn.publish('trackman_dj_live', json.dumps({
-        'event': "message",
-        'data': message,
-    }))
-    click.echo("Message delivered to {0} clients".format(r))
+    result = pubsub.publish(
+        app.config['PUBSUB_PUB_URL_DJ'],
+        message={
+            'event': "message",
+            'data': message,
+        })
+    click.echo("Message delivered to {0} clients".format(
+        result['subscribers']))
