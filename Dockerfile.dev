@@ -37,4 +37,4 @@ RUN chown www-data:www-data trackman . && \
 
 EXPOSE 8080
 ENTRYPOINT ["/usr/src/app/entrypoint-dev.sh"]
-CMD ["uwsgi" , "--ini", "uwsgi_docker.ini:dev"]
+CMD ["uwsgi" , "--ini", "uwsgi.ini:dev"]

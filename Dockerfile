@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # copy application
 ADD migrations /usr/src/app/migrations
 ADD trackman /usr/src/app/trackman
-COPY LICENSE README.md uwsgi_docker.ini setup.py /usr/src/app/
+COPY LICENSE README.md uwsgi.ini setup.py /usr/src/app/
 
 VOLUME ["/data/config", "/data/media", "/data/ssl"]
 
@@ -31,4 +31,4 @@ ENV PYTHONPATH /usr/src/app
 ENV FLASK_APP trackman
 ENV APP_CONFIG_PATH /data/config/config.json
 
-CMD ["uwsgi", "--ini", "uwsgi_docker.ini"]
+CMD ["uwsgi", "--ini", "uwsgi.ini"]
