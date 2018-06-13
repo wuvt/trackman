@@ -189,7 +189,7 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
 
     playlists_cache.clear()
     pubsub.publish(
-        current_app.config['PUBSUB_PUB_URL_PUBLIC'],
+        current_app.config['PUBSUB_PUB_URL_ALL'],
         message={
             'event': "track_change",
             'tracklog': tracklog.full_serialize(),
@@ -238,7 +238,7 @@ def fixup_current_track(event="track_edit"):
 
     playlists_cache.clear()
     pubsub.publish(
-        current_app.config['PUBSUB_PUB_URL_PUBLIC'],
+        current_app.config['PUBSUB_PUB_URL_ALL'],
         message={
             'event': event,
             'tracklog': tracklog.full_serialize(),
