@@ -80,4 +80,6 @@ def healthcheck():
 
 @app.route('/live')
 def live():
-    return redirect(app.config['PUBSUB_SUB_URL_PUBLIC'], 307)
+    resp = redirect(app.config['PUBSUB_SUB_URL_ALL'], 307)
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
