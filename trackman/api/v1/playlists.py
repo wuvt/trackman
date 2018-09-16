@@ -123,6 +123,26 @@ class PlaylistsByDateRange(Resource):
         }
 
 
+class PlaylistsTrackLogsByDateRange(Resource):
+    def get(self):
+        try:
+            start = datetime.datetime.strptime(request.args['start'],
+                                               "%Y-%m-%dT%H:%M:%S.%fZ")
+            end = datetime.datetime.strptime(request.args['end'],
+                                             "%Y-%m-%dT%H:%M:%S.%fZ")
+        except ValueError:
+            abort(400)
+
+        tracklogs = TrackLog.query.\
+            filter(TrackLog.played >= start, TrackLog.played <= end).\
+            order_by(db.desc(TrackLog.id)).\
+            limit(300).all()
+
+        return {
+            'tracklogs': [t.api_serialize() for t in tracklogs],
+        }
+
+
 class PlaylistDJs(PlaylistResource):
     def get(self):
         """
