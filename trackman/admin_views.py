@@ -1,5 +1,5 @@
 from flask import current_app, flash, jsonify, render_template, \
-        redirect, request, session, url_for, make_response, abort
+        redirect, request, session, url_for, make_response, abort, Response
 import datetime
 import hmac
 
@@ -284,4 +284,6 @@ def confirm_claim(id, token):
 @private_bp.route('/api/live')
 @dj_only
 def dj_live():
-    return redirect(current_app.config['PUBSUB_SUB_URL_DJ'], 307)
+    resp = Response()
+    resp.headers['X-Accel-Redirect'] = "/_pubsub/dj/sub"
+    return resp

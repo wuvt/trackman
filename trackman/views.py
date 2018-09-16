@@ -1,5 +1,5 @@
 from flask import jsonify, redirect, render_template, request, \
-        send_from_directory
+        send_from_directory, Response
 import redis.exceptions
 import sqlalchemy.exc
 
@@ -80,6 +80,7 @@ def healthcheck():
 
 @app.route('/live')
 def live():
-    resp = redirect(app.config['PUBSUB_SUB_URL_ALL'], 307)
+    resp = Response()
+    resp.headers['X-Accel-Redirect'] = "/_pubsub/sub"
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp

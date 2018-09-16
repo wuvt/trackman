@@ -55,7 +55,5 @@ AUTH_ROLE_GROUPS = {
     'dj': ['djs'],
 }
 
-PUBSUB_PUB_URL_ALL = "http://nchan:8080/pub"
-PUBSUB_SUB_URL_ALL = "http://localhost:9075/sub"
-PUBSUB_PUB_URL_DJ = "http://nchan:8080/dj/pub"
-PUBSUB_SUB_URL_DJ = "http://localhost:9075/dj/sub"
+PUBSUB_PUB_URL_ALL = "http://nginx:8080/pub"
+PUBSUB_PUB_URL_DJ = "http://nginx:8080/dj/pub"
