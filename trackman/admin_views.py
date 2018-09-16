@@ -285,5 +285,6 @@ def confirm_claim(id, token):
 @dj_only
 def dj_live():
     resp = Response()
+    resp.headers['X-Accel-Buffering'] = "no"
     resp.headers['X-Accel-Redirect'] = "/_pubsub/dj/sub"
     return resp

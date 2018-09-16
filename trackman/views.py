@@ -81,5 +81,6 @@ def healthcheck():
 @app.route('/live')
 def live():
     resp = Response()
+    resp.headers['X-Accel-Buffering'] = "no"
     resp.headers['X-Accel-Redirect'] = "/_pubsub/sub"
     return resp
