@@ -12,6 +12,7 @@ services:
     external_links:
     - postgres
     depends_on:
+    - mailhog
     - redis
   nginx:
     image: meroje/alpine-nchan:1.1.15
@@ -29,3 +30,7 @@ services:
     image: redis:4-alpine
     expose:
      - "6379"
+  mailhog:
+    image: mailhog/mailhog:v1.0.0
+    ports:
+    - "9025:8025"

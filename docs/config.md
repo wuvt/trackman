@@ -21,6 +21,7 @@
 * `ADMINS` - List of email addresses that will receive error emails
 * `MAIL_FROM` - Email address used for sending email
 * `SMTP_SERVER` - SMTP server used for sending email
+* `SMTP_PORT` - SMTP port used for sending email
 * `CHART_MAIL` - Boolean indicating whether or not charts are enabled
 * `CHART_MAIL_DEST` - Email address that will receive charts
 * `PROXY_FIX` - Boolean indicating whether or not to process X-Forwarded-For headers

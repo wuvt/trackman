@@ -139,7 +139,7 @@ else:
     from logging.handlers import SMTPHandler, SysLogHandler
 
     mail_handler = SMTPHandler(
-        app.config['SMTP_SERVER'],
+        (app.config['SMTP_SERVER'], app.config['SMTP_PORT']),
         app.config['MAIL_FROM'],
         app.config['ADMINS'],
         "[{}] Website error".format(app.config['STATION_NAME']))

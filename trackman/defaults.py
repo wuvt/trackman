@@ -38,7 +38,8 @@ MUSICBRAINZ_RATE_LIMIT = 1.0
 
 ADMINS = []
 MAIL_FROM = "noreply@localhost"
-SMTP_SERVER = "localhost"
+SMTP_SERVER = "mailhog"
+SMTP_PORT = 1025
 CHART_MAIL = False
 CHART_MAIL_DEST = "charts@localhost"
 
