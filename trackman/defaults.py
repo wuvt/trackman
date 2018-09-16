@@ -36,7 +36,6 @@ ARCHIVE_URL_FORMAT = ""
 MUSICBRAINZ_HOSTNAME = "musicbrainz.org"
 MUSICBRAINZ_RATE_LIMIT = 1.0
 
-ADMINS = []
 MAIL_FROM = "noreply@localhost"
 SMTP_SERVER = "mailhog"
 SMTP_PORT = 1025

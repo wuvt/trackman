@@ -18,7 +18,6 @@
 * `ARCHIVE_URL_FORMAT` - URL format used to generate URLs to archived tracks
 * `MUSICBRAINZ_HOSTNAME` - Hostname to use for MusicBrainz API
 * `MUSICBRAINZ_RATE_LIMIT` - Rate limit for MusicBrainz API
-* `ADMINS` - List of email addresses that will receive error emails
 * `MAIL_FROM` - Email address used for sending email
 * `SMTP_SERVER` - SMTP server used for sending email
 * `SMTP_PORT` - SMTP port used for sending email
