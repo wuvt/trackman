@@ -4,12 +4,18 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import email.utils
 import smtplib
+import ssl
 from . import format_datetime
 
 
 def get_smtp():
     s = smtplib.SMTP(current_app.config['SMTP_SERVER'],
                      current_app.config['SMTP_PORT'])
+    if current_app.config['SMTP_TLS']:
+        s.starttls(context=ssl.create_default_context())
+    if len(current_app.config['SMTP_USER']) > 0:
+        s.login(current_app.config['SMTP_USER'],
+                current_app.config['SMTP_PASSWORD'])
     return s
 
 
