@@ -4,11 +4,14 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
+--no-binary psycopg2
+
 -e git+https://github.com/wuvt/python-musicbrainzngs#egg=musicbrainzngs
 alembic==0.9.9            # via flask-migrate
 amqp==2.2.2               # via kombu
 aniso8601==3.0.0          # via flask-restful
 billiard==3.5.0.3         # via celery
+blinker==1.4              # via raven
 celery==4.1.0
 certifi==2018.4.16        # via requests
 chardet==3.0.4            # via requests
@@ -31,7 +34,7 @@ markdown==2.6.11
 markupsafe==1.0           # via jinja2, mako
 netaddr==0.7.19
 oauth2client==4.1.2       # via flask-oidc
-psycopg2==2.7.4 --no-binary psycopg2
+psycopg2==2.7.4
 pyasn1-modules==0.2.1
 pyasn1==0.4.2
 pymysql==0.8.0
@@ -39,6 +42,7 @@ python-dateutil==2.7.2
 python-editor==1.0.3
 python-redis-lock==3.2.0
 pytz==2018.4
+raven[flask]==6.9.0
 redis==2.10.6
 requests==2.18.4
 rsa==3.4.2                # via oauth2client

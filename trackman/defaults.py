@@ -60,3 +60,5 @@ AUTH_ROLE_GROUPS = {
 
 PUBSUB_PUB_URL_ALL = "http://nginx:8080/pub"
 PUBSUB_PUB_URL_DJ = "http://nginx:8080/dj/pub"
+
+SENTRY_DSN = ""
