@@ -24,9 +24,9 @@ ADD migrations /usr/src/app/migrations
 ADD trackman /usr/src/app/trackman
 COPY LICENSE README.md uwsgi.ini setup.py /usr/src/app/
 
-VOLUME ["/data/config", "/data/media", "/data/ssl"]
+VOLUME ["/data/config"]
 
-EXPOSE 8443
+EXPOSE 5000
 ENV PYTHONPATH /usr/src/app
 ENV FLASK_APP trackman
 ENV APP_CONFIG_PATH /data/config/config.json
