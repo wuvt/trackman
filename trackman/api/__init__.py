@@ -13,8 +13,8 @@ from .v1.tracklog import TrackLog, TrackLogList
 from .v1.charts import Charts, AlbumCharts, DJAlbumCharts, ArtistCharts, \
     DJArtistCharts, TrackCharts, DJTrackCharts, DJSpinCharts, DJVinylSpinCharts
 from .v1.playlists import NowPlaying, Last15Tracks, LatestTrack, \
-    PlaylistsByDay, PlaylistsByDateRange, PlaylistDJs, PlaylistAllDJs, \
-    PlaylistsByDJ, Playlist, PlaylistTrack
+    PlaylistsByDay, PlaylistsByDateRange, PlaylistsTrackLogsByDateRange, \
+    PlaylistDJs, PlaylistAllDJs, PlaylistsByDJ, Playlist, PlaylistTrack
 from flask_restful.utils import cors
 
 
@@ -61,6 +61,8 @@ api.add_resource(DJVinylSpinCharts, '/charts/dj/vinyl_spins')
 api.add_resource(NowPlaying, '/now_playing')
 api.add_resource(Last15Tracks, '/playlists/last15')
 api.add_resource(LatestTrack, '/playlists/latest_track')
+api.add_resource(PlaylistsTrackLogsByDateRange,
+                 '/playlists/tracklogs/date/range')
 api.add_resource(PlaylistsByDay,
                  '/playlists/date/<int:year>/<int:month>/<int:day>')
 api.add_resource(PlaylistsByDateRange, '/playlists/date/range')
