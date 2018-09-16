@@ -82,5 +82,4 @@ def healthcheck():
 def live():
     resp = Response()
     resp.headers['X-Accel-Redirect'] = "/_pubsub/sub"
-    resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
