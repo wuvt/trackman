@@ -3,6 +3,7 @@ from flask import Flask, Request
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
 from flask_wtf.csrf import CSRFProtect
+from raven.contrib.flask import Sentry
 from werkzeug.contrib.cache import RedisCache
 import humanize
 import os
@@ -115,6 +116,9 @@ auth_manager.init_app(app)
 from trackman.auth.oidc import OpenIDConnect
 oidc = OpenIDConnect(app)
 
+if len(app.config['SENTRY_DSN']) > 0:
+    sentry = Sentry(app, dsn=app.config['SENTRY_DSN'])
+
 
 @app.context_processor
 def inject_year():
@@ -134,28 +138,6 @@ charts_cache = ResourceCache(config={
 if app.debug:
     from werkzeug.debug import DebuggedApplication
     app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
-else:
-    import logging
-    from logging.handlers import SMTPHandler, SysLogHandler
-
-    mail_handler = SMTPHandler(
-        app.config['SMTP_SERVER'],
-        app.config['MAIL_FROM'],
-        app.config['ADMINS'],
-        "[{}] Website error".format(app.config['STATION_NAME']))
-    mail_handler.setFormatter(logging.Formatter('''
-Message type:       %(levelname)s
-Time:               %(asctime)s
-
-%(message)s
-'''))
-    mail_handler.setLevel(logging.ERROR)
-    app.logger.addHandler(mail_handler)
-
-    if 'SYSLOG_ADDRESS' in app.config:
-        syslog_handler = SysLogHandler(address=app.config['SYSLOG_ADDRESS'])
-        syslog_handler.setLevel(logging.WARNING)
-        app.logger.addHandler(syslog_handler)
 
 
 def init_app():

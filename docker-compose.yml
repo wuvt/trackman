@@ -1,0 +1,36 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+    - APP_CONFIG_PATH=/data/config/config.json
+    - USE_EMBEDDED_DB
+    volumes:
+    - ../trackman-config:/data/config
+    external_links:
+    - postgres
+    depends_on:
+    - mailhog
+    - redis
+  nginx:
+    image: meroje/alpine-nchan:1.1.15
+    ports:
+    - "9090:80"
+    expose:
+    - "9090"
+    depends_on:
+    - app
+    volumes:
+    - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    - ./nginx/conf.d/dev.conf:/etc/nginx/conf.d/default.conf
+    - ./trackman/static:/srv/http/static
+  redis:
+    image: redis:4-alpine
+    expose:
+     - "6379"
+  mailhog:
+    image: mailhog/mailhog:v1.0.0
+    ports:
+    - "9025:8025"

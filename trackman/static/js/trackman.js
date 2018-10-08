@@ -59,8 +59,9 @@ TrackmanTimer.prototype.clear = function() {
     this.button.html(clockspan);
 };
 
-function Trackman(baseUrl, djsetId, djId) {
+function Trackman(baseUrl, djsetId, djId, subUrl) {
     this.baseUrl = baseUrl;
+    this.subUrl = subUrl;
     this.djsetId = djsetId;
     this.djId = djId;
     this.rotations = {};
@@ -1261,7 +1262,7 @@ Trackman.prototype.initEventHandler = function() {
         return;
     }
 
-    this.eventSource = new EventSource(this.baseUrl + '/api/live');
+    this.eventSource = new EventSource(this.subUrl);
     this.eventSource.trackman = this;
     this.eventSource.onmessage = function(ev) {
         msg = JSON.parse(ev.data);

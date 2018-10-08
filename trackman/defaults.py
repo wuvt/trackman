@@ -2,7 +2,7 @@ DEBUG = False
 # SESSION_COOKIE_SECURE = True
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-REDIS_URL = 'redis://localhost:6379/0'
+REDIS_URL = 'redis://redis:6379/0'
 
 ARTISTS_PER_PAGE = 500
 
@@ -36,9 +36,12 @@ ARCHIVE_URL_FORMAT = ""
 MUSICBRAINZ_HOSTNAME = "musicbrainz.org"
 MUSICBRAINZ_RATE_LIMIT = 1.0
 
-ADMINS = []
 MAIL_FROM = "noreply@localhost"
-SMTP_SERVER = "localhost"
+SMTP_SERVER = "mailhog"
+SMTP_PORT = 1025
+SMTP_TLS = False
+SMTP_USER = ""
+SMTP_PASSWORD = ""
 CHART_MAIL = False
 CHART_MAIL_DEST = "charts@localhost"
 
@@ -54,3 +57,8 @@ AUTH_ROLE_GROUPS = {
     'library': ['librarians'],
     'dj': ['djs'],
 }
+
+PUBSUB_PUB_URL_ALL = "http://nginx:8080/pub"
+PUBSUB_PUB_URL_DJ = "http://nginx:8080/dj/pub"
+
+SENTRY_DSN = ""

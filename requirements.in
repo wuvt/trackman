@@ -18,6 +18,7 @@ python-dateutil
 python-editor
 python-redis-lock
 pytz
+raven[flask]
 redis
 requests
 sqlalchemy>=1.2.0

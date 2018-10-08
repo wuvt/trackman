@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from flask import current_app, json
 from redis_lock import Lock
 
-from . import db, redis_conn, mail, playlists_cache
+from . import db, redis_conn, mail, playlists_cache, pubsub
 from .models import AirLog, Track, TrackLog, DJ, DJClaimToken, DJSet
 
 
@@ -53,9 +53,11 @@ def logout_all(send_email=False):
         raise
 
     playlists_cache.clear()
-    redis_conn.publish('trackman_dj_live', json.dumps({
-        'event': "session_end",
-    }))
+    pubsub.publish(
+        current_app.config['PUBSUB_PUB_URL_DJ'],
+        message={
+            'event': "session_end",
+        })
     redis_conn.delete('dj_timeout')
 
 
@@ -186,10 +188,12 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
         raise
 
     playlists_cache.clear()
-    redis_conn.publish('trackman_live', json.dumps({
-        'event': "track_change",
-        'tracklog': tracklog.full_serialize(),
-    }))
+    pubsub.publish(
+        current_app.config['PUBSUB_PUB_URL_ALL'],
+        message={
+            'event': "track_change",
+            'tracklog': tracklog.full_serialize(),
+        })
 
     return tracklog
 
@@ -233,10 +237,12 @@ def fixup_current_track(event="track_edit"):
     tracklog = get_current_tracklog()
 
     playlists_cache.clear()
-    redis_conn.publish('trackman_live', json.dumps({
-        'event': event,
-        'tracklog': tracklog.full_serialize(),
-    }))
+    pubsub.publish(
+        current_app.config['PUBSUB_PUB_URL_ALL'],
+        message={
+            'event': event,
+            'tracklog': tracklog.full_serialize(),
+        })
 
 
 def merge_duplicate_tracks(*args, **kwargs):

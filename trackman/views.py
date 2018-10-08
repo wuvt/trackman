@@ -1,9 +1,10 @@
-from flask import jsonify, render_template, request, send_from_directory
+from flask import jsonify, redirect, render_template, request, \
+        send_from_directory, Response
 import redis.exceptions
 import sqlalchemy.exc
 
 from . import app, db, redis_conn
-from .view_utils import IPAccessDeniedException, sse_response
+from .view_utils import IPAccessDeniedException
 
 
 @app.route('/robots.txt')
@@ -79,4 +80,7 @@ def healthcheck():
 
 @app.route('/live')
 def live():
-    return sse_response('trackman_live')
+    resp = Response()
+    resp.headers['X-Accel-Buffering'] = "no"
+    resp.headers['X-Accel-Redirect'] = "/_pubsub/sub"
+    return resp

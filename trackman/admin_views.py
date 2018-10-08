@@ -1,5 +1,5 @@
 from flask import current_app, flash, jsonify, render_template, \
-        redirect, request, session, url_for, make_response, abort
+        redirect, request, session, url_for, make_response, abort, Response
 import datetime
 import hmac
 
@@ -10,7 +10,7 @@ from .forms import DJRegisterForm, DJReactivateForm
 from .lib import enable_automation, renew_dj_lease, generate_claim_token
 from .mail import send_claim_email
 from .models import DJ, DJSet, DJClaim, DJClaimToken
-from .view_utils import dj_only, sse_response
+from .view_utils import dj_only
 
 
 @private_bp.route('/', methods=['GET', 'POST'])
@@ -284,4 +284,7 @@ def confirm_claim(id, token):
 @private_bp.route('/api/live')
 @dj_only
 def dj_live():
-    return sse_response('trackman_dj_live')
+    resp = Response()
+    resp.headers['X-Accel-Buffering'] = "no"
+    resp.headers['X-Accel-Redirect'] = "/_pubsub/dj/sub"
+    return resp

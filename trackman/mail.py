@@ -4,7 +4,19 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import email.utils
 import smtplib
+import ssl
 from . import format_datetime
+
+
+def get_smtp():
+    s = smtplib.SMTP(current_app.config['SMTP_SERVER'],
+                     current_app.config['SMTP_PORT'])
+    if current_app.config['SMTP_TLS']:
+        s.starttls(context=ssl.create_default_context())
+    if len(current_app.config['SMTP_USER']) > 0:
+        s.login(current_app.config['SMTP_USER'],
+                current_app.config['SMTP_PASSWORD'])
+    return s
 
 
 def send_logout_reminder(dj):
@@ -19,7 +31,7 @@ def send_logout_reminder(dj):
         name=current_app.config['TRACKMAN_NAME'])
 
     try:
-        s = smtplib.SMTP(current_app.config['SMTP_SERVER'])
+        s = get_smtp()
         s.sendmail(msg['From'], [msg['To']], msg.as_string())
         s.quit()
     except Exception as exc:
@@ -50,7 +62,7 @@ def send_playlist(djset, tracks):
         'html'))
 
     try:
-        s = smtplib.SMTP(current_app.config['SMTP_SERVER'])
+        s = get_smtp()
         s.sendmail(msg['From'], [msg['To']], msg.as_string())
         s.quit()
     except Exception as exc:
@@ -76,7 +88,7 @@ def send_chart(chart):
                         chart=chart, timestamp=timestamp),
         'plain'))
     try:
-        s = smtplib.SMTP(current_app.config['SMTP_SERVER'])
+        s = connect_smtp()
         s.sendmail(msg['From'], [msg['To']], msg.as_string())
         s.quit()
     except Exception as exc:
@@ -105,7 +117,7 @@ def send_claim_email(claim_token, remote_addr):
             remote_addr=remote_addr),
         'plain'))
     try:
-        s = smtplib.SMTP(current_app.config['SMTP_SERVER'])
+        s = get_smtp()
         s.sendmail(msg['From'], [msg['To']], msg.as_string())
         s.quit()
     except Exception as exc:

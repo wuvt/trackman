@@ -1,8 +1,8 @@
 import datetime
-from flask import current_app, json, request, session
+from flask import current_app, request, session
 from flask_restful import abort
 from redis_lock import Lock
-from trackman import db, redis_conn, mail, models
+from trackman import db, redis_conn, mail, models, pubsub
 from trackman.lib import check_onair, disable_automation, \
     logout_all_except
 from .base import TrackmanResource
@@ -92,9 +92,11 @@ class DJSetEnd(TrackmanResource):
             session.pop('dj_id', None)
             session.pop('djset_id', None)
 
-            redis_conn.publish('trackman_dj_live', json.dumps({
-                'event': "session_end",
-            }))
+            pubsub.publish(
+                current_app.config['PUBSUB_PUB_URL_DJ'],
+                message={
+                    'event': "session_end",
+                })
 
             if check_onair(djset_id):
                 redis_conn.delete('onair_djset_id')
