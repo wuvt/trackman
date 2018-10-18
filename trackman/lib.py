@@ -368,12 +368,14 @@ def autofill_na_labels():
 def email_weekly_charts():
     if current_app.config['CHART_MAIL']:
         chart = db.session.query(
-            Track.artist, Track.album,
+            db.func.min(Track.artist),
+            db.func.min(Track.album),
             db.func.count(Track.album)).filter(
                 TrackLog.played > datetime.utcnow() - timedelta(days=7),
                 TrackLog.new == True).join(TrackLog).group_by(
-                    Track.album, Track.artist).order_by(
-                        db.desc(db.func.count(Track.album))).all()
+                    db.func.lower(Track.album),
+                    db.func.lower(Track.artist)).order_by(
+                    db.desc(db.func.count(Track.album))).all()
         mail.send_chart(chart)
 
 

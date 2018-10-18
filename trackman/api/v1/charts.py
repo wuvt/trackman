@@ -23,12 +23,15 @@ class AlbumCharts(ChartResource):
         results = charts.get(
             'albums_{0}_{1}'.format(start, end),
             Track.query.with_entities(
-                Track.artist, Track.album, db.func.count(TrackLog.id)).
+                db.func.min(Track.artist),
+                db.func.min(Track.album),
+                db.func.count(TrackLog.id)).
             join(TrackLog).filter(db.and_(
                 TrackLog.dj_id > 1,
                 TrackLog.played >= start,
                 TrackLog.played <= end)).
-            group_by(Track.artist, Track.album).
+            group_by(db.func.lower(Track.artist),
+                     db.func.lower(Track.album)).
             order_by(db.func.count(TrackLog.id).desc()))
 
         return {
@@ -44,9 +47,12 @@ class DJAlbumCharts(ChartResource):
         results = charts.get(
             'albums_dj_{}'.format(dj_id),
             Track.query.with_entities(
-                Track.artist, Track.album, db.func.count(TrackLog.id)).
+                db.func.min(Track.artist),
+                db.func.min(Track.album),
+                db.func.count(TrackLog.id)).
             join(TrackLog).filter(TrackLog.dj_id == dj.id).
-            group_by(Track.artist, Track.album).
+            group_by(db.func.lower(Track.artist),
+                     db.func.lower(Track.album)).
             order_by(db.func.count(TrackLog.id).desc()))
 
         return {
@@ -64,12 +70,14 @@ class ArtistCharts(ChartResource):
 
         results = charts.get(
             'artists_{0}_{1}'.format(start, end),
-            Track.query.with_entities(Track.artist, db.func.count(TrackLog.id)).
+            Track.query.with_entities(
+                db.func.min(Track.artist),
+                db.func.count(TrackLog.id)).
             join(TrackLog).filter(db.and_(
                 TrackLog.dj_id > 1,
                 TrackLog.played >= start,
                 TrackLog.played <= end)).
-            group_by(Track.artist).
+            group_by(db.func.lower(Track.artist)).
             order_by(db.func.count(TrackLog.id).desc()))
 
         return {
@@ -84,9 +92,11 @@ class DJArtistCharts(ChartResource):
         dj = DJ.query.get_or_404(dj_id)
         results = charts.get(
             'artists_dj_{}'.format(dj_id),
-            Track.query.with_entities(Track.artist, db.func.count(TrackLog.id)).
+            Track.query.with_entities(
+                db.func.min(Track.artist),
+                db.func.count(TrackLog.id)).
             join(TrackLog).filter(TrackLog.dj_id == dj.id).
-            group_by(Track.artist).
+            group_by(db.func.lower(Track.artist)).
             order_by(db.func.count(TrackLog.id).desc()))
 
         return {
