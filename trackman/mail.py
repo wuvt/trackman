@@ -88,7 +88,7 @@ def send_chart(chart):
                         chart=chart, timestamp=timestamp),
         'plain'))
     try:
-        s = connect_smtp()
+        s = get_smtp()
         s.sendmail(msg['From'], [msg['To']], msg.as_string())
         s.quit()
     except Exception as exc:
