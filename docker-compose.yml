@@ -15,6 +15,19 @@ services:
     depends_on:
     - mailhog
     - redis
+  scheduler:
+    image: trackman_app
+    command: flask run-scheduler
+    environment:
+    - APP_CONFIG_PATH=/data/config/config.json
+    - USE_EMBEDDED_DB
+    volumes:
+    - ../trackman-config:/data/config
+    external_links:
+    - postgres
+    depends_on:
+    - mailhog
+    - redis
   nginx:
     image: meroje/alpine-nchan:1.1.15
     ports:
