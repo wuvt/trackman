@@ -9,8 +9,8 @@ alembic==1.0.1            # via flask-migrate
 aniso8601==3.0.2          # via flask-restful
 apscheduler==3.5.3
 asn1crypto==0.24.0        # via cryptography
-blinker==1.4              # via raven
-certifi==2018.10.15       # via requests
+blinker==1.4              # via sentry-sdk
+certifi==2018.10.15       # via requests, sentry-sdk
 cffi==1.11.5              # via cryptography
 chardet==3.0.4            # via requests
 click==7.0
@@ -41,15 +41,15 @@ python-dateutil==2.7.3
 python-editor==1.0.3
 python-redis-lock==3.2.0
 pytz==2018.5
-raven[flask]==6.9.0
 redis==2.10.6
 requests==2.20.0
 rsa==4.0                  # via oauth2client
+sentry-sdk[flask]==0.4.2
 six==1.11.0               # via apscheduler, cryptography, flask-oidc, flask-restful, oauth2client, python-dateutil, sqlalchemy-utils
 sqlalchemy-utils==0.33.6
 sqlalchemy==1.2.12
 tzlocal==1.5.1            # via apscheduler
 unidecode==1.0.22
-urllib3==1.24             # via requests
+urllib3==1.24             # via requests, sentry-sdk
 werkzeug==0.14.1          # via flask
 wtforms==2.2.1            # via flask-wtf
