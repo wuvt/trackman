@@ -1,7 +1,8 @@
 import click
 import os
+from apscheduler.schedulers.blocking import BlockingScheduler
 from flask import json
-from . import app, db_utils, lib, pubsub
+from . import app, db_utils, lib, pubsub, tasks
 
 
 @app.cli.command()
@@ -83,3 +84,21 @@ def send_message(message):
         })
     click.echo("Message delivered to {0} clients".format(
         result['subscribers']))
+
+
+@app.cli.command()
+def run_scheduler():
+    scheduler = BlockingScheduler()
+    scheduler.add_job(tasks.email_weekly_charts, 'cron',
+                      day_of_week=1, hour=0, minute=0, second=0)
+    scheduler.add_job(tasks.deduplicate_tracks, 'cron',
+                      hour=3, minute=0, second=0)
+    scheduler.add_job(tasks.playlist_cleanup, 'cron',
+                      hour=6, minute=0, second=0)
+    scheduler.add_job(tasks.cleanup_dj_list_task, 'cron',
+                      day_of_week=1, hour=0, minute=0, second=0)
+    scheduler.add_job(tasks.autologout_check, 'interval',
+                      minutes=1)
+    scheduler.add_job(tasks.cleanup_sessions_and_claim_tokens, 'cron',
+                      hour=1, minute=0, second=0)
+    scheduler.start()

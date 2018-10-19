@@ -1,4 +1,4 @@
-celery
+apscheduler
 click
 Flask
 Flask-Caching
