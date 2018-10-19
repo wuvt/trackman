@@ -1,7 +1,6 @@
 import click
 import os
 from apscheduler.schedulers.blocking import BlockingScheduler
-from flask import json
 from . import app, db_utils, lib, pubsub, tasks
 
 

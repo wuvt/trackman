@@ -1,5 +1,5 @@
-from flask import jsonify, redirect, render_template, request, \
-        send_from_directory, Response
+from flask import jsonify, render_template, request, send_from_directory, \
+        Response
 import redis.exceptions
 import sqlalchemy.exc
 

@@ -1,10 +1,8 @@
-from flask import abort, current_app, redirect, request, Response, session, \
-    url_for
+from flask import abort, current_app, redirect, request, session, url_for
 from flask_restful import abort as restful_abort
 from functools import wraps
 import netaddr
 import re
-import socket
 import unidecode
 import urllib.parse
 from datetime import timedelta

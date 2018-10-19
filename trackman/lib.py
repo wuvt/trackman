@@ -3,7 +3,7 @@ import requests
 import os
 import urllib.parse
 from datetime import datetime, timedelta
-from flask import current_app, json
+from flask import current_app
 from redis_lock import Lock
 
 from . import db, redis_conn, mail, playlists_cache, pubsub

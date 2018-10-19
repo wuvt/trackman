@@ -1,6 +1,5 @@
 from flask import current_app, flash, redirect, render_template, request, \
     url_for
-from wtforms import ValidationError
 import csv
 import dateutil.parser
 import io
