@@ -29,7 +29,9 @@ services:
     - mailhog
     - redis
   nginx:
-    image: meroje/alpine-nchan:1.1.15
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
     ports:
     - "9090:80"
     expose:
@@ -37,9 +39,7 @@ services:
     depends_on:
     - app
     volumes:
-    - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     - ./nginx/conf.d/dev.conf:/etc/nginx/conf.d/default.conf
-    - ./trackman/static:/srv/http/static
   redis:
     image: redis:4-alpine
     expose:
