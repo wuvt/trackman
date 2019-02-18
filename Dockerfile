@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # copy application
 ADD migrations /usr/src/app/migrations
 ADD trackman /usr/src/app/trackman
-COPY LICENSE README.md uwsgi.ini setup.py /usr/src/app/
+COPY LICENSE README.md uwsgi.ini /usr/src/app/
 
 VOLUME ["/data/config"]
 
