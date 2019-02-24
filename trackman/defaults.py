@@ -51,6 +51,7 @@ AUTH_ROLE_GROUPS = {
     'dj': ['djs'],
 }
 
+TRACKMAN_API_URL = "http://nginx/api"
 PUBSUB_PUB_URL_ALL = "http://nginx:8080/pub"
 PUBSUB_PUB_URL_DJ = "http://nginx:8080/dj/pub"
 

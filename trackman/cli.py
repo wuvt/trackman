@@ -87,6 +87,8 @@ def send_message(message):
 
 @app.cli.command()
 def run_scheduler():
+    click.echo("Starting scheduler...")
+
     scheduler = BlockingScheduler()
     scheduler.add_job(tasks.email_weekly_charts, 'cron',
                       day_of_week=1, hour=0, minute=0, second=0)
@@ -98,6 +100,7 @@ def run_scheduler():
                       day_of_week=1, hour=0, minute=0, second=0)
     scheduler.add_job(tasks.autologout_check, 'interval',
                       minutes=1)
+    scheduler.add_job(tasks.internal_ping, 'interval', minutes=1)
     scheduler.add_job(tasks.cleanup_sessions_and_claim_tokens, 'cron',
                       hour=1, minute=0, second=0)
     scheduler.start()
