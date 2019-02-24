@@ -15,6 +15,7 @@ from .v1.charts import Charts, AlbumCharts, DJAlbumCharts, ArtistCharts, \
 from .v1.playlists import NowPlaying, Last15Tracks, LatestTrack, \
     PlaylistsByDay, PlaylistsByDateRange, PlaylistsTrackLogsByDateRange, \
     PlaylistDJs, PlaylistAllDJs, PlaylistsByDJ, Playlist, PlaylistTrack
+from .v1.internal import InternalPing
 from flask_restful.utils import cors
 
 
@@ -71,6 +72,7 @@ api.add_resource(PlaylistAllDJs, '/playlists/dj/all')
 api.add_resource(PlaylistsByDJ, '/playlists/dj/<int:dj_id>')
 api.add_resource(Playlist, '/playlists/set/<int:set_id>')
 api.add_resource(PlaylistTrack, '/playlists/track/<int:track_id>')
+api.add_resource(InternalPing, '/internal/ping')
 
 
 @api.representation('application/json')

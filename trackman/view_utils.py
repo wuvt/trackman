@@ -1,6 +1,8 @@
 from flask import abort, current_app, redirect, request, session, url_for
 from flask_restful import abort as restful_abort
 from functools import wraps
+import hashlib
+import hmac
 import netaddr
 import re
 import unidecode
@@ -145,3 +147,27 @@ def require_onair(f):
         else:
             return f(*args, **kwargs)
     return require_onair_wrapper
+
+
+def check_request_sig(f):
+    @wraps(f)
+    def check_request_sig_wrapper(*args, **kwargs):
+        expected = hmac.new(current_app.secret_key.encode('utf-8'),
+                            request.path.replace('/api', '').encode('utf-8'),
+                            hashlib.sha256).hexdigest()
+        auth = request.headers.get('Authorization')
+
+        if auth is not None:
+            auth_split = auth.split(' ', 1)
+            if len(auth_split) > 1 and auth_split[0] == 'HMAC-SHA256' and \
+                    hmac.compare_digest(expected, auth_split[1]):
+                return f(*args, **kwargs)
+            else:
+                restful_abort(
+                    401,
+                    message="Bad request signature.")
+        else:
+            restful_abort(
+                401,
+                message="Bad request signature.")
+    return check_request_sig_wrapper
