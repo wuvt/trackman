@@ -253,26 +253,20 @@ def merge_duplicate_tracks(*args, **kwargs):
     track_id = int(tracks[0].id)
 
     if len(tracks) > 1:
-        with Lock(redis_conn, 'track_{}'.format(track_id), expire=60,
-                  auto_renewal=True):
-            # update TrackLogs
-            TrackLog.query.filter(TrackLog.track_id.in_(
-                [track.id for track in tracks[1:]])).update(
-                {TrackLog.track_id: track_id}, synchronize_session=False)
+        # update TrackLogs
+        TrackLog.query.filter(TrackLog.track_id.in_(
+            [track.id for track in tracks[1:]])).update(
+            {TrackLog.track_id: track_id}, synchronize_session=False)
 
-            # delete existing Track entries
-            for track in tracks[1:]:
-                lock = Lock(redis_conn, 'track_{}'.format(track.id), expire=60,
-                            auto_renewal=True)
-                if lock.acquire(timeout=1):
-                    ret = db.session.delete(track)
-                    lock.release()
+        # delete existing Track entries
+        for track in tracks[1:]:
+            ret = db.session.delete(track)
 
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
         playlists_cache.clear()
 
@@ -339,25 +333,19 @@ def autofill_na_labels():
             Track.album == na_track.album,
             Track.label != "Not Available")).first()
         if other_track is not None:
-            with Lock(redis_conn, 'track_{}'.format(other_track.id), expire=60,
-                      auto_renewal=True):
-                # update TrackLogs to point to other Track
-                TrackLog.query.\
-                    filter(TrackLog.track_id == na_track.id).\
-                    update({TrackLog.track_id: other_track.id},
-                           synchronize_session=False)
+            # update TrackLogs to point to other Track
+            TrackLog.query.\
+                filter(TrackLog.track_id == na_track.id).\
+                update({TrackLog.track_id: other_track.id},
+                       synchronize_session=False)
 
-                na_lock = Lock(redis_conn, 'track_{}'.format(na_track.id),
-                               expire=60, auto_renewal=True)
-                if na_lock.acquire(timeout=1):
-                    db.session.delete(na_track)
-                    na_lock.release()
+            db.session.delete(na_track)
 
-                try:
-                    db.session.commit()
-                except:
-                    db.session.rollback()
-                    raise
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise
 
             playlists_cache.clear()
             current_app.logger.info(
