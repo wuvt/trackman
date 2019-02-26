@@ -114,7 +114,12 @@ class DJSetEnd(TrackmanResource):
             tracks = models.TrackLog.query.\
                 filter(models.TrackLog.djset_id == djset.id).\
                 order_by(models.TrackLog.played).all()
-            mail.send_playlist(djset, tracks)
+            try:
+                mail.send_playlist(djset, tracks)
+            except Exception as exc:
+                current_app.logger.warning(
+                    "Trackman: Failed to send email for DJ set {0}: "
+                    "{1}".format(djset.id, exc))
 
         return {
             'success': True,

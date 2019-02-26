@@ -30,14 +30,9 @@ def send_logout_reminder(dj):
     msg['Subject'] = "[{name}] Logout Reminder".format(
         name=current_app.config['TRACKMAN_NAME'])
 
-    try:
-        s = get_smtp()
-        s.sendmail(msg['From'], [msg['To']], msg.as_string())
-        s.quit()
-    except Exception as exc:
-        current_app.logger.warning(
-            "Trackman: Failed to send logout reminder to DJ {0}: {1}".format(
-                dj.id, exc))
+    s = get_smtp()
+    s.sendmail(msg['From'], [msg['To']], msg.as_string())
+    s.quit()
 
 
 def send_playlist(djset, tracks):
@@ -61,14 +56,9 @@ def send_playlist(djset, tracks):
                         djset=djset, tracks=tracks),
         'html'))
 
-    try:
-        s = get_smtp()
-        s.sendmail(msg['From'], [msg['To']], msg.as_string())
-        s.quit()
-    except Exception as exc:
-        current_app.logger.warning(
-            "Trackman: Failed to send email for DJ set {0}: {1}".format(
-                djset.id, exc))
+    s = get_smtp()
+    s.sendmail(msg['From'], [msg['To']], msg.as_string())
+    s.quit()
 
 
 def send_chart(chart):
@@ -87,13 +77,10 @@ def send_chart(chart):
         render_template('email/new_chart.txt',
                         chart=chart, timestamp=timestamp),
         'plain'))
-    try:
-        s = get_smtp()
-        s.sendmail(msg['From'], [msg['To']], msg.as_string())
-        s.quit()
-    except Exception as exc:
-        current_app.logger.warning(
-            "Trackman: Failed to send weekly chart - {0}".format(exc))
+
+    s = get_smtp()
+    s.sendmail(msg['From'], [msg['To']], msg.as_string())
+    s.quit()
 
 
 def send_claim_email(claim_token, remote_addr):

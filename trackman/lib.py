@@ -44,7 +44,12 @@ def logout_all(send_email=False):
 
         if send_email and djset.dj_id > 1:
             dj = DJ.query.get(djset.dj_id)
-            mail.send_logout_reminder(dj)
+            try:
+                mail.send_logout_reminder(dj)
+            except Exception as exc:
+                current_app.logger.warning(
+                    "Trackman: Failed to send logout reminder to DJ {0}: "
+                    "{1}".format(dj.id, exc))
 
     try:
         db.session.commit()
