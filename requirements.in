@@ -16,7 +16,6 @@ pyasn1-modules
 PyMySQL
 python-dateutil
 python-editor
-python-redis-lock
 pytz
 redis
 requests
