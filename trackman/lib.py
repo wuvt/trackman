@@ -4,7 +4,6 @@ import os
 import urllib.parse
 from datetime import datetime, timedelta
 from flask import current_app
-from redis_lock import Lock
 
 from . import db, redis_conn, mail, playlists_cache, pubsub
 from .models import AirLog, Track, TrackLog, DJ, DJClaimToken, DJSet
@@ -37,8 +36,9 @@ def renew_dj_lease(expire=None):
 
 
 def logout_all(send_email=False):
-    open_djsets = DJSet.query.filter(DJSet.dtend == None).order_by(
-        DJSet.dtstart.desc()).all()
+    open_djsets = DJSet.query.\
+        filter(DJSet.dtend == None).with_for_update().\
+        order_by(DJSet.dtstart.desc()).all()
     for djset in open_djsets:
         djset.dtend = datetime.utcnow()
 
@@ -62,22 +62,18 @@ def logout_all(send_email=False):
 
 
 def logout_all_except(dj_id):
+    """Go through all open DJSets and close any open ones that don't belong to
+    the provided `dj_id`. Note that this method does not commit changes to the
+    database."""
     current_djset = None
-    open_djsets = DJSet.query.filter(DJSet.dtend == None).order_by(
-        DJSet.dtstart.desc()).all()
+    open_djsets = DJSet.query.\
+        filter(DJSet.dtend == None).with_for_update().\
+        order_by(DJSet.dtstart.desc()).all()
     for djset in open_djsets:
         if current_djset is None and djset.dj_id == dj_id:
             current_djset = djset
         else:
             djset.dtend = datetime.utcnow()
-
-    try:
-        db.session.commit()
-    except:
-        db.session.rollback()
-        raise
-
-    playlists_cache.clear()
     return current_djset
 
 
@@ -89,52 +85,51 @@ def perdelta(start, end, td):
 
 
 def disable_automation():
-    with Lock(redis_conn, 'automation_status', expire=60, auto_renewal=True):
-        # Make sure automation is actually enabled before changing the end time
-        if redis_conn.get("automation_enabled") == b"true":
-            redis_conn.set("automation_enabled", b"false")
-            automation_set_id = redis_conn.get("automation_set")
-            current_app.logger.info(
-                "Trackman: Automation disabled with DJSet.id = {}".format(
-                    int(automation_set_id)))
-            if automation_set_id is not None:
-                automation_set = DJSet.query.get(int(automation_set_id))
-                if automation_set is not None:
-                    automation_set.dtend = datetime.utcnow()
-                    try:
-                        db.session.commit()
-                    except:
-                        db.session.rollback()
-                        raise
-                    playlists_cache.clear()
-                else:
-                    current_app.logger.warning(
-                        "Trackman: The provided automation set ({0}) was not "
-                        "found in the database.".format(automation_set_id))
+    # Make sure automation is actually enabled before changing the end time
+    if redis_conn.get("automation_enabled") == b"true":
+        redis_conn.set("automation_enabled", b"false")
+        automation_set_id = redis_conn.get("automation_set")
+        current_app.logger.info(
+            "Trackman: Automation disabled with DJSet.id = {}".format(
+                int(automation_set_id)))
+        if automation_set_id is not None:
+            automation_set = DJSet.query.with_for_update().get(
+                int(automation_set_id))
+            if automation_set is not None:
+                automation_set.dtend = datetime.utcnow()
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
+                playlists_cache.clear()
+            else:
+                current_app.logger.warning(
+                    "Trackman: The provided automation set ({0}) was not "
+                    "found in the database.".format(automation_set_id))
 
-            renew_dj_lease()
+        renew_dj_lease()
 
 
 def enable_automation():
-    with Lock(redis_conn, 'automation_status', expire=60, auto_renewal=True):
-        redis_conn.set('automation_enabled', b"true")
+    redis_conn.set('automation_enabled', b"true")
 
-        # try to reuse existing DJSet if possible
-        automation_set = logout_all_except(1)
-        if automation_set is None:
-            automation_set = DJSet(1)
-            db.session.add(automation_set)
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise
-            playlists_cache.clear()
+    # try to reuse existing DJSet if possible
+    automation_set = logout_all_except(1)
+    if automation_set is None:
+        automation_set = DJSet(1)
+        db.session.add(automation_set)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
+        playlists_cache.clear()
 
-        current_app.logger.info("Trackman: Automation enabled with DJSet.id "
-                                "= {}".format(automation_set.id))
-        redis_conn.set('automation_set', automation_set.id)
-        redis_conn.set('onair_djset_id', automation_set.id)
+    current_app.logger.info("Trackman: Automation enabled with DJSet.id "
+                            "= {}".format(automation_set.id))
+    redis_conn.set('automation_set', automation_set.id)
+    redis_conn.set('onair_djset_id', automation_set.id)
 
 
 def stream_listeners(url, mounts=None, timeout=5):

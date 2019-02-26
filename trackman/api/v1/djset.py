@@ -1,8 +1,7 @@
 import datetime
 from flask import current_app, request, session
 from flask_restful import abort
-from redis_lock import Lock
-from trackman import db, redis_conn, mail, models, pubsub
+from trackman import db, redis_conn, mail, models, playlists_cache, pubsub
 from trackman.lib import check_onair, disable_automation, \
     logout_all_except
 from .base import TrackmanResource
@@ -69,7 +68,7 @@ class DJSetEnd(TrackmanResource):
           200:
             description: DJSet ended
         """
-        djset = models.DJSet.query.get(djset_id)
+        djset = models.DJSet.query.with_for_update().get(djset_id)
         if not djset:
             abort(404, success=False, message="DJSet not found")
 
@@ -80,42 +79,42 @@ class DJSetEnd(TrackmanResource):
             abort(400, success=False, message="DJSet has already ended",
                   ended=True)
 
-        with Lock(redis_conn, 'end_djset', expire=60, auto_renewal=True):
-            djset.dtend = datetime.datetime.utcnow()
+        djset.dtend = datetime.datetime.utcnow()
 
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
+        playlists_cache.clear()
 
-            session.pop('dj_id', None)
-            session.pop('djset_id', None)
+        session.pop('dj_id', None)
+        session.pop('djset_id', None)
 
-            pubsub.publish(
-                current_app.config['PUBSUB_PUB_URL_DJ'],
-                message={
-                    'event': "session_end",
-                })
+        pubsub.publish(
+            current_app.config['PUBSUB_PUB_URL_DJ'],
+            message={
+                'event': "session_end",
+            })
 
-            if check_onair(djset_id):
-                redis_conn.delete('onair_djset_id')
+        if check_onair(djset_id):
+            redis_conn.delete('onair_djset_id')
 
-            # Reset the dj activity timeout period
-            redis_conn.delete('dj_timeout')
+        # Reset the dj activity timeout period
+        redis_conn.delete('dj_timeout')
 
-            # Set dj_active expiration to NO_DJ_TIMEOUT to reduce automation
-            # start time
-            redis_conn.set('dj_active', 'false')
-            redis_conn.expire(
-                'dj_active', int(current_app.config['NO_DJ_TIMEOUT']))
+        # Set dj_active expiration to NO_DJ_TIMEOUT to reduce automation
+        # start time
+        redis_conn.set('dj_active', 'false')
+        redis_conn.expire(
+            'dj_active', int(current_app.config['NO_DJ_TIMEOUT']))
 
-            # email playlist
-            if request.form.get('email_playlist', 'false') == 'true':
-                tracks = models.TrackLog.query.\
-                    filter(models.TrackLog.djset_id == djset.id).\
-                    order_by(models.TrackLog.played).all()
-                mail.send_playlist(djset, tracks)
+        # email playlist
+        if request.form.get('email_playlist', 'false') == 'true':
+            tracks = models.TrackLog.query.\
+                filter(models.TrackLog.djset_id == djset.id).\
+                order_by(models.TrackLog.played).all()
+            mail.send_playlist(djset, tracks)
 
         return {
             'success': True,
@@ -154,17 +153,19 @@ class DJSetList(TrackmanResource):
 
         disable_automation()
 
-        with Lock(redis_conn, 'create_djset', expire=60, auto_renewal=True):
-            # close open DJSets, and see if we have one we can use
-            djset = logout_all_except(dj.id)
-            if djset is None:
-                djset = models.DJSet(dj.id)
-                db.session.add(djset)
-                try:
-                    db.session.commit()
-                except:
-                    db.session.rollback()
-                    raise
+        # Close open DJSets, and see if we have one that belongs to the current
+        # DJ that we can reuse
+        djset = logout_all_except(dj.id)
+        if djset is None:
+            djset = models.DJSet(dj.id)
+            db.session.add(djset)
+
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
+        playlists_cache.clear()
 
         redis_conn.set('onair_djset_id', djset.id)
         session['djset_id'] = djset.id
