@@ -1,11 +1,48 @@
 import datetime
+import dateutil.parser
 from flask import request
-from flask_restful import abort, Resource
-from trackman import db
+from flask_restful import abort, Resource, ResponseBase, unpack
+from functools import wraps
+from werkzeug.http import http_date, parse_date
+from trackman import db, redis_conn
 from trackman.lib import get_current_tracklog, serialize_trackinfo
 from trackman.models import DJ, DJSet, Track, TrackLog
 from trackman.view_utils import list_archives
-from .base import PlaylistResource
+
+
+def cache_playlists(f):
+    @wraps(f)
+    def cache_playlists_wrapper(*args, **kwargs):
+        modified_since = parse_date(request.headers.get('If-Modified-Since'))
+        playlists_last_modified = redis_conn.get('playlists_last_modified')
+
+        try:
+            last_modified = dateutil.parser.parse(playlists_last_modified)
+        except (TypeError, ValueError):
+            last_modified = datetime.datetime.utcnow().replace(microsecond=0)
+            redis_conn.set('playlists_last_modified', last_modified)
+
+        if modified_since is not None and last_modified <= modified_since:
+            data = {}
+            code = 304
+            headers = {}
+        else:
+            resp = f(*args, **kwargs)
+            if isinstance(resp, ResponseBase):
+                return resp
+
+            data, code, headers = unpack(resp)
+
+        headers.update({
+            'Cache-Control': "public, no-cache",
+            'Last-Modified': http_date(last_modified),
+        })
+        return data, code, headers
+    return cache_playlists_wrapper
+
+
+class PlaylistResource(Resource):
+    method_decorators = {'get': [cache_playlists]}
 
 
 class NowPlaying(PlaylistResource):

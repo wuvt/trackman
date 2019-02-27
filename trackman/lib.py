@@ -5,7 +5,7 @@ import urllib.parse
 from datetime import datetime, timedelta
 from flask import current_app
 
-from . import db, redis_conn, mail, playlists_cache, pubsub
+from . import db, redis_conn, mail, pubsub
 from .models import AirLog, Track, TrackLog, DJ, DJClaimToken, DJSet
 
 
@@ -57,7 +57,7 @@ def logout_all(send_email=False):
         db.session.rollback()
         raise
 
-    playlists_cache.clear()
+    invalidate_playlists_cache()
     pubsub.publish(
         current_app.config['PUBSUB_PUB_URL_DJ'],
         message={
@@ -107,7 +107,7 @@ def disable_automation():
                 except:
                     db.session.rollback()
                     raise
-                playlists_cache.clear()
+                invalidate_playlists_cache()
             else:
                 current_app.logger.warning(
                     "Trackman: The provided automation set ({0}) was not "
@@ -129,7 +129,7 @@ def enable_automation():
         except:
             db.session.rollback()
             raise
-        playlists_cache.clear()
+        invalidate_playlists_cache()
 
     current_app.logger.info("Trackman: Automation enabled with DJSet.id "
                             "= {}".format(automation_set.id))
@@ -187,7 +187,7 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
         db.session.rollback()
         raise
 
-    playlists_cache.clear()
+    invalidate_playlists_cache()
     pubsub.publish(
         current_app.config['PUBSUB_PUB_URL_ALL'],
         message={
@@ -236,7 +236,7 @@ def get_current_tracklog():
 def fixup_current_track(event="track_edit"):
     tracklog = get_current_tracklog()
 
-    playlists_cache.clear()
+    invalidate_playlists_cache()
     pubsub.publish(
         current_app.config['PUBSUB_PUB_URL_ALL'],
         message={
@@ -268,7 +268,7 @@ def merge_duplicate_tracks(*args, **kwargs):
             db.session.rollback()
             raise
 
-        playlists_cache.clear()
+        invalidate_playlists_cache()
 
     return count, track_id
 
@@ -347,7 +347,7 @@ def autofill_na_labels():
                 db.session.rollback()
                 raise
 
-            playlists_cache.clear()
+            invalidate_playlists_cache()
             current_app.logger.info(
                 "Trackman: Found a track with a label for track ID {0:d}, "
                 "merged into {1:d}".format(na_track.id, other_track.id))
@@ -385,7 +385,7 @@ def prune_empty_djsets():
         db.session.rollback()
         raise
 
-    playlists_cache.clear()
+    invalidate_playlists_cache()
     current_app.logger.debug("Trackman: Removed {} empty DJSets.".format(
         empty.count()))
 
@@ -435,7 +435,7 @@ def find_or_add_track(track):
         except:
             db.session.rollback()
             raise
-        playlists_cache.clear()
+        invalidate_playlists_cache()
         return track
     else:
         return match
@@ -463,3 +463,7 @@ def cleanup_expired_claim_tokens():
     for token in tokens:
         db.session.delete(token)
     db.session.commit()
+
+
+def invalidate_playlists_cache():
+    redis_conn.set('playlists_last_modified', datetime.utcnow())

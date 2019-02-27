@@ -15,7 +15,6 @@ cffi==1.11.5              # via cryptography
 chardet==3.0.4            # via requests
 click==7.0
 cryptography==2.3.1       # via pymysql
-flask-caching==1.4.0
 flask-migrate==2.2.1
 flask-oidc==1.4.0
 flask-restful==0.3.6

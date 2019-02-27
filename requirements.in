@@ -1,7 +1,6 @@
 apscheduler
 click
 Flask
-Flask-Caching
 Flask-Migrate
 flask-oidc
 Flask-RESTful

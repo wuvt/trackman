@@ -127,16 +127,6 @@ def inject_year():
     return {'year': datetime.date.today().strftime("%Y")}
 
 
-from .cache import ResourceCache
-playlists_cache = ResourceCache(config={
-    'CACHE_KEY_PREFIX': "trackman_playlists_",
-})
-charts_cache = ResourceCache(config={
-    'CACHE_DEFAULT_TIMEOUT': 14400,
-    'CACHE_KEY_PREFIX': "trackman_charts_",
-})
-
-
 if app.debug:
     from werkzeug.debug import DebuggedApplication
     app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
@@ -159,14 +149,6 @@ def init_app():
     app.register_blueprint(private_bp)
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(library_bp, url_prefix='/library')
-    playlists_cache.init_app(app, config={
-        'CACHE_TYPE': "redis",
-        'CACHE_REDIS_URL': app.config['REDIS_URL'],
-    })
-    charts_cache.init_app(app, config={
-        'CACHE_TYPE': "redis",
-        'CACHE_REDIS_URL': app.config['REDIS_URL'],
-    })
 
 
 init_app()

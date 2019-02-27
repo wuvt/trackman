@@ -1,7 +1,25 @@
-from flask_restful import abort, Resource
+from flask_restful import abort, Resource, ResponseBase, unpack
+from functools import wraps
 from trackman import db, charts
 from trackman.models import DJ, Track, TrackLog
-from .base import ChartResource
+
+
+def cache_charts(f):
+    @wraps(f)
+    def cache_charts_wrapper(*args, **kwargs):
+        resp = f(*args, **kwargs)
+        if isinstance(resp, ResponseBase):
+            return resp
+
+        data, code, headers = unpack(resp)
+        if 'Cache-Control' not in headers:
+            headers['Cache-Control'] = "public, max-age=14400"
+        return data, code, headers
+    return cache_charts_wrapper
+
+
+class ChartResource(Resource):
+    method_decorators = {'get': [cache_charts]}
 
 
 class Charts(Resource):

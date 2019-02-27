@@ -1,9 +1,9 @@
 import datetime
 from flask import current_app, request, session
 from flask_restful import abort
-from trackman import db, redis_conn, mail, models, playlists_cache, pubsub
+from trackman import db, redis_conn, mail, models, pubsub
 from trackman.lib import check_onair, disable_automation, \
-    logout_all_except
+    logout_all_except, invalidate_playlists_cache
 from .base import TrackmanResource
 
 
@@ -86,7 +86,7 @@ class DJSetEnd(TrackmanResource):
         except:
             db.session.rollback()
             raise
-        playlists_cache.clear()
+        invalidate_playlists_cache()
 
         session.pop('dj_id', None)
         session.pop('djset_id', None)
@@ -170,7 +170,7 @@ class DJSetList(TrackmanResource):
         except:
             db.session.rollback()
             raise
-        playlists_cache.clear()
+        invalidate_playlists_cache()
 
         redis_conn.set('onair_djset_id', djset.id)
         session['djset_id'] = djset.id
