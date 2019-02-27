@@ -98,8 +98,6 @@ def run_scheduler():
                       hour=6, minute=0, second=0)
     scheduler.add_job(tasks.cleanup_dj_list_task, 'cron',
                       day_of_week=1, hour=0, minute=0, second=0)
-    scheduler.add_job(tasks.autologout_check, 'interval',
-                      minutes=1)
     scheduler.add_job(tasks.internal_ping, 'interval', minutes=1)
     scheduler.add_job(tasks.cleanup_sessions_and_claim_tokens, 'cron',
                       hour=1, minute=0, second=0)
