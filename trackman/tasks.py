@@ -1,4 +1,4 @@
-from . import app, auth_manager, redis_conn, lib
+from . import app, auth_manager, lib
 import hashlib
 import hmac
 import requests
@@ -24,26 +24,6 @@ def cleanup_dj_list_task():
     with app.app_context():
         app.logger.debug("Trackman: Starting DJ list cleanup...")
         lib.cleanup_dj_list()
-
-
-def autologout_check():
-    with app.app_context():
-        active = redis_conn.get('dj_active')
-        automation = redis_conn.get('automation_enabled')
-        # active is None if dj_active has expired (no activity)
-        if active is None:
-            if automation is None:
-                # This happens when the key is missing;
-                # We just bail out because we don't know the current state
-                pass
-            elif automation == b"true":
-                # Automation is already enabled, carry on
-                pass
-            else:
-                # Automation is disabled; end djset if exists and start
-                # automation
-                lib.logout_all(send_email=True)
-                lib.enable_automation()
 
 
 def cleanup_sessions_and_claim_tokens():
