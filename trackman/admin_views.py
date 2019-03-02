@@ -114,7 +114,7 @@ def login_all():
     onair_djset_id = redis_conn.get('onair_djset_id')
     if onair_djset_id is not None:
         onair_djset = DJSet.query.get(int(onair_djset_id))
-        if onair_djset.dj_id <= 1:
+        if onair_djset is not None and onair_djset.dj_id <= 1:
             onair_djset = None
     else:
         onair_djset = None
