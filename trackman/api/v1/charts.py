@@ -1,5 +1,6 @@
 from flask_restful import abort, Resource, ResponseBase, unpack
 from functools import wraps
+from werkzeug.http import http_date
 from trackman import db, charts
 from trackman.models import DJ, Track, TrackLog
 
@@ -12,8 +13,10 @@ def cache_charts(f):
             return resp
 
         data, code, headers = unpack(resp)
-        if 'Cache-Control' not in headers:
-            headers['Cache-Control'] = "public, max-age=14400"
+        headers.update({
+            'Cache-Control': "public, max-age=14400",
+            'Last-Modified': http_date(),
+        })
         return data, code, headers
     return cache_charts_wrapper
 
