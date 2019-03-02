@@ -466,4 +466,5 @@ def cleanup_expired_claim_tokens():
 
 
 def invalidate_playlists_cache():
-    redis_conn.set('playlists_last_modified', datetime.utcnow())
+    redis_conn.set('playlists_last_modified',
+                   datetime.utcnow().replace(microsecond=0))
