@@ -188,7 +188,11 @@ class TrackSearch(TrackmanResource):
 
         # This means there was a bad search, stop searching
         if somesearch is False:
-            abort(400, success=False, message="No search entires")
+            return {
+                'success': False,
+                'message': "All provided fields to match against are empty",
+                'results': [],
+            }
 
         # Check if results
 
@@ -297,7 +301,11 @@ class TrackAutoComplete(TrackmanResource):
                 with_entities(models.Track.label).\
                 group_by(models.Track.label)
         else:
-            abort(400, success=False)
+            return {
+                'success': False,
+                'message': "Unknown field provided to use for autocomplete",
+                'results': [],
+            }
 
         # To verify some data was searched for
         somesearch = False
@@ -330,7 +338,11 @@ class TrackAutoComplete(TrackmanResource):
 
         # This means there was a bad search, stop searching
         if somesearch is False:
-            abort(400, success=False, message="No search entires")
+            return {
+                'success': False,
+                'message': "All provided fields to match against are empty",
+                'results': [],
+            }
 
         # Check if results
 
