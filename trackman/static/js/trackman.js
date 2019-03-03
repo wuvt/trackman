@@ -123,11 +123,14 @@ Trackman.prototype.validateTrack = function(track) {
 Trackman.prototype.initAutologout = function() {
     this.extendAutologout = false;
 
-    $.ajax({
-        url: this.baseUrl + "/api/autologout",
-        dataType: "json",
-        success: this.updateAutologout,
-    });
+    if(this.djsetId != null) {
+        $.ajax({
+            url: this.baseUrl + "/api/autologout",
+            dataType: "json",
+            success: this.updateAutologout,
+        });
+    }
+
     $('#id_extend_autologout').on('change', null, {'instance': this},
                                   this.toggleAutologout);
 };
