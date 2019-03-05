@@ -1,6 +1,6 @@
 import datetime
 import dateutil.parser
-from flask import request
+from flask import json, request
 from flask_restful import abort, Resource, ResponseBase, unpack
 from functools import wraps
 from werkzeug.http import http_date, parse_date
@@ -41,11 +41,22 @@ def cache_playlists(f):
     return cache_playlists_wrapper
 
 
+def load_cached(k):
+    cached = redis_conn.get(k)
+    if cached is not None:
+        try:
+            return json.loads(cached)
+        except Exception:
+            return None
+    else:
+        return None
+
+
 class PlaylistResource(Resource):
     method_decorators = {'get': [cache_playlists]}
 
 
-class NowPlaying(PlaylistResource):
+class NowPlaying(Resource):
     def get(self):
         """
         Retrieve information about what is currently playing.
@@ -57,8 +68,12 @@ class NowPlaying(PlaylistResource):
         - tracklog
         - track
         """
-        tracklog = TrackLog.query.order_by(db.desc(TrackLog.id)).first()
-        return tracklog.api_serialize()
+        data = load_cached('playlists_now_playing')
+        if data is None:
+            tracklog = TrackLog.query.order_by(db.desc(TrackLog.id)).first()
+            data = tracklog.api_serialize()
+            redis_conn.set('playlists_now_playing', json.dumps(data))
+        return data
 
 
 class Last15Tracks(PlaylistResource):
@@ -79,7 +94,7 @@ class Last15Tracks(PlaylistResource):
         }
 
 
-class LatestTrack(PlaylistResource):
+class LatestTrack(Resource):
     def get(self):
         """
         Retrieve information about what is currently playing in the old format.
@@ -91,7 +106,11 @@ class LatestTrack(PlaylistResource):
         - tracklog
         - track
         """
-        return serialize_trackinfo(get_current_tracklog())
+        data = load_cached('playlists_latest_track')
+        if data is None:
+            data = serialize_trackinfo(get_current_tracklog())
+            redis_conn.set('playlists_latest_track', json.dumps(data))
+        return data
 
 
 class PlaylistsByDay(PlaylistResource):
