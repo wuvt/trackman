@@ -6,28 +6,32 @@ import requests
 
 def email_weekly_charts():
     with app.app_context():
+        app.logger.warning("Sending weekly charts email...")
         lib.email_weekly_charts()
 
 
 def deduplicate_tracks():
     with app.app_context():
+        app.logger.warning("Starting deduplication of tracks...")
         lib.deduplicate_all_tracks()
 
 
 def playlist_cleanup():
     with app.app_context():
-        app.logger.debug("Trackman: Starting playlist cleanup...")
+        app.logger.warning("Starting playlist cleanup...")
         lib.prune_empty_djsets()
 
 
 def cleanup_dj_list_task():
     with app.app_context():
-        app.logger.debug("Trackman: Starting DJ list cleanup...")
+        app.logger.warning("Starting DJ list cleanup...")
         lib.cleanup_dj_list()
 
 
 def cleanup_sessions_and_claim_tokens():
     with app.app_context():
+        app.logger.warning("Starting cleanup of expired sessions and claim "
+                           "tokens...")
         auth_manager.cleanup_expired_sessions()
         lib.cleanup_expired_claim_tokens()
 
