@@ -4,10 +4,11 @@ import csv
 import dateutil.parser
 import io
 
-from trackman import auth_manager, db, format_datetime
+from trackman import auth_manager, db
 from trackman.auth import login_required
 from trackman.admin import bp
 from trackman.admin.auth import views as auth_views
+from trackman.filters import format_datetime
 from trackman.forms import DJRegisterForm, DJAdminEditForm, RotationForm, \
     RotationEditForm
 from trackman.models import DJ, Rotation, TrackLog

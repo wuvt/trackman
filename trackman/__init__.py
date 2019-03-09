@@ -1,44 +1,16 @@
-from dateutil import tz
 from flask import Flask, Request
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 import humanize
 import os
-from . import defaults
+from . import defaults, filters
 from .kv import KVStore
 import datetime
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 json_mimetypes = ['application/json']
-
-
-def localize_datetime(fromtime):
-    return fromtime.replace(tzinfo=tz.tzutc()).astimezone(tz.tzlocal())
-
-
-def format_datetime(value, format=None):
-    value = localize_datetime(value)
-    return value.strftime(format or "%Y-%m-%d %H:%M:%S %z")
-
-
-def format_isodatetime(value):
-    if value.utcoffset() is None:
-        value = value.replace(tzinfo=tz.tzutc())
-
-    return value.isoformat()
-
-
-def format_currency(value):
-    return "${:,.2f}".format(value)
-
-
-def format_uuid(value):
-    try:
-        return uuid.UUID(value)
-    except ValueError:
-        return None
 
 
 class JSONRequest(Request):
@@ -88,10 +60,10 @@ app.jinja_env.filters.update({
     'naturaltime': humanize.naturaltime,
     'naturalsize': humanize.naturalsize,
 
-    'datetime': format_datetime,
-    'isodatetime': format_isodatetime,
-    'format_currency': format_currency,
-    'uuid': format_uuid,
+    'datetime': filters.format_datetime,
+    'isodatetime': filters.format_isodatetime,
+    'format_currency': filters.format_currency,
+    'uuid': filters.format_uuid,
 })
 app.static_folder = 'static'
 

@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 import email.utils
 import smtplib
 import ssl
-from . import format_datetime
+from .filters import format_datetime
 
 
 def get_smtp():

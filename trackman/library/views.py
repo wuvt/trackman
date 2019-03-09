@@ -3,7 +3,7 @@ from flask import abort, current_app, flash, render_template, redirect, \
 import string
 import uuid
 
-from trackman import auth_manager, db, format_datetime
+from trackman import auth_manager, db
 from trackman.models import DJ, Track, TrackLog, TrackReport
 from trackman.lib import deduplicate_track_by_id
 from trackman.musicbrainz import musicbrainzngs
