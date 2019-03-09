@@ -5,9 +5,8 @@ from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 import humanize
 import os
-import redis
 from . import defaults
-import uuid
+from .kv import KVStore
 import datetime
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
@@ -101,11 +100,10 @@ if app.config['PROXY_FIX']:
     app.wsgi_app = ProxyFix(app.wsgi_app,
                             num_proxies=app.config['PROXY_FIX_NUM_PROXIES'])
 
-redis_conn = redis.from_url(app.config['REDIS_URL'])
-
 csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+kv = KVStore(app)
 
 from trackman.auth import AuthManager
 auth_manager = AuthManager()

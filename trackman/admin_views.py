@@ -3,7 +3,7 @@ from flask import current_app, flash, jsonify, render_template, \
 import datetime
 import hmac
 
-from . import db, redis_conn
+from . import db, kv
 from .auth import current_user
 from .blueprints import private_bp
 from .forms import DJRegisterForm, DJReactivateForm
@@ -37,11 +37,11 @@ def login():
 
         return redirect(url_for('.log'))
 
-    automation = redis_conn.get('automation_enabled') == b"true"
+    automation = kv.get('automation_enabled', cast=bool)
 
-    onair_djset_id = redis_conn.get('onair_djset_id')
+    onair_djset_id = kv.get('onair_djset_id', cast=int)
     if onair_djset_id is not None:
-        onair_djset = DJSet.query.get(int(onair_djset_id))
+        onair_djset = DJSet.query.get(onair_djset_id)
         if onair_djset is not None and onair_djset.dj_id <= 1:
             onair_djset = None
     else:
@@ -109,11 +109,11 @@ def login_all():
 
         return redirect(url_for('.log'))
 
-    automation = redis_conn.get('automation_enabled') == b"true"
+    automation = kv.get('automation_enabled', cast=bool)
 
-    onair_djset_id = redis_conn.get('onair_djset_id')
+    onair_djset_id = kv.get('onair_djset_id', cast=int)
     if onair_djset_id is not None:
-        onair_djset = DJSet.query.get(int(onair_djset_id))
+        onair_djset = DJSet.query.get(onair_djset_id)
         if onair_djset is not None and onair_djset.dj_id <= 1:
             onair_djset = None
     else:
@@ -128,7 +128,7 @@ def login_all():
 @private_bp.route('/automation/start', methods=['POST'])
 @dj_only
 def start_automation():
-    automation = redis_conn.get('automation_enabled') == b"true"
+    automation = kv.get('automation_enabled', cast=bool)
     if not automation:
         current_app.logger.warning(
             "Trackman: Start automation from {ip} using {ua}".format(

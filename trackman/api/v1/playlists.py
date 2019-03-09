@@ -4,7 +4,7 @@ from flask import json, request
 from flask_restful import abort, Resource, ResponseBase, unpack
 from functools import wraps
 from werkzeug.http import http_date, parse_date
-from trackman import db, redis_conn
+from trackman import db, kv
 from trackman.lib import get_current_tracklog, serialize_trackinfo
 from trackman.models import DJ, DJSet, Track, TrackLog
 from trackman.view_utils import list_archives
@@ -14,13 +14,13 @@ def cache_playlists(f):
     @wraps(f)
     def cache_playlists_wrapper(*args, **kwargs):
         modified_since = parse_date(request.headers.get('If-Modified-Since'))
-        playlists_last_modified = redis_conn.get('playlists_last_modified')
+        playlists_last_modified = kv.get('playlists_last_modified')
 
         try:
             last_modified = dateutil.parser.parse(playlists_last_modified)
         except (TypeError, ValueError):
             last_modified = datetime.datetime.utcnow().replace(microsecond=0)
-            redis_conn.set('playlists_last_modified', last_modified)
+            kv.set('playlists_last_modified', last_modified)
 
         if modified_since is not None and last_modified <= modified_since:
             data = {}
@@ -42,7 +42,7 @@ def cache_playlists(f):
 
 
 def load_cached(k):
-    cached = redis_conn.get(k)
+    cached = kv.get(k)
     if cached is not None:
         try:
             return json.loads(cached)
@@ -72,7 +72,7 @@ class NowPlaying(Resource):
         if data is None:
             tracklog = TrackLog.query.order_by(db.desc(TrackLog.id)).first()
             data = tracklog.api_serialize()
-            redis_conn.set('playlists_now_playing', json.dumps(data))
+            kv.set('playlists_now_playing', json.dumps(data))
         return data
 
 
@@ -109,7 +109,7 @@ class LatestTrack(Resource):
         data = load_cached('playlists_latest_track')
         if data is None:
             data = serialize_trackinfo(get_current_tracklog())
-            redis_conn.set('playlists_latest_track', json.dumps(data))
+            kv.set('playlists_latest_track', json.dumps(data))
         return data
 
 

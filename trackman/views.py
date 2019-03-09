@@ -3,7 +3,7 @@ from flask import jsonify, render_template, request, send_from_directory, \
 import redis.exceptions
 import sqlalchemy.exc
 
-from . import app, db, redis_conn
+from . import app, db, kv
 from .view_utils import IPAccessDeniedException
 
 
@@ -68,7 +68,7 @@ def healthcheck():
         db_status = None
 
     try:
-        redis_status = redis_conn.info()
+        redis_status = kv.info()
     except redis.exceptions.ConnectionError:
         redis_status = None
 

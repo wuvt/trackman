@@ -1,6 +1,6 @@
 from flask import current_app
 from flask_restful import abort
-from trackman import db, redis_conn, models
+from trackman import db, kv, models
 from trackman.forms import AutomationTrackLogForm
 from trackman.lib import log_track, find_or_add_track
 from trackman.view_utils import local_only
@@ -64,7 +64,7 @@ class AutomationLog(TrackmanStudioResource):
         if form.password.data != current_app.config['AUTOMATION_PASSWORD']:
             abort(401, success=False, message="Invalid automation password")
 
-        automation = redis_conn.get('automation_enabled') == b"true"
+        automation = kv.get('automation_enabled', cast=bool)
         if not automation:
             return {
                 'success': False,
@@ -120,9 +120,8 @@ class AutomationLog(TrackmanStudioResource):
                 else:
                     track = notauto.first()
 
-        djset_id = redis_conn.get('automation_set')
-        if djset_id != None:
-            djset_id = int(djset_id)
+        djset_id = kv.get('automation_set', cast=int)
+        if djset_id is not None:
             log_track(track.id, djset_id, track=track)
             return {'success': True}, 201
         else:

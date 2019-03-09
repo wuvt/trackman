@@ -5,7 +5,7 @@ import urllib.parse
 from datetime import datetime, timedelta
 from flask import current_app
 
-from . import db, redis_conn, mail, pubsub
+from . import db, kv, mail, pubsub
 from .models import AirLog, Track, TrackLog, DJ, DJClaimToken, DJSet
 
 
@@ -23,16 +23,15 @@ def get_duplicates(model, attrs, ignore_case=False):
 
 
 def renew_dj_lease(expire=None):
-    redis_conn.set('dj_active', 'true')
+    kv.set('dj_active', True)
 
     if expire is None:
         # logout/login must delete this dj_timeout
-        expire = redis_conn.get('dj_timeout')
+        expire = kv.get('dj_timeout', cast=int)
         if expire is None:
             expire = current_app.config['DJ_TIMEOUT']
-        expire = int(expire)
 
-    redis_conn.expire('dj_active', expire)
+    kv.expire('dj_active', expire)
 
 
 def logout_all(send_email=False):
@@ -63,7 +62,7 @@ def logout_all(send_email=False):
         message={
             'event': "session_end",
         })
-    redis_conn.delete('dj_timeout')
+    kv.delete('dj_timeout')
 
 
 def logout_all_except(dj_id):
@@ -91,15 +90,15 @@ def perdelta(start, end, td):
 
 def disable_automation():
     # Make sure automation is actually enabled before changing the end time
-    if redis_conn.get("automation_enabled") == b"true":
-        redis_conn.set("automation_enabled", b"false")
-        automation_set_id = redis_conn.get("automation_set")
+    if kv.get("automation_enabled", cast=bool) is True:
+        kv.set("automation_enabled", False)
+        automation_set_id = kv.get("automation_set", cast=int)
         current_app.logger.info(
             "Trackman: Automation disabled with DJSet.id = {}".format(
-                int(automation_set_id)))
+                automation_set_id))
         if automation_set_id is not None:
             automation_set = DJSet.query.with_for_update().get(
-                int(automation_set_id))
+                automation_set_id)
             if automation_set is not None:
                 automation_set.dtend = datetime.utcnow()
                 try:
@@ -117,7 +116,7 @@ def disable_automation():
 
 
 def enable_automation():
-    redis_conn.set('automation_enabled', b"true")
+    kv.set('automation_enabled', True)
 
     # try to reuse existing DJSet if possible
     automation_set = logout_all_except(1)
@@ -126,15 +125,15 @@ def enable_automation():
         db.session.add(automation_set)
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
         invalidate_playlists_cache()
 
     current_app.logger.info("Trackman: Automation enabled with DJSet.id "
                             "= {}".format(automation_set.id))
-    redis_conn.set('automation_set', automation_set.id)
-    redis_conn.set('onair_djset_id', automation_set.id)
+    kv.set('automation_set', automation_set.id)
+    kv.set('onair_djset_id', automation_set.id)
 
 
 def stream_listeners(url, mounts=None, timeout=5):
@@ -445,9 +444,9 @@ def check_onair(djset_id):
     if djset_id is None:
         return False
 
-    onair_djset_id = redis_conn.get('onair_djset_id')
+    onair_djset_id = kv.get('onair_djset_id', cast=int)
     if onair_djset_id is not None:
-        return djset_id == int(onair_djset_id)
+        return djset_id == onair_djset_id
     else:
         return False
 
@@ -466,7 +465,7 @@ def cleanup_expired_claim_tokens():
 
 
 def invalidate_playlists_cache():
-    redis_conn.set('playlists_last_modified',
-                   datetime.utcnow().replace(microsecond=0))
-    redis_conn.delete('playlists_now_playing')
-    redis_conn.delete('playlists_latest_track')
+    kv.set('playlists_last_modified',
+           datetime.utcnow().replace(microsecond=0))
+    kv.delete('playlists_now_playing')
+    kv.delete('playlists_latest_track')

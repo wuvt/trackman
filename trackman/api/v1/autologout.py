@@ -1,6 +1,6 @@
 from flask import current_app, request
 from flask_restful import abort
-from trackman import redis_conn
+from trackman import kv
 from .base import TrackmanOnAirResource
 
 
@@ -24,7 +24,7 @@ class AutologoutControl(TrackmanOnAirResource):
                   type: boolean
         """
 
-        dj_timeout = redis_conn.get('dj_timeout')
+        dj_timeout = kv.get('dj_timeout')
         return {
             'success': True,
             'autologout': dj_timeout is None,
@@ -65,15 +65,15 @@ class AutologoutControl(TrackmanOnAirResource):
                   message="No autologout field given in POST")
 
         if request.form['autologout'] == 'enable':
-            redis_conn.delete('dj_timeout')
+            kv.delete('dj_timeout')
 
             return {
                 'success': True,
                 'autologout': True,
             }
         else:
-            redis_conn.set('dj_timeout',
-                           current_app.config['EXTENDED_DJ_TIMEOUT'])
+            kv.set('dj_timeout',
+                   current_app.config['EXTENDED_DJ_TIMEOUT'])
 
             return {
                 'success': True,

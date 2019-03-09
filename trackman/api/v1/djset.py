@@ -1,7 +1,7 @@
 import datetime
 from flask import current_app, request, session
 from flask_restful import abort
-from trackman import db, redis_conn, mail, models, pubsub
+from trackman import db, kv, mail, models, pubsub
 from trackman.lib import check_onair, disable_automation, \
     logout_all_except, invalidate_playlists_cache
 from .base import TrackmanResource
@@ -98,15 +98,15 @@ class DJSetEnd(TrackmanResource):
             })
 
         if check_onair(djset_id):
-            redis_conn.delete('onair_djset_id')
+            kv.delete('onair_djset_id')
 
         # Reset the dj activity timeout period
-        redis_conn.delete('dj_timeout')
+        kv.delete('dj_timeout')
 
         # Set dj_active expiration to NO_DJ_TIMEOUT to reduce automation
         # start time
-        redis_conn.set('dj_active', 'false')
-        redis_conn.expire(
+        kv.set('dj_active', False)
+        kv.expire(
             'dj_active', int(current_app.config['NO_DJ_TIMEOUT']))
 
         # email playlist
@@ -172,7 +172,7 @@ class DJSetList(TrackmanResource):
             raise
         invalidate_playlists_cache()
 
-        redis_conn.set('onair_djset_id', djset.id)
+        kv.set('onair_djset_id', djset.id)
         session['djset_id'] = djset.id
 
         return {

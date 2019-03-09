@@ -1,5 +1,5 @@
 from flask import current_app
-from trackman import lib, pubsub, redis_conn
+from trackman import lib, pubsub, kv
 from trackman.view_utils import check_request_sig
 from .base import TrackmanResource
 
@@ -25,15 +25,15 @@ class InternalPing(InternalResource):
             current_app.config['PUBSUB_PUB_URL_DJ'],
             message={'event': "keepalive"})
 
-        dj_active = redis_conn.get('dj_active')
-        automation = redis_conn.get('automation_enabled')
+        dj_active = kv.get('dj_active')
+        automation = kv.get('automation_enabled', cast=bool)
         # dj_active is None if dj_active has expired (no activity)
         if dj_active is None:
             if automation is None:
                 # This happens when the key is missing;
                 # We just bail out because we don't know the current state
                 pass
-            elif automation == b"true":
+            elif automation is True:
                 # Automation is already enabled, carry on
                 pass
             else:
