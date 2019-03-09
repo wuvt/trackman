@@ -283,8 +283,8 @@ def deduplicate_track_by_id(dedup_id, ignore_case=False):
     fields = ['artist', 'title', 'album', 'label']
     if ignore_case:
         count, track_id = merge_duplicate_tracks(db.and_(*[
-            db.func.lower(getattr(Track, field)) ==
-            db.func.lower(getattr(source_track, field))
+            db.func.lower(getattr(Track, field)) == db.func.lower(
+                getattr(source_track, field))
             for field in fields
         ]))
     else:
