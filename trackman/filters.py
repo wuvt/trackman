@@ -18,10 +18,6 @@ def format_isodatetime(value):
     return value.isoformat()
 
 
-def format_currency(value):
-    return "${:,.2f}".format(value)
-
-
 def format_uuid(value):
     try:
         return uuid.UUID(value)

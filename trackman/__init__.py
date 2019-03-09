@@ -62,7 +62,6 @@ app.jinja_env.filters.update({
 
     'datetime': filters.format_datetime,
     'isodatetime': filters.format_isodatetime,
-    'format_currency': filters.format_currency,
     'uuid': filters.format_uuid,
 })
 app.static_folder = 'static'
