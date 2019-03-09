@@ -1,5 +1,6 @@
 from flask import abort, current_app, flash, render_template, redirect, \
     request, url_for
+from sqlalchemy.exc import SQLAlchemyError
 import string
 import uuid
 
@@ -214,7 +215,7 @@ def track(id):
 
             try:
                 db.session.commit()
-            except:
+            except SQLAlchemyError:
                 db.session.rollback()
                 raise
 
@@ -253,7 +254,7 @@ def track_musicbrainz(id):
 
             try:
                 db.session.commit()
-            except:
+            except SQLAlchemyError:
                 db.session.rollback()
                 raise
 
@@ -325,7 +326,7 @@ def track_musicbrainz(id):
 
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
 
@@ -371,7 +372,7 @@ def track_similar(id, page=1):
 
             try:
                 db.session.commit()
-            except:
+            except SQLAlchemyError:
                 db.session.rollback()
                 raise
 

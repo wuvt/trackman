@@ -4,6 +4,7 @@ import os
 import urllib.parse
 from datetime import datetime, timedelta
 from flask import current_app
+from sqlalchemy.exc import SQLAlchemyError
 
 from . import db, kv, mail, pubsub
 from .models import AirLog, Track, TrackLog, DJ, DJClaimToken, DJSet
@@ -52,7 +53,7 @@ def logout_all(send_email=False):
 
     try:
         db.session.commit()
-    except:
+    except SQLAlchemyError:
         db.session.rollback()
         raise
 
@@ -103,7 +104,7 @@ def disable_automation():
                 automation_set.dtend = datetime.utcnow()
                 try:
                     db.session.commit()
-                except:
+                except SQLAlchemyError:
                     db.session.rollback()
                     raise
                 invalidate_playlists_cache()
@@ -182,7 +183,7 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
 
     try:
         db.session.commit()
-    except:
+    except SQLAlchemyError:
         db.session.rollback()
         raise
 
@@ -259,11 +260,11 @@ def merge_duplicate_tracks(*args, **kwargs):
 
         # delete existing Track entries
         for track in tracks[1:]:
-            ret = db.session.delete(track)
+            db.session.delete(track)
 
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
 
@@ -342,7 +343,7 @@ def autofill_na_labels():
 
             try:
                 db.session.commit()
-            except:
+            except SQLAlchemyError:
                 db.session.rollback()
                 raise
 
@@ -380,7 +381,7 @@ def prune_empty_djsets():
         db.session.delete(djset)
     try:
         db.session.commit()
-    except:
+    except SQLAlchemyError:
         db.session.rollback()
         raise
 
@@ -416,7 +417,7 @@ def cleanup_dj_list():
         dj.visible = False
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
 
@@ -431,7 +432,7 @@ def find_or_add_track(track):
         db.session.add(track)
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
         invalidate_playlists_cache()

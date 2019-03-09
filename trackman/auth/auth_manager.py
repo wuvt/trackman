@@ -4,6 +4,7 @@ import os
 from flask import abort, flash, json, make_response, redirect, request, \
     session, url_for, _request_ctx_stack
 from functools import wraps
+from sqlalchemy.exc import SQLAlchemyError
 
 from .models import User, UserSession
 from .mixins import AnonymousUserMixin
@@ -99,7 +100,7 @@ class AuthManager(object):
 
         try:
             self.db.session.commit()
-        except:
+        except SQLAlchemyError:
             self.db.session.rollback()
             raise
 
@@ -116,7 +117,7 @@ class AuthManager(object):
                 self.db.session.delete(user_session)
                 try:
                     self.db.session.commit()
-                except:
+                except SQLAlchemyError:
                     self.db.session.rollback()
                     raise
 

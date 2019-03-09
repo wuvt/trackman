@@ -1,5 +1,6 @@
 from flask import current_app, flash, jsonify, render_template, \
         redirect, request, session, url_for, make_response, abort, Response
+from sqlalchemy.exc import SQLAlchemyError
 import datetime
 import hmac
 
@@ -80,7 +81,7 @@ def login_all():
                 db.session.add(claim_token)
                 try:
                     db.session.commit()
-                except:
+                except SQLAlchemyError:
                     db.session.rollback()
                     raise
 
@@ -94,7 +95,7 @@ def login_all():
         dj.visible = True
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
 
@@ -197,7 +198,7 @@ def register():
             db.session.add(newdj)
             try:
                 db.session.commit()
-            except:
+            except SQLAlchemyError:
                 db.session.rollback()
                 raise
 
@@ -206,7 +207,7 @@ def register():
                 db.session.add(claim)
                 try:
                     db.session.commit()
-                except:
+                except SQLAlchemyError:
                     db.session.rollback()
                     raise
 
@@ -243,7 +244,7 @@ def reactivate_dj():
             dj.phone = form.phone.data
             try:
                 db.session.commit()
-            except:
+            except SQLAlchemyError:
                 db.session.rollback()
                 raise
 

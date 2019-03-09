@@ -1,3 +1,4 @@
+from sqlalchemy.exc import SQLAlchemyError
 from trackman import db
 from trackman.models import DJ, Rotation, Track
 
@@ -9,7 +10,7 @@ def initdb():
     db.session.add(dj)
     try:
         db.session.commit()
-    except:
+    except SQLAlchemyError:
         db.session.rollback()
         raise
 
@@ -20,7 +21,7 @@ def initdb():
 
     try:
         db.session.commit()
-    except:
+    except SQLAlchemyError:
         db.session.rollback()
         raise
 
@@ -34,7 +35,7 @@ def add_sample_djs():
     db.session.add(DJ('Testy McTesterson', 'Testy McTesterson'))
     try:
         db.session.commit()
-    except:
+    except SQLAlchemyError:
         db.session.rollback()
         raise
 
@@ -44,6 +45,6 @@ def add_sample_tracks():
     db.session.add(Track('Second Stone', 'Epica', 'The Quantum Enigma', 'Nuclear Blast'))
     try:
         db.session.commit()
-    except:
+    except SQLAlchemyError:
         db.session.rollback()
         raise

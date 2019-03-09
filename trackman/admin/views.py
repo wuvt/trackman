@@ -1,5 +1,6 @@
 from flask import current_app, flash, redirect, render_template, request, \
     url_for
+from sqlalchemy.exc import SQLAlchemyError
 import csv
 import dateutil.parser
 import io
@@ -41,7 +42,7 @@ def dj_add():
         db.session.add(newdj)
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
 
@@ -70,7 +71,7 @@ def dj_edit(id):
 
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
 
@@ -137,7 +138,7 @@ def rotation_add():
         db.session.add(rotation)
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
 
@@ -157,7 +158,7 @@ def rotation_edit(id):
         rotation.visible = form.visible.data
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
 

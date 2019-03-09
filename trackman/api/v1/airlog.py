@@ -1,6 +1,7 @@
 import dateutil.parser
 from flask import session
 from flask_restful import abort
+from sqlalchemy.exc import SQLAlchemyError
 from trackman import db, models
 from trackman.forms import AirLogForm, AirLogEditForm
 from trackman.lib import invalidate_playlists_cache
@@ -41,7 +42,7 @@ class AirLog(TrackmanOnAirResource):
         db.session.delete(airlog)
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
 
@@ -109,7 +110,7 @@ class AirLog(TrackmanOnAirResource):
 
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
 
@@ -166,7 +167,7 @@ class AirLogList(TrackmanOnAirResource):
         db.session.add(airlog)
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
 

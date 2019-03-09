@@ -1,9 +1,9 @@
-from flask import abort, flash, jsonify, make_response, redirect, \
+from flask import flash, jsonify, make_response, redirect, \
     render_template, request, url_for
+from sqlalchemy.exc import SQLAlchemyError
 
 from trackman import app, auth_manager, db
 from trackman.admin import bp
-from trackman.auth import current_user, current_user_roles, login_required
 from trackman.auth.models import UserRole, GroupRole
 
 
@@ -29,7 +29,7 @@ def role_add_user():
 
                 try:
                     db.session.commit()
-                except:
+                except SQLAlchemyError:
                     db.session.rollback()
                     raise
 
@@ -50,7 +50,7 @@ def role_remove_user(id):
 
     try:
         db.session.commit()
-    except:
+    except SQLAlchemyError:
         db.session.rollback()
         raise
 
@@ -85,7 +85,7 @@ def role_add_group():
                 db.session.add(GroupRole(group, role))
                 try:
                     db.session.commit()
-                except:
+                except SQLAlchemyError:
                     db.session.rollback()
                     raise
 
@@ -105,7 +105,7 @@ def role_remove_group(id):
     db.session.delete(group_role)
     try:
         db.session.commit()
-    except:
+    except SQLAlchemyError:
         db.session.rollback()
         raise
 

@@ -1,6 +1,7 @@
 import datetime
 from flask import current_app, request, session
 from flask_restful import abort
+from sqlalchemy.exc import SQLAlchemyError
 from trackman import db, kv, mail, models, pubsub
 from trackman.lib import check_onair, disable_automation, \
     logout_all_except, invalidate_playlists_cache
@@ -83,7 +84,7 @@ class DJSetEnd(TrackmanResource):
 
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
         invalidate_playlists_cache()
@@ -167,7 +168,7 @@ class DJSetList(TrackmanResource):
 
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
         invalidate_playlists_cache()

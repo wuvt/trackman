@@ -1,5 +1,6 @@
 from flask import session
 from flask_restful import abort
+from sqlalchemy.exc import SQLAlchemyError
 from trackman import db, models
 from trackman.forms import DJEditForm
 from .base import TrackmanResource
@@ -76,7 +77,7 @@ class DJ(TrackmanResource):
 
         try:
             db.session.commit()
-        except:
+        except SQLAlchemyError:
             db.session.rollback()
             raise
 

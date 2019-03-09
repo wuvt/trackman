@@ -1,5 +1,6 @@
 from flask import current_app
 from flask_restful import abort
+from sqlalchemy.exc import SQLAlchemyError
 from trackman import db, kv, models
 from trackman.forms import AutomationTrackLogForm
 from trackman.lib import log_track, find_or_add_track
@@ -109,7 +110,7 @@ class AutomationLog(TrackmanStudioResource):
                 db.session.add(track)
                 try:
                     db.session.commit()
-                except:
+                except SQLAlchemyError:
                     db.session.rollback()
                     raise
             else:
