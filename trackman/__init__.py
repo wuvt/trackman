@@ -3,7 +3,6 @@ from flask import Flask, Request
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy as FlaskSQLAlchemy
 from flask_wtf.csrf import CSRFProtect
-from werkzeug.contrib.cache import RedisCache
 import humanize
 import os
 import redis
@@ -104,7 +103,6 @@ if app.config['PROXY_FIX']:
 
 redis_conn = redis.from_url(app.config['REDIS_URL'])
 
-cache = RedisCache(host=redis_conn)
 csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

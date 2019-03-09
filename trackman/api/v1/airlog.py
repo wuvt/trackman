@@ -3,6 +3,7 @@ from flask import session
 from flask_restful import abort
 from trackman import db, models
 from trackman.forms import AirLogForm, AirLogEditForm
+from trackman.lib import invalidate_playlists_cache
 from .base import TrackmanOnAirResource
 
 
