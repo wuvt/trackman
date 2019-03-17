@@ -1,5 +1,5 @@
 from flask import current_app, flash, jsonify, render_template, \
-        redirect, request, session, url_for, make_response, abort, Response
+    redirect, request, session, url_for, make_response, abort, Response
 from sqlalchemy.exc import SQLAlchemyError
 import datetime
 import hmac

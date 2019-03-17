@@ -1,5 +1,5 @@
 from flask import abort, g, get_flashed_messages, redirect, \
-        render_template, request, url_for, session
+    render_template, request, url_for, session
 
 from trackman import app, auth_manager, oidc
 from trackman.auth import login_required, login_user, logout_user
