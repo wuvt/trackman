@@ -91,7 +91,7 @@ def run_scheduler():
 
     scheduler = BlockingScheduler()
     scheduler.add_job(tasks.email_weekly_charts, 'cron',
-                      day_of_week=1, hour=0, minute=0, second=0)
+                      day_of_week=0, hour=0, minute=0, second=0)
     scheduler.add_job(tasks.deduplicate_tracks, 'cron',
                       hour=3, minute=0, second=0)
     scheduler.add_job(tasks.playlist_cleanup, 'cron',
