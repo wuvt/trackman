@@ -46,10 +46,7 @@ def oidc_callback():
         return render_template('auth/need_email.html'), 400
 
     user = User(id_token)
-    user_groups = None
-    if 'groups' in id_token:
-        user_groups = id_token['groups']
-
+    user_groups = id_token.get(app.config.get('OIDC_GROUPS_CLAIM', 'groups'))
     login_user(user, get_user_roles(user, user_groups))
 
     log_auth_success("oidc", user.sub)
