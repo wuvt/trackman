@@ -5,7 +5,6 @@ RUN apt-get update && apt-get install -y \
             libcap-dev \
             libjansson-dev \
             libpcre3-dev \
-            librsvg2-bin \
             libsasl2-dev \
             libyaml-dev \
             optipng \

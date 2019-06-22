@@ -10,7 +10,6 @@ RUN apt-get update \
             libcap-dev \
             libjansson-dev \
             libpcre3-dev \
-            librsvg2-bin \
             libsasl2-dev \
             libyaml-dev \
             optipng \
