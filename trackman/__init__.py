@@ -144,7 +144,7 @@ def init_app():
 
     from .blueprints import private_bp
     app.register_blueprint(private_bp)
-    app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(api_bp)
     app.register_blueprint(library_bp, url_prefix='/library')
     playlists_cache.init_app(app, config={
         'CACHE_TYPE': "redis",
