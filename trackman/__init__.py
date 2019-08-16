@@ -146,13 +146,16 @@ def init_app():
     app.register_blueprint(private_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(library_bp, url_prefix='/library')
+
+    cache_redis_url = app.config.get('CACHE_REDIS_URL',
+                                     app.config['REDIS_URL'])
     playlists_cache.init_app(app, config={
         'CACHE_TYPE': "redis",
-        'CACHE_REDIS_URL': app.config['REDIS_URL'],
+        'CACHE_REDIS_URL': cache_redis_url,
     })
     charts_cache.init_app(app, config={
         'CACHE_TYPE': "redis",
-        'CACHE_REDIS_URL': app.config['REDIS_URL'],
+        'CACHE_REDIS_URL': cache_redis_url,
     })
 
 
