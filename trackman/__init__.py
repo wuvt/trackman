@@ -99,9 +99,6 @@ auth_manager = AuthManager()
 auth_manager.db = db
 auth_manager.init_app(app)
 
-from trackman.auth.oidc import OpenIDConnect
-oidc = OpenIDConnect(app)
-
 if len(app.config['SENTRY_DSN']) > 0:
     sentry_sdk.init(app.config['SENTRY_DSN'],
                     integrations=[FlaskIntegration()])
@@ -130,10 +127,6 @@ if app.debug:
 def init_app():
     from trackman import admin
     app.register_blueprint(admin.bp, url_prefix='/admin')
-
-    from trackman import auth
-    from trackman.auth import views as auth_views
-    app.register_blueprint(auth.bp, url_prefix='/auth')
 
     from . import admin_views, cli, models, views
     from .api import api, api_bp
