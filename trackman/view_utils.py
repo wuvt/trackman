@@ -34,7 +34,7 @@ def local_only(f):
 
 
 def dj_only(f):
-    auth_manager.all_roles.update(set('dj'))
+    auth_manager.all_roles.update(set(['dj']))
     internal_ipset = netaddr.IPSet(app.config['INTERNAL_IPS'])
 
     @wraps(f)
