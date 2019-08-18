@@ -29,5 +29,11 @@
 * `AUTH_ROLE_GROUPS` - Dictionary describing how application roles map to OIDC groups
 * `OIDC_CLIENT_SECRETS` - Path to the OIDC `client_secrets.json` file
 * `OIDC_SCOPES` - List of scopes used for OIDC (i.e. to also use groups)
+* `AUTH_METHOD` - Should either be `google` or `oidc` depending on the method you want to use
+* `GOOGLE_CLIENT_ID` - OAuth2 client ID for Google auth
+* `GOOGLE_CLIENT_SECRET` - OAuth2 client secret for Google auth
+* `GOOGLE_ALLOWED_DOMAINS` - List of allowed domains for Google auth; if not set or empty, all domains are allowed
+* `GOOGLE_ADMIN_SUBJECT` - Needs to be the email address of a Google domain admin; this is required for obtaining user groups
+* `GOOGLE_SERVICE_ACCOUNT_FILE` - Path to the Google service account file used for obtaining user groups
 
 Additional configuration options are described in the documentation for [Flask](http://flask.pocoo.org/docs/1.0/config/#builtin-configuration-values), [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/2.3/config/#configuration-keys), [Flask-WTF](https://flask-wtf.readthedocs.io/en/stable/config.html), and [Flask-OIDC](https://flask-oidc.readthedocs.io/en/latest/#settings-reference).

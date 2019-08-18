@@ -1,4 +1,5 @@
 apscheduler
+Authlib
 click
 Flask
 Flask-Caching
@@ -8,7 +9,9 @@ flask-oidc
 Flask-RESTful
 Flask-SQLAlchemy>=2.4
 Flask-WTF
+google-api-python-client
 humanize
+loginpass
 Markdown
 netaddr
 psycopg2
