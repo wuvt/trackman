@@ -10,6 +10,14 @@ class User(UserMixin):
         self.sub = id_token['sub']
         self.id_token = id_token
 
+    @property
+    def name(self):
+        return self.id_token['name']
+
+    @property
+    def email(self):
+        return self.id_token['email']
+
 
 class UserRole(db.Model):
     __tablename__ = "user_role"

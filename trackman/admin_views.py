@@ -185,8 +185,8 @@ def register():
     form = DJRegisterForm()
 
     if current_user.is_authenticated:
-        form.name.default = current_user.id_token['name']
-        form.email.default = current_user.id_token['email']
+        form.name.default = current_user.name
+        form.email.default = current_user.email
 
     if form.is_submitted():
         if form.validate():

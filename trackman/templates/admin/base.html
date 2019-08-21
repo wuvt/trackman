@@ -32,7 +32,7 @@
                         {% if 'admin' in current_user_roles %}{% block nav_admin_rotations %}<li class="nav-item"><a class="nav-link" href="{{ url_for('admin.rotations') }}">Rotations</a></li>{% endblock %}{% endif %}
                     </ul>
                     <span class="navbar-text ml-auto mr-sm-2">
-                        Logged in as {{ current_user.id_token.name }}
+                        Logged in as {{ current_user.name }}
                     </span>
                     <form action="{{ url_for('auth.logout') }}" method="post" class="form-inline">
                         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
