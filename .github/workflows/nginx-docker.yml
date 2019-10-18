@@ -1,0 +1,16 @@
+name: Build trackman-nginx Docker image and push to GitHub Package Registry
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Publish to GitHub Package Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: wuvt/trackman/trackman-nginx
+        username: wuvt
+        password: ${{ secrets.GITHUB_TOKEN }}
+        registry: docker.pkg.github.com
+        dockerfile: nginx/Dockerfile
