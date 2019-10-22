@@ -14,3 +14,4 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
         registry: docker.pkg.github.com
         dockerfile: nginx/Dockerfile
+        tag_names: true
