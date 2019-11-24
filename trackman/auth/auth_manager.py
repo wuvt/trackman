@@ -157,6 +157,18 @@ class AuthManager(object):
         _request_ctx_stack.top.user_roles = set([])
         return True
 
+    def end_all_sessions_for_user(self, sub):
+        sessions = UserSession.query.filter_by(sub=sub).all()
+        for session in sessions:
+            self.db.session.delete(session)
+        try:
+            self.db.session.commit()
+        except:
+            self.db.session.rollback()
+            raise
+
+        return True
+
     def cleanup_expired_sessions(self):
         now = datetime.datetime.utcnow()
         user_sessions = UserSession.query.filter(UserSession.expires <= now)
