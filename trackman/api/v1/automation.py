@@ -1,8 +1,9 @@
 from flask import current_app
 from flask_restful import abort
-from trackman import db, redis_conn, models
+from trackman import db, redis_conn, models, playlists_cache
 from trackman.forms import AutomationTrackLogForm
-from trackman.lib import log_track, find_or_add_track
+from trackman.lib import log_track, find_or_add_track, logout_all_except, \
+        is_automation_enabled
 from trackman.view_utils import local_only
 from .base import TrackmanStudioResource
 
@@ -64,8 +65,7 @@ class AutomationLog(TrackmanStudioResource):
         if form.password.data != current_app.config['AUTOMATION_PASSWORD']:
             abort(401, success=False, message="Invalid automation password")
 
-        automation = redis_conn.get('automation_enabled') == b"true"
-        if not automation:
+        if not is_automation_enabled():
             return {
                 'success': False,
                 'error': "Automation not enabled",
@@ -120,9 +120,34 @@ class AutomationLog(TrackmanStudioResource):
                 else:
                     track = notauto.first()
 
-        djset_id = redis_conn.get('automation_set')
+        # find a DJSet to use
+        djset_id = redis_conn.get('onair_djset_id')
         if djset_id != None:
             djset_id = int(djset_id)
+        else:
+            # find an existing automation DJSet to use or create a new one
+            djset_id = logout_all_except(1)
+            if djset_id is None:
+                automation_set = models.DJSet(1)
+                db.session.add(automation_set)
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                    raise
+                playlists_cache.clear()
+
+                djset_id = automation_set.id
+                current_app.logger.info(
+                    "Trackman: Automation DJSet ID {0} created".format(
+                        automation_set.id))
+
+            redis_conn.set('onair_djset_id', djset_id)
+
+        # check again if automation is enabled as the state may have changed
+        # while we were running the above queries
+        # if it is and we now have a valid DJSet, log the track
+        if is_automation_enabled() and djset_id is not None:
             log_track(track.id, djset_id, track=track)
             return {'success': True}, 201
         else:

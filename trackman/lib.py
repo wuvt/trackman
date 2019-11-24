@@ -90,13 +90,13 @@ def perdelta(start, end, td):
 
 
 def disable_automation():
-    # Make sure automation is actually enabled before changing the end time
-    if redis_conn.get("automation_enabled") == b"true":
+    if is_automation_enabled():
+        automation_set_id = redis_conn.get("onair_djset_id")
+
         redis_conn.set("automation_enabled", b"false")
-        automation_set_id = redis_conn.get("automation_set")
-        current_app.logger.info(
-            "Trackman: Automation disabled with DJSet.id = {}".format(
-                int(automation_set_id)))
+        redis_conn.delete('onair_djset_id')
+        current_app.logger.info("Trackman: Automation disabled")
+
         if automation_set_id is not None:
             automation_set = DJSet.query.with_for_update().get(
                 int(automation_set_id))
@@ -108,6 +108,10 @@ def disable_automation():
                     db.session.rollback()
                     raise
                 playlists_cache.clear()
+
+                current_app.logger.info(
+                    "Trackman: Automation DJSet ID {0} ended".format(
+                        automation_set.id))
             else:
                 current_app.logger.warning(
                     "Trackman: The provided automation set ({0}) was not "
@@ -118,23 +122,11 @@ def disable_automation():
 
 def enable_automation():
     redis_conn.set('automation_enabled', b"true")
+    current_app.logger.warning("Trackman: Automation enabled")
 
-    # try to reuse existing DJSet if possible
-    automation_set = logout_all_except(1)
-    if automation_set is None:
-        automation_set = DJSet(1)
-        db.session.add(automation_set)
-        try:
-            db.session.commit()
-        except:
-            db.session.rollback()
-            raise
-        playlists_cache.clear()
 
-    current_app.logger.info("Trackman: Automation enabled with DJSet.id "
-                            "= {}".format(automation_set.id))
-    redis_conn.set('automation_set', automation_set.id)
-    redis_conn.set('onair_djset_id', automation_set.id)
+def is_automation_enabled():
+    return redis_conn.get("automation_enabled") == b"true"
 
 
 def stream_listeners(url, mounts=None, timeout=5):
