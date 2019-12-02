@@ -9,8 +9,8 @@ from trackman.auth import login_required
 from trackman.admin import bp
 from trackman.admin.auth import views as auth_views
 from trackman.forms import DJRegisterForm, DJAdminEditForm, RotationForm, \
-    RotationEditForm
-from trackman.models import DJ, Rotation, TrackLog
+    RotationEditForm, DJDeleteClaimForm
+from trackman.models import DJ, DJClaim, Rotation, TrackLog
 
 
 @bp.route('/')
@@ -57,6 +57,8 @@ def dj_edit(id):
     form = DJAdminEditForm()
     form.dj = dj
 
+    claims = DJClaim.query.filter_by(dj_id=dj.id).all()
+
     if form.validate_on_submit():
         dj.airname = form.airname.data
         dj.name = form.name.data
@@ -76,7 +78,33 @@ def dj_edit(id):
         flash('DJ edited.')
         return redirect(url_for('admin.djs'), 303)
 
-    return render_template('admin/dj_edit.html', dj=dj, form=form)
+    return render_template('admin/dj_edit.html', dj=dj, form=form,
+                           claims=claims)
+
+
+@bp.route('/djs/<int:dj_id>/claims', methods=['GET', 'POST'])
+@auth_manager.check_access('admin')
+def dj_edit_claims(dj_id):
+    dj = DJ.query.get_or_404(dj_id)
+    form = DJDeleteClaimForm()
+    form.dj = dj
+
+    if form.validate_on_submit():
+        claim = DJClaim.query.get_or_404(form.claim_id.data)
+        if claim.dj_id != dj_id:
+            abort(404)
+
+        db.session.delete(claim)
+
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
+
+        flash('DJ claim deleted.')
+
+    return redirect(url_for('admin.dj_edit', id=dj_id), 303)
 
 
 @bp.route('/reports')
