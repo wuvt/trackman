@@ -123,6 +123,10 @@ class DJAdminEditForm(FlaskForm):
             raise ValidationError("Your on-air name must be unique.")
 
 
+class DJDeleteClaimForm(FlaskForm):
+    claim_id = StringField('Claim ID', validators=[validators.DataRequired()])
+
+
 class TrackAddForm(FlaskForm):
     title = StringField('Title', filters=[strip_field],
                         validators=[validators.DataRequired()])
