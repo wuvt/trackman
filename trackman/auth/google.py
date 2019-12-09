@@ -18,7 +18,7 @@ def get_groups(user_info):
                                              credentials=credentials)
     groups = dirapi.groups().list(userKey=user_info['email']).execute()
 
-    return [g['email'] for g in groups['groups']]
+    return [g['email'] for g in groups.get('groups', [])]
 
 
 def handle_authorize(remote, token, user_info):
