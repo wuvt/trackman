@@ -16,7 +16,7 @@ cffi==1.13.2              # via cryptography
 chardet==3.0.4            # via requests
 click==7.0
 cryptography==2.8         # via authlib
-flask-caching==1.8.0
+flask-caching==1.7.2
 flask-cors==3.0.8
 flask-migrate==2.5.2
 flask-restful==0.3.7
