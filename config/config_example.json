@@ -1,0 +1,19 @@
+{
+  "CELERY_TIMEZONE": "America/New_York",
+  "DEBUG": true,
+  "SECRET_KEY": "",
+  "OIDC_CLIENT_SECRETS": "/data/config/client_secrets.json",
+  "OIDC_SCOPES": ["openid", "profile", "email", "groups"],
+  "AUTH_METHOD": "google",
+  "GOOGLE_CLIENT_ID": "",
+  "GOOGLE_CLIENT_SECRET": "",
+  "GOOGLE_ALLOWED_DOMAINS": ["wuvt.vt.edu"],
+  "GOOGLE_ADMIN_SUBJECT": "",
+  "GOOGLE_SERVICE_ACCOUNT_FILE": "/data/config/service_account.json",
+  "GOOGLE_AUTHORIZE_URL": "https://accounts.google.com/o/oauth2/v2/auth?hd=wuvt.vt.edu",
+  "AUTH_ROLE_GROUPS": {
+    "admin": ["webmasters", "it@wuvt.vt.edu"],
+    "library": ["librarians", "it@wuvt.vt.edu"],
+    "dj": ["sudoers", "djs", "it@wuvt.vt.edu"]
+  }
+}
