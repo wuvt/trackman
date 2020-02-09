@@ -36,6 +36,8 @@ def renew_dj_lease(expire=None):
 
 
 def logout_all(send_email=False):
+    redis_conn.delete('onair_djset_id')
+
     open_djsets = DJSet.query.\
         filter(DJSet.dtend == None).with_for_update().\
         order_by(DJSet.dtstart.desc()).all()
