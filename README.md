@@ -43,7 +43,7 @@ The entirety of this software is available under the GNU Affero General Public
 License:
 
 ```
-Copyright 2012-2018 James Schwinabart, Calvin Winkowski, Matt Hazinski.
+Copyright 2012-2020 James Schwinabart, Calvin Winkowski, Matt Hazinski.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
