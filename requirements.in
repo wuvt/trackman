@@ -1,5 +1,5 @@
 apscheduler
-Authlib
+Authlib<13.0
 click
 Flask
 Flask-Caching
