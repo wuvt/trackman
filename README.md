@@ -18,11 +18,16 @@ deployments.
 For Dockerfile.dev:
 ```
 git clone https://github.com/wuvt/trackman.git
-cd trackman
-echo "SECRET_KEY = \"$(xxd -l 28 -p /dev/urandom)\"" > trackman/config.py
 ```
 
-Now run it:
+Now, go ahead and copy config/config_example.json to config/config.json and
+configure as necessary. The most important thing is to set a random value for
+`SECRET_KEY`. You can generate a random value using the following command:
+```
+xxd -l 28 -p /dev/urandom
+```
+
+Finally, run it:
 ```
 docker-compose up
 ```
