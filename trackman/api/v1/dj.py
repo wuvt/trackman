@@ -4,6 +4,7 @@ from trackman import db, models
 from trackman.forms import DJEditForm
 from trackman.view_utils import can_view_dj_private_info
 from .base import TrackmanResource
+from .schemas import DJSchema, DJPrivateSchema
 
 
 class DJ(TrackmanResource):
@@ -23,7 +24,13 @@ class DJ(TrackmanResource):
           description: The ID of an existing DJ
         """
         dj = models.DJ.query.get_or_404(dj_id)
-        return dj.serialize(include_private=can_view_dj_private_info())
+
+        if can_view_dj_private_info():
+            dj_schema = DJPrivateSchema()
+        else:
+            dj_schema = DJSchema()
+
+        return dj_schema.dump(dj)
 
     def post(self, dj_id):
         """
@@ -81,7 +88,8 @@ class DJ(TrackmanResource):
             db.session.rollback()
             raise
 
+        dj_schema = DJPrivateSchema()
         return {
             'success': True,
-            'dj': dj.serialize(include_private=True),
+            'dj': dj_schema.dump(dj),
         }

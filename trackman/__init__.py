@@ -1,5 +1,6 @@
 from dateutil import tz
 from flask import Flask, Request
+from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
@@ -93,6 +94,7 @@ redis_conn = redis.from_url(app.config['REDIS_URL'])
 csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+ma = Marshmallow(app)
 
 from trackman.auth import AuthManager
 auth_manager = AuthManager()

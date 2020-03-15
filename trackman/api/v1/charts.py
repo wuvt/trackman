@@ -2,6 +2,7 @@ from flask_restful import abort, Resource
 from trackman import db, charts
 from trackman.models import DJ, Track, TrackLog
 from .base import ChartResource
+from .schemas import DJSchema, TrackSchema
 
 
 class Charts(Resource):
@@ -55,8 +56,9 @@ class DJAlbumCharts(ChartResource):
                      db.func.lower(Track.album)).
             order_by(db.func.count(TrackLog.id).desc()))
 
+        dj_schema = DJSchema()
         return {
-            'dj': dj.serialize(),
+            'dj': dj_schema.dump(dj),
             'results': [(x[0], x[1], x[2], x[3]) for x in results],
         }
 
@@ -99,8 +101,9 @@ class DJArtistCharts(ChartResource):
             group_by(db.func.lower(Track.artist)).
             order_by(db.func.count(TrackLog.id).desc()))
 
+        dj_schema = DJSchema()
         return {
-            'dj': dj.serialize(),
+            'dj': dj_schema.dump(dj),
             'results': [(x[0], x[1], x[2]) for x in results],
         }
 
@@ -124,10 +127,11 @@ class TrackCharts(ChartResource):
             Track.query.with_entities(Track, subquery.c.count).
             join(subquery).order_by(db.desc(subquery.c.count)))
 
+        track_schema = TrackSchema()
         return {
             'start': start,
             'end': end,
-            'results': [(x[0].serialize(), x[1], x[2]) for x in results],
+            'results': [(track_schema.dump(x[0]), x[1], x[2]) for x in results],
         }
 
 
@@ -145,9 +149,13 @@ class DJTrackCharts(ChartResource):
             Track.query.with_entities(Track, subquery.c.count).
             join(subquery).order_by(db.desc(subquery.c.count)))
 
+        dj_schema = DJSchema()
+        track_schema = TrackSchema()
         return {
-            'dj': dj.serialize(),
-            'results': [(x[0].serialize(), x[1], x[2]) for x in results],
+            'dj': dj_schema.dump(dj),
+            'results': [
+                (track_schema.dump(x[0]), x[1], x[2]) for x in results
+            ],
         }
 
 
@@ -164,8 +172,9 @@ class DJSpinCharts(ChartResource):
             join(subquery).filter(DJ.visible == True).
             order_by(db.desc(subquery.c.count)))
 
+        dj_schema = DJSchema()
         return {
-            'results': [(x[0].serialize(), x[1], x[2]) for x in results],
+            'results': [(dj_schema.dump(x[0]), x[1], x[2]) for x in results],
         }
 
 
@@ -183,6 +192,7 @@ class DJVinylSpinCharts(ChartResource):
             join(subquery).filter(DJ.visible == True).
             order_by(db.desc(subquery.c.count)))
 
+        dj_schema = DJSchema()
         return {
-            'results': [(x[0].serialize(), x[1], x[2]) for x in results],
+            'results': [(dj_schema.dump(x[0]), x[1], x[2]) for x in results],
         }

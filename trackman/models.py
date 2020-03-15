@@ -19,26 +19,6 @@ class DJ(db.Model):
         self.name = name
         self.visible = visible
 
-    def serialize(self, include_private=False, include_name=False):
-        data = {
-            'id': self.id,
-            'airname': self.airname,
-            'visible': self.visible,
-        }
-
-        if include_private:
-            data.update({
-                'name': self.name,
-                'phone': self.phone,
-                'email': self.email,
-                'genres': self.genres,
-                'time_added': self.time_added,
-            })
-        elif include_name:
-            data['name'] = self.name
-
-        return data
-
 
 class DJSet(db.Model):
     __tablename__ = "set"
@@ -51,15 +31,6 @@ class DJSet(db.Model):
 
     def __init__(self, dj_id):
         self.dj_id = dj_id
-
-    def serialize(self, include_djname=False):
-        return {
-            'id': self.id,
-            'dj_id': self.dj_id,
-            'dj': self.dj.serialize(include_name=include_djname),
-            'dtstart': self.dtstart,
-            'dtend': self.dtend,
-        }
 
 
 class DJClaim(db.Model):
@@ -100,13 +71,6 @@ class Rotation(db.Model):
     def __init__(self, rotation):
         self.rotation = rotation
 
-    def serialize(self):
-        return {
-            'id': self.id,
-            'rotation': self.rotation,
-            'visible': self.visible,
-        }
-
 
 class AirLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -127,15 +91,6 @@ class AirLog(db.Model):
         self.djset_id = djset_id
         self.logtype = logtype
         self.logid = logid
-
-    def serialize(self):
-        return {
-            'airlog_id': self.id,
-            'airtime': self.airtime,
-            'djset': self.djset_id,
-            'logtype': self.logtype,
-            'logid': self.logid,
-        }
 
 
 class TrackLog(db.Model):
@@ -181,64 +136,6 @@ class TrackLog(db.Model):
         self.rotation = rotation
         self.listeners = listeners
 
-    def serialize(self):
-        return {
-            'tracklog_id': self.id,
-            'track_id': self.track_id,
-            'played': self.played,
-            'djset': self.djset_id,
-            'dj_id': self.dj_id,
-            'request': self.request,
-            'vinyl': self.vinyl,
-            'new': self.new,
-            'listeners': self.listeners,
-        }
-
-    def full_serialize(self):
-        return {
-            'tracklog_id': self.id,
-            'track_id': self.track_id,
-            'track': self.track.serialize(),
-            'played': self.played,
-            'djset': self.djset_id,
-            'dj_id': self.dj_id,
-            'dj_visible': self.dj.visible,
-            'dj': self.dj.airname,
-            'request': self.request,
-            'vinyl': self.vinyl,
-            'new': self.new,
-            'rotation_id': self.rotation_id,
-            'listeners': self.listeners,
-        }
-
-    def api_serialize(self, include_djname=False):
-        data = {
-            'id': self.id,
-            'track_id': self.track_id,
-            'track': self.track.api_serialize(),
-            'played': self.played,
-            'djset_id': self.djset_id,
-            'dj_id': self.dj_id,
-            'dj': self.dj.serialize(include_name=include_djname),
-            'request': self.request,
-            'vinyl': self.vinyl,
-            'new': self.new,
-            'rotation_id': self.rotation_id,
-            'listeners': self.listeners,
-        }
-
-        if self.rotation is not None:
-            data['rotation'] = self.rotation.serialize()
-        else:
-            data['rotation'] = None
-
-        if self.djset is not None:
-            data['djset'] = self.djset.serialize()
-        else:
-            data['djset'] = None
-
-        return data
-
 
 class Track(db.Model):
     __tablename__ = "track"
@@ -259,34 +156,6 @@ class Track(db.Model):
         self.artist = artist
         self.album = album
         self.label = label
-
-    def serialize(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'artist': self.artist,
-            'album': self.album,
-            'label': self.label,
-            'added': str(self.added),
-            'artist_mbid': self.artist_mbid,
-            'recording_mbid': self.recording_mbid,
-            'release_mbid': self.release_mbid,
-            'releasegroup_mbid': self.releasegroup_mbid,
-        }
-
-    def api_serialize(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'artist': self.artist,
-            'album': self.album,
-            'label': self.label,
-            'added': self.added,
-            'artist_mbid': self.artist_mbid,
-            'recording_mbid': self.recording_mbid,
-            'release_mbid': self.release_mbid,
-            'releasegroup_mbid': self.releasegroup_mbid,
-        }
 
 
 class TrackReport(db.Model):

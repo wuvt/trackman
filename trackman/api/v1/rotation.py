@@ -1,13 +1,18 @@
-from trackman import models
+from trackman import models, ma
 from .base import TrackmanResource
+
+
+class RotationListSchema(ma.Schema):
+    rotations = ma.Dict(keys=ma.Integer(), values=ma.String())
 
 
 class RotationList(TrackmanResource):
     def get(self):
         """
-        Get a list of rotations
+        Get a dictionary of rotations where the rotation ID is the key and the
+        rotation name is the value
         ---
-        operationId: getDj
+        operationId: getRotations
         tags:
         - trackman
         - dj
@@ -23,6 +28,5 @@ class RotationList(TrackmanResource):
                 models.Rotation.id).all():
             rotations[i.id] = i.rotation
 
-        return {
-            'rotations': rotations,
-        }
+        rotation_list_schema = RotationListSchema()
+        return rotation_list_schema.dump({'rotations': rotations})

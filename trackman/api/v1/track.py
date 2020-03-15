@@ -4,6 +4,7 @@ from trackman import db, models
 from trackman.forms import TrackAddForm
 from trackman.lib import find_or_add_track
 from .base import TrackmanResource, TrackmanDJResource
+from .schemas import TrackSchema
 
 
 class Track(TrackmanDJResource):
@@ -29,9 +30,10 @@ class Track(TrackmanDJResource):
         if not track:
             abort(404, success=False, message="Track not found")
 
+        track_schema = TrackSchema()
         return {
             'success': True,
-            'track': track.serialize(),
+            'track': track_schema.dump(track),
         }
 
 
@@ -227,14 +229,10 @@ class TrackSearch(TrackmanResource):
 
             tracks = tracks.limit(8).all()
 
-        if len(tracks) > 0:
-            results = [t.serialize() for t in tracks]
-        else:
-            results = []
-
+        tracks_schema = TrackSchema(many=True)
         return {
             'success': True,
-            'results': results,
+            'results': tracks_schema.dump(tracks),
         }
 
 

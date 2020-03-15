@@ -4,6 +4,7 @@ click
 Flask
 Flask-Caching
 flask-cors
+flask-marshmallow
 Flask-Migrate
 Flask-RESTful
 Flask-SQLAlchemy>=2.4
@@ -12,6 +13,8 @@ google-api-python-client
 humanize
 loginpass
 Markdown
+marshmallow-sqlalchemy
+musicbrainzngs>=0.7.1
 netaddr
 psycopg2
 pyasn1
@@ -26,4 +29,3 @@ sentry-sdk[flask]
 sqlalchemy>=1.2.0
 SQLAlchemy-Utils
 Unidecode
--e git+https://github.com/wuvt/python-musicbrainzngs#egg=musicbrainzngs

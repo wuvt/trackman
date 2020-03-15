@@ -2,10 +2,12 @@ import datetime
 from flask import request
 from flask_restful import abort, Resource
 from trackman import db
-from trackman.lib import get_current_tracklog, serialize_trackinfo
+from trackman.lib import get_current_tracklog
 from trackman.models import DJ, DJSet, Track, TrackLog
 from trackman.view_utils import list_archives
 from .base import PlaylistResource
+from .schemas import DJSchema, DJSetSchema, TrackSchema, TrackLogSchema, \
+        TrackLogLegacySchema
 
 
 class NowPlaying(PlaylistResource):
@@ -20,8 +22,9 @@ class NowPlaying(PlaylistResource):
         - tracklog
         - track
         """
-        tracklog = TrackLog.query.order_by(db.desc(TrackLog.id)).first()
-        return tracklog.api_serialize()
+        tracklog = get_current_tracklog()
+        tracklog_schema = TrackLogSchema()
+        return tracklog_schema.dump(tracklog)
 
 
 class Last15Tracks(PlaylistResource):
@@ -37,8 +40,9 @@ class Last15Tracks(PlaylistResource):
         - track
         """
         tracks = TrackLog.query.order_by(db.desc(TrackLog.id)).limit(15).all()
+        tracklogs_schema = TrackLogSchema(many=True)
         return {
-            'tracks': [t.api_serialize() for t in tracks],
+            'tracks': tracklogs_schema.dump(tracks),
         }
 
 
@@ -54,7 +58,9 @@ class LatestTrack(PlaylistResource):
         - tracklog
         - track
         """
-        return serialize_trackinfo(get_current_tracklog())
+        tracklog = get_current_tracklog()
+        tracklog_schema = TrackLogLegacySchema()
+        return tracklog_schema.dump(tracklog)
 
 
 class PlaylistsByDay(PlaylistResource):
@@ -91,6 +97,7 @@ class PlaylistsByDay(PlaylistResource):
         sets = DJSet.query.\
             filter(DJSet.dtstart >= dtstart, DJSet.dtstart <= dtend).\
             all()
+        djsets_schema = DJSetSchema(many=True)
 
         status_code = 200
         if len(sets) <= 0:
@@ -99,7 +106,7 @@ class PlaylistsByDay(PlaylistResource):
 
         return {
             'dtstart': dtstart,
-            'sets': [s.serialize() for s in sets],
+            'sets': djsets_schema.dump(sets),
         }, status_code
 
 
@@ -117,9 +124,10 @@ class PlaylistsByDateRange(Resource):
             filter(DJSet.dtstart >= start, DJSet.dtstart <= end).\
             order_by(db.desc(DJSet.dtstart)).\
             limit(300).all()
+        djsets_schema = DJSetSchema(many=True)
 
         return {
-            'sets': [s.serialize() for s in sets],
+            'sets': djsets_schema.dump(sets),
         }
 
 
@@ -137,9 +145,10 @@ class PlaylistsTrackLogsByDateRange(Resource):
             filter(TrackLog.played >= start, TrackLog.played <= end).\
             order_by(db.desc(TrackLog.id)).\
             limit(300).all()
+        tracklogs_schema = TrackLogSchema(many=True)
 
         return {
-            'tracklogs': [t.api_serialize() for t in tracklogs],
+            'tracklogs': tracklogs_schema.dump(tracklogs),
         }
 
 
@@ -155,8 +164,9 @@ class PlaylistDJs(PlaylistResource):
         - dj
         """
         djs = DJ.query.order_by(DJ.airname).filter(DJ.visible == True)
+        djs_schema = DJSchema(many=True)
         return {
-            'djs': [dj.serialize() for dj in djs],
+            'djs': djs_schema.dump(djs),
         }
 
 
@@ -172,8 +182,9 @@ class PlaylistAllDJs(PlaylistResource):
         - dj
         """
         djs = DJ.query.order_by(DJ.airname).all()
+        djs_schema = DJSchema(many=True)
         return {
-            'djs': [dj.serialize() for dj in djs],
+            'djs': djs_schema.dump(djs),
         }
 
 
@@ -197,11 +208,15 @@ class PlaylistsByDJ(PlaylistResource):
             description: DJ not found
         """
         dj = DJ.query.get_or_404(dj_id)
+        dj_schema = DJSchema()
+
         sets = DJSet.query.filter(DJSet.dj_id == dj_id).order_by(
             DJSet.dtstart).all()
+        djsets_schema = DJSetSchema(many=True, exclude=('dj',))
+
         return {
-            'dj': dj.serialize(),
-            'sets': [s.serialize() for s in sets],
+            'dj': dj_schema.dump(dj),
+            'sets': djsets_schema.dump(sets),
         }
 
 
@@ -227,11 +242,13 @@ class Playlist(PlaylistResource):
         djset = DJSet.query.get_or_404(set_id)
         tracks = TrackLog.query.filter(TrackLog.djset_id == djset.id).order_by(
             TrackLog.played).all()
+        tracklogs_schema = TrackLogSchema(many=True)
 
-        data = djset.serialize()
+        djset_schema = DJSetSchema()
+        data = djset_schema.dump(djset)
         data.update({
             'archives': [list(a) for a in list_archives(djset)],
-            'tracks': [t.api_serialize() for t in tracks],
+            'tracks': tracklogs_schema.dump(tracks),
         })
         return data
 
@@ -256,9 +273,5 @@ class PlaylistTrack(PlaylistResource):
             description: Track not found
         """
         track = Track.query.get_or_404(track_id)
-        tracklogs = TrackLog.query.filter(TrackLog.track_id == track.id).\
-            order_by(TrackLog.played).all()
-
-        data = track.api_serialize()
-        data['plays'] = [tl.api_serialize() for tl in tracklogs]
-        return data
+        track_schema = TrackSchema()
+        return track_schema.dump(track)

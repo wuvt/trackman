@@ -5,6 +5,7 @@ from trackman import db, redis_conn, mail, models, playlists_cache, pubsub
 from trackman.lib import check_onair, disable_automation, \
     logout_all_except
 from .base import TrackmanResource
+from .schemas import AirLogSchema, TrackLogModifiedSchema
 
 
 class DJSet(TrackmanResource):
@@ -39,8 +40,11 @@ class DJSet(TrackmanResource):
             abort(401, success=False, message="Session expired, please login again")
 
         if request.args.get('merged', False):
-            logs = [i.full_serialize() for i in djset.tracks]
-            logs.extend([i.serialize() for i in djset.airlog])
+            airlog_schema = AirLogSchema()
+            tracklog_schema = TrackLogModifiedSchema()
+
+            logs = [tracklog_schema.dump(i) for i in djset.tracks]
+            logs.extend([airlog_schema.dump(i) for i in djset.airlog])
             logs = sorted(logs, key=lambda log: log.get('airtime', False) if log.get('airtime', False) else log.get('played', False), reverse=False)
 
             return {
@@ -48,10 +52,13 @@ class DJSet(TrackmanResource):
                 'logs': logs,
             }
         else:
+            airlog_schema = AirLogSchema(many=True)
+            tracklog_schema = TrackLogModifiedSchema(many=True)
+
             return {
                 'success': True,
-                'tracklog': [i.serialize() for i in djset.tracks],
-                'airlog': [i.serialize() for i in djset.airlog],
+                'tracklog': tracklog_schema.dump(djset.tracks),
+                'airlog': airlog_schema.dump(djset.airlog),
             }
 
 

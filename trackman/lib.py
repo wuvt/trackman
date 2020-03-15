@@ -167,6 +167,9 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
         listeners=stream_listeners(current_app.config['ICECAST_URL'],
                                    current_app.config['ICECAST_MOUNTS']))
 
+    from .api.v1.schemas import TrackLogModifiedSchema
+    tracklog_schema = TrackLogModifiedSchema()
+
     if track is not None:
         tracklog.artist = track.artist
         tracklog.title = track.title
@@ -186,41 +189,10 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
         current_app.config['PUBSUB_PUB_URL_ALL'],
         message={
             'event': "track_change",
-            'tracklog': tracklog.full_serialize(),
+            'tracklog': tracklog_schema.dump(tracklog),
         })
 
     return tracklog
-
-
-def serialize_trackinfo(tracklog):
-    if tracklog is not None:
-        data = tracklog.track.serialize()
-        data['listeners'] = tracklog.listeners
-        data['played'] = str(tracklog.played)
-
-        if tracklog.djset == None:
-            dj = DJ.query.filter_by(name="Automation").first()
-            data['dj'] = dj.airname
-            data['dj_id'] = 0
-        else:
-            data['dj'] = tracklog.djset.dj.airname
-            if tracklog.djset.dj.visible:
-                data['dj_id'] = tracklog.djset.dj_id
-            else:
-                data['dj_id'] = 0
-    else:
-        data = {
-            'artist': "",
-            'title': "",
-            'album': "",
-            'label': "",
-            'dj': "",
-            'dj_id': 0,
-        }
-
-    data['description'] = current_app.config['STATION_NAME']
-    data['contact'] = current_app.config['STATION_URL']
-    return data
 
 
 def get_current_tracklog():
@@ -230,12 +202,15 @@ def get_current_tracklog():
 def fixup_current_track(event="track_edit"):
     tracklog = get_current_tracklog()
 
+    from .api.v1.schemas import TrackLogModifiedSchema
+    tracklog_schema = TrackLogModifiedSchema()
+
     playlists_cache.clear()
     pubsub.publish(
         current_app.config['PUBSUB_PUB_URL_ALL'],
         message={
             'event': event,
-            'tracklog': tracklog.full_serialize(),
+            'tracklog': tracklog_schema.dump(tracklog),
         })
 
 
