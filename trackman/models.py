@@ -19,21 +19,23 @@ class DJ(db.Model):
         self.name = name
         self.visible = visible
 
-    def serialize(self, include_private=False):
+    def serialize(self, include_private=False, include_name=False):
         data = {
             'id': self.id,
             'airname': self.airname,
-            'name': self.name,
             'visible': self.visible,
         }
 
         if include_private:
             data.update({
+                'name': self.name,
                 'phone': self.phone,
                 'email': self.email,
                 'genres': self.genres,
                 'time_added': self.time_added,
             })
+        elif include_name:
+            data['name'] = self.name
 
         return data
 
@@ -50,11 +52,11 @@ class DJSet(db.Model):
     def __init__(self, dj_id):
         self.dj_id = dj_id
 
-    def serialize(self):
+    def serialize(self, include_djname=False):
         return {
             'id': self.id,
             'dj_id': self.dj_id,
-            'dj': self.dj.serialize(),
+            'dj': self.dj.serialize(include_name=include_djname),
             'dtstart': self.dtstart,
             'dtend': self.dtend,
         }
@@ -209,7 +211,7 @@ class TrackLog(db.Model):
             'listeners': self.listeners,
         }
 
-    def api_serialize(self):
+    def api_serialize(self, include_djname=False):
         data = {
             'id': self.id,
             'track_id': self.track_id,
@@ -217,7 +219,7 @@ class TrackLog(db.Model):
             'played': self.played,
             'djset_id': self.djset_id,
             'dj_id': self.dj_id,
-            'dj': self.dj.serialize(),
+            'dj': self.dj.serialize(include_name=include_djname),
             'request': self.request,
             'vinyl': self.vinyl,
             'new': self.new,

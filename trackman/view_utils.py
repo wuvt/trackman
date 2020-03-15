@@ -1,4 +1,4 @@
-from flask import abort, current_app, redirect, request, session, url_for
+from flask import abort, current_app, request, session, url_for
 from flask_restful import abort as restful_abort
 from functools import wraps
 import hashlib
@@ -61,13 +61,6 @@ def ajax_only(f):
         else:
             return abort(403)
     return ajax_only_wrapper
-
-
-def redirect_back(endpoint, **values):
-    target = request.form['next']
-    if not target or not is_safe_url(target):
-        target = url_for(endpoint, **values)
-    return redirect(target)
 
 
 def slugify(text, delim='-'):
@@ -164,3 +157,8 @@ def check_request_sig(f):
                 401,
                 message="Bad request signature.")
     return check_request_sig_wrapper
+
+
+def can_view_dj_private_info():
+    return current_user.is_authenticated and (
+        'admin' in current_user_roles or 'library' in current_user_roles)

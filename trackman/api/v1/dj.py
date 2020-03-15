@@ -2,6 +2,7 @@ from flask import session
 from flask_restful import abort
 from trackman import db, models
 from trackman.forms import DJEditForm
+from trackman.view_utils import can_view_dj_private_info
 from .base import TrackmanResource
 
 
@@ -22,7 +23,7 @@ class DJ(TrackmanResource):
           description: The ID of an existing DJ
         """
         dj = models.DJ.query.get_or_404(dj_id)
-        return dj.serialize(include_private=True)
+        return dj.serialize(include_private=can_view_dj_private_info())
 
     def post(self, dj_id):
         """
