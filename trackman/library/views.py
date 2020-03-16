@@ -82,15 +82,30 @@ def artist():
 
 
 @library_bp.route('/labels')
-@library_bp.route('/labels/<int:page>')
 @auth_manager.check_access('library')
 def labels(page=1):
-    labels = Track.query.\
-        with_entities(Track.label, db.func.count(Track.label)).\
-        group_by(Track.label).order_by(Track.label).\
-        paginate(page, current_app.config['ARTISTS_PER_PAGE'])
+    letters = list(string.digits + string.ascii_uppercase)
+    return render_template('library/labels.html',
+                           letters=letters + ['all'])
 
-    return render_template('library/labels.html', labels=labels)
+
+@library_bp.route('/labels/<string:letter>')
+@library_bp.route('/labels/<string:letter>/<int:page>')
+@auth_manager.check_access('library')
+def labels_letter(letter, page=1):
+    labels_query = Track.query.with_entities(Track.label,
+                                             db.func.count(Track.label))
+
+    if len(letter) == 1:
+        labels_query = labels_query.filter(
+            Track.label.ilike('{}%'.format(letter)))
+    elif letter != 'all':
+        abort(400)
+
+    labels = labels_query.group_by(Track.label).order_by(Track.label).\
+        paginate(page, current_app.config['ARTISTS_PER_PAGE'])
+    return render_template('library/labels_letter.html', letter=letter,
+                           labels=labels)
 
 
 @library_bp.route('/label')
