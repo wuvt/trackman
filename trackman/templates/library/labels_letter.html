@@ -6,7 +6,8 @@
 {% block content %}
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item active" aria-current="page">Library</li>
+        <li class="breadcrumb-item"><a href="{{ url_for('trackman_library.index') }}">Library</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ letter }}</li>
     </ol>
 </nav>
 
@@ -19,11 +20,20 @@
     <li class="nav-item"><a class="nav-link" href="{{ url_for('trackman_library.fixup') }}">Fixup</a></li>
 </ul>
 
-<div class="card-body panel-5-columns">
-    <div class="list-group-inline">
-        {% for letter in letters -%}
-        <a href="{{ url_for('trackman_library.labels_letter', letter=letter) }}" class="list-group-item">{{ letter }}</a>
+<div class="card-body">
+    {{ macros.render_pagination(labels, 'trackman_library.labels') }}
+
+    <div class="list-group">
+        {% for label, count in labels.items -%}
+        <a href="{{ url_for('trackman_library.label', label=label) }}" class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+                {{ label }}
+                <span class="badge badge-primary badge-pill">{{ count|intcomma }}</span>
+            </div>
+        </a>
         {% endfor -%}
     </div>
+
+    {{ macros.render_pagination(labels, 'trackman_library.labels') }}
 </div>
 {% endblock %}
