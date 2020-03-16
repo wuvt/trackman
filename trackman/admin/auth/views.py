@@ -1,9 +1,9 @@
-from flask import abort, flash, jsonify, make_response, redirect, \
-    render_template, request, url_for
+from flask import flash, jsonify, make_response, redirect, render_template, \
+        request, url_for
 
 from trackman import app, auth_manager, db
 from trackman.admin import bp
-from trackman.auth import current_user, current_user_roles, login_required
+from trackman.auth import current_user, current_user_roles, login_required  # noqa: F401
 from trackman.auth.models import UserRole, GroupRole
 
 

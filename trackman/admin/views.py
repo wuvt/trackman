@@ -1,5 +1,5 @@
 from flask import current_app, flash, redirect, render_template, request, \
-    url_for
+    url_for, abort
 import csv
 import dateutil.parser
 import io
@@ -7,7 +7,7 @@ import io
 from trackman import auth_manager, db, format_datetime
 from trackman.auth import login_required
 from trackman.admin import bp
-from trackman.admin.auth import views as auth_views
+from trackman.admin.auth import views as auth_views  # noqa: F401
 from trackman.forms import DJRegisterForm, DJAdminEditForm, RotationForm, \
     RotationEditForm, DJDeleteClaimForm
 from trackman.models import DJ, DJClaim, Rotation, TrackLog

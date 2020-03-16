@@ -1,4 +1,4 @@
-from flask import abort, current_app, request, session, url_for
+from flask import abort, current_app, request, session, url_for  # noqa: F401
 from flask_restful import abort as restful_abort
 from functools import wraps
 import hashlib
@@ -6,7 +6,6 @@ import hmac
 import netaddr
 import re
 import unidecode
-import urllib.parse
 from datetime import timedelta
 from urllib.parse import urljoin
 from . import app, auth_manager
