@@ -21,7 +21,7 @@
 </ul>
 
 <div class="card-body">
-    {{ macros.render_pagination(labels, 'trackman_library.labels') }}
+    {{ macros.render_pagination(labels, 'trackman_library.labels_letter', letter=letter) }}
 
     <div class="list-group">
         {% for label, count in labels.items -%}
@@ -34,6 +34,6 @@
         {% endfor -%}
     </div>
 
-    {{ macros.render_pagination(labels, 'trackman_library.labels') }}
+    {{ macros.render_pagination(labels, 'trackman_library.labels_letter', letter=letter) }}
 </div>
 {% endblock %}
