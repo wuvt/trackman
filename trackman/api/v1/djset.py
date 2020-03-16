@@ -1,7 +1,7 @@
 import datetime
 from flask import current_app, request, session
 from flask_restful import abort
-from trackman import db, redis_conn, mail, models, playlists_cache, pubsub
+from trackman import db, redis_conn, mail, models, signals
 from trackman.lib import check_onair, disable_automation, \
     logout_all_except
 from .base import TrackmanResource
@@ -93,16 +93,11 @@ class DJSetEnd(TrackmanResource):
         except:
             db.session.rollback()
             raise
-        playlists_cache.clear()
 
         session.pop('dj_id', None)
         session.pop('djset_id', None)
 
-        pubsub.publish(
-            current_app.config['PUBSUB_PUB_URL_DJ'],
-            message={
-                'event': "session_end",
-            })
+        signals.dj_session_ended.send(self)
 
         if check_onair(djset_id):
             redis_conn.delete('onair_djset_id')
@@ -177,7 +172,8 @@ class DJSetList(TrackmanResource):
         except:
             db.session.rollback()
             raise
-        playlists_cache.clear()
+
+        signals.dj_session_started.send(self, djset=djset)
 
         redis_conn.set('onair_djset_id', djset.id)
         session['djset_id'] = djset.id

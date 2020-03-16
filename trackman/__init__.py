@@ -130,7 +130,7 @@ def init_app():
     from trackman import admin
     app.register_blueprint(admin.bp, url_prefix='/admin')
 
-    from . import admin_views, cli, models, views
+    from . import admin_views, cli, models, views, handlers
     from .api import api, api_bp
     from .library import library_bp
     from .library import views as library_views

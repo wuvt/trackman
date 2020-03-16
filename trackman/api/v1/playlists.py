@@ -2,7 +2,6 @@ import datetime
 from flask import request
 from flask_restful import abort, Resource
 from trackman import db
-from trackman.lib import get_current_tracklog
 from trackman.models import DJ, DJSet, Track, TrackLog
 from trackman.view_utils import list_archives
 from .base import PlaylistResource
@@ -22,7 +21,7 @@ class NowPlaying(PlaylistResource):
         - tracklog
         - track
         """
-        tracklog = get_current_tracklog()
+        tracklog = TrackLog.query.order_by(db.desc(TrackLog.id)).first()
         tracklog_schema = TrackLogSchema()
         return tracklog_schema.dump(tracklog)
 
@@ -58,7 +57,7 @@ class LatestTrack(PlaylistResource):
         - tracklog
         - track
         """
-        tracklog = get_current_tracklog()
+        tracklog = TrackLog.query.order_by(db.desc(TrackLog.id)).first()
         tracklog_schema = TrackLogLegacySchema()
         return tracklog_schema.dump(tracklog)
 

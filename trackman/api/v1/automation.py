@@ -1,6 +1,6 @@
 from flask import current_app
 from flask_restful import abort
-from trackman import db, redis_conn, models, playlists_cache
+from trackman import db, redis_conn, models, signals
 from trackman.forms import AutomationTrackLogForm
 from trackman.lib import log_track, find_or_add_track, logout_all_except, \
         is_automation_enabled
@@ -135,7 +135,8 @@ class AutomationLog(TrackmanStudioResource):
                 except:
                     db.session.rollback()
                     raise
-                playlists_cache.clear()
+
+                signals.dj_session_started.send(self, djset=automation_set)
 
                 djset_id = automation_set.id
                 current_app.logger.info(

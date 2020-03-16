@@ -1,9 +1,9 @@
 import dateutil.parser
 from flask import session
 from flask_restful import abort
-from trackman import db, models
+from trackman import db, models, signals
 from trackman.forms import TrackLogForm, TrackLogEditForm
-from trackman.lib import fixup_current_track, log_track, find_or_add_track
+from trackman.lib import log_track, find_or_add_track
 from .base import TrackmanOnAirResource
 
 
@@ -65,7 +65,7 @@ class TrackLog(TrackmanOnAirResource):
             raise
 
         if tracklog_id == current_tracklog_id:
-            fixup_current_track("track_delete")
+            signals.tracklog_deleted.send(self, tracklog=tracklog)
 
         return {'success': True}
 
@@ -162,7 +162,7 @@ class TrackLog(TrackmanOnAirResource):
             raise
 
         if tracklog_id == current_tracklog_id:
-            fixup_current_track()
+            signals.tracklog_edited.send(self, tracklog=tracklog)
 
         return {'success': True}
 

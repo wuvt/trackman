@@ -5,7 +5,7 @@ import urllib.parse
 from datetime import datetime, timedelta
 from flask import current_app
 
-from . import db, redis_conn, mail, playlists_cache, pubsub
+from . import db, redis_conn, mail, signals
 from .models import AirLog, Track, TrackLog, DJ, DJClaimToken, DJSet
 
 
@@ -59,12 +59,8 @@ def logout_all(send_email=False):
         db.session.rollback()
         raise
 
-    playlists_cache.clear()
-    pubsub.publish(
-        current_app.config['PUBSUB_PUB_URL_DJ'],
-        message={
-            'event': "session_end",
-        })
+    signals.dj_session_ended.send(current_app._get_current_object(),
+                                  djset=None)
     redis_conn.delete('dj_timeout')
 
 
@@ -109,7 +105,9 @@ def disable_automation():
                 except:
                     db.session.rollback()
                     raise
-                playlists_cache.clear()
+
+                signals.dj_session_ended.send(
+                    current_app._get_current_object())
 
                 current_app.logger.info(
                     "Trackman: Automation DJSet ID {0} ended".format(
@@ -167,9 +165,6 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
         listeners=stream_listeners(current_app.config['ICECAST_URL'],
                                    current_app.config['ICECAST_MOUNTS']))
 
-    from .api.v1.schemas import TrackLogModifiedSchema
-    tracklog_schema = TrackLogModifiedSchema()
-
     if track is not None:
         tracklog.artist = track.artist
         tracklog.title = track.title
@@ -184,34 +179,9 @@ def log_track(track_id, djset_id, request=False, vinyl=False, new=False,
         db.session.rollback()
         raise
 
-    playlists_cache.clear()
-    pubsub.publish(
-        current_app.config['PUBSUB_PUB_URL_ALL'],
-        message={
-            'event': "track_change",
-            'tracklog': tracklog_schema.dump(tracklog),
-        })
-
+    signals.tracklog_added.send(current_app._get_current_object(),
+                                tracklog=tracklog)
     return tracklog
-
-
-def get_current_tracklog():
-    return TrackLog.query.order_by(db.desc(TrackLog.id)).first()
-
-
-def fixup_current_track(event="track_edit"):
-    tracklog = get_current_tracklog()
-
-    from .api.v1.schemas import TrackLogModifiedSchema
-    tracklog_schema = TrackLogModifiedSchema()
-
-    playlists_cache.clear()
-    pubsub.publish(
-        current_app.config['PUBSUB_PUB_URL_ALL'],
-        message={
-            'event': event,
-            'tracklog': tracklog_schema.dump(tracklog),
-        })
 
 
 def merge_duplicate_tracks(*args, **kwargs):
@@ -229,7 +199,7 @@ def merge_duplicate_tracks(*args, **kwargs):
 
         # delete existing Track entries
         for track in tracks[1:]:
-            ret = db.session.delete(track)
+            db.session.delete(track)
 
         try:
             db.session.commit()
@@ -237,7 +207,7 @@ def merge_duplicate_tracks(*args, **kwargs):
             db.session.rollback()
             raise
 
-        playlists_cache.clear()
+        signals.track_db_changed.send(current_app._get_current_object())
 
     return count, track_id
 
@@ -316,7 +286,7 @@ def autofill_na_labels():
                 db.session.rollback()
                 raise
 
-            playlists_cache.clear()
+            signals.track_db_changed.send(current_app._get_current_object())
             current_app.logger.info(
                 "Trackman: Found a track with a label for track ID {0:d}, "
                 "merged into {1:d}".format(na_track.id, other_track.id))
@@ -354,7 +324,7 @@ def prune_empty_djsets():
         db.session.rollback()
         raise
 
-    playlists_cache.clear()
+    signals.track_db_changed.send(current_app._get_current_object())
     current_app.logger.debug("Trackman: Removed {} empty DJSets.".format(
         empty.count()))
 
@@ -404,7 +374,7 @@ def find_or_add_track(track):
         except:
             db.session.rollback()
             raise
-        playlists_cache.clear()
+        signals.track_db_changed.send(current_app._get_current_object())
         return track
     else:
         return match

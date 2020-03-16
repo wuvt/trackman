@@ -1,5 +1,6 @@
 apscheduler
 Authlib<13.0
+blinker
 click
 Flask
 Flask-Caching
