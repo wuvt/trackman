@@ -1,73 +1,91 @@
+from flasgger import swag_from
 from flask import request, session
 from flask_restful import abort
-from trackman import db, models
+from trackman import db, models, ma
 from trackman.forms import TrackAddForm
 from trackman.lib import find_or_add_track
 from .base import TrackmanResource, TrackmanDJResource
 from .schemas import TrackSchema
 
 
+class TrackResponseSchema(ma.Schema):
+    success = ma.Boolean()
+    track = ma.Nested(TrackSchema)
+
+
 class Track(TrackmanDJResource):
+    @swag_from({
+        'operationId': "getTrackById",
+        'tags': ['private', 'track'],
+        'parameters': [
+            {
+                'in': "path",
+                'name': "track_id",
+                'type': "integer",
+                'required': True,
+                'description': "The ID of an existing track",
+            },
+        ],
+        'responses': {
+            200: {
+                'schema': TrackResponseSchema,
+            },
+            404: {
+                'description': "Track not found",
+            },
+        },
+    })
     def get(self, track_id):
-        """
-        Get information about a Track
-        ---
-        operationId: getTrackById
-        tags:
-        - trackman
-        - djset
-        parameters:
-        - in: path
-          name: track_id
-          type: integer
-          required: true
-          description: The ID of an existing Track
-        responses:
-          404:
-            description: Track not found
-        """
+        """Get information about a track."""
         track = models.Track.query.get(track_id)
         if not track:
             abort(404, success=False, message="Track not found")
 
-        track_schema = TrackSchema()
-        return {
+        schema =  TrackResponseSchema()
+        return schema.dump({
             'success': True,
-            'track': track_schema.dump(track),
-        }
+            'track': track,
+        })
 
 
 class TrackReport(TrackmanResource):
+    @swag_from({
+        'operationId': "reportTrack",
+        'tags': ['private', 'track'],
+        'parameters': [
+            {
+                'in': "path",
+                'name': "track_id",
+                'type': "integer",
+                'required': True,
+                'description': "The ID of an existing track",
+            },
+            {
+                'in': "form",
+                'name': "reason",
+                'type': "string",
+                'required': True,
+                'description': "The reason for reporting the track",
+            },
+            {
+                'in': "form",
+                'name': "dj_id",
+                'type': "integer",
+                'required': True,
+                'description': "The DJ to associate with the report",
+            },
+        ],
+        'responses': {
+            201: {
+                'description': "Track report created",
+            },
+            404: {
+                'description': "Track not found",
+            },
+        },
+    })
     def post(self, track_id):
-        """
-        Report a Track
-        ---
-        operationId: getTrackById
-        tags:
-        - trackman
-        - djset
-        parameters:
-        - in: path
-          name: track_id
-          type: integer
-          required: true
-          description: The ID of an existing Track
-        - in: form
-          name: reason
-          type: string
-          required: true
-          description: The reason for reporting the track
-        - in: form
-          name: dj_id
-          type: integer
-          required: true
-          description: The DJ to associate with the report
-        responses:
-          201:
-            description: Track report created
-          404:
-            description: Track not found
-        """
+        """Report a metadata issue with a track."""
         track = models.Track.query.get(track_id)
         if not track:
             abort(404, success=False, message="Track not found")
@@ -91,71 +109,57 @@ class TrackReport(TrackmanResource):
         }
 
 
-class TrackSearch(TrackmanResource):
-    def get(self):
-        """
-        Search the track database for a particular track
-        ---
-        operationId: searchTracks
-        tags:
-        - trackman
-        - track
-        definitions:
-        - schema:
-            id: Track
-            properties:
-              id:
-                type: integer
-                description: The ID of the track
-              title:
-                type: string
-                description: Track title
-              artist:
-                type: string
-                description: Artist name
-              album:
-                type: string
-                description: Album name
-              label:
-                type: string
-                description: Record label
-              added:
-                type: string
-                description: Date added
-        parameters:
-        - in: query
-          name: artist
-          type: string
-          description: Partial artist name
-        - in: query
-          name: title
-          type: string
-          description: Partial track title
-        - in: query
-          name: album
-          type: string
-          description: Partial album title
-        - in: query
-          name: label
-          type: string
-          description: Partial record label
-        responses:
-          200:
-            description: Search results
-            schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-                results:
-                  type: array
-                  $ref: '#/definitions/Track'
-          400:
-            description: Bad request
-        """
+class TrackSearchResponseSchema(ma.Schema):
+    success = ma.Boolean()
+    message = ma.String()
+    results = ma.Nested(TrackSchema, many=True)
 
+
+class TrackSearch(TrackmanResource):
+    @swag_from({
+        'operationId': "searchTracks",
+        'tags': ['private', 'track'],
+        'parameters': [
+            {
+                'in': "form",
+                'name': "artist",
+                'type': "string",
+                'description': "Partial artist name",
+            },
+            {
+                'in': "form",
+                'name': "title",
+                'type': "string",
+                'description': "Partial track title",
+            },
+            {
+                'in': "form",
+                'name': "album",
+                'type': "string",
+                'description': "Partial album title",
+            },
+            {
+                'in': "form",
+                'name': "label",
+                'type': "string",
+                'description': "Partial record label",
+            },
+        ],
+        'responses': {
+            200: {
+                'description': "Search results",
+                'schema': TrackSearchResponseSchema,
+            },
+            400: {
+                'description': "Bad request",
+            },
+        },
+    })
+    def get(self):
+        """Search the track database for a particular track."""
         base_query = models.Track.query.outerjoin(models.TrackLog).\
             order_by(models.Track.plays)
+        schema = TrackSearchResponseSchema()
 
         # To verify some data was searched for
         somesearch = False
@@ -190,11 +194,11 @@ class TrackSearch(TrackmanResource):
 
         # This means there was a bad search, stop searching
         if somesearch is False:
-            return {
+            return schema.dump({
                 'success': False,
                 'message': "All provided fields to match against are empty",
                 'results': [],
-            }
+            })
 
         # Check if results
 
@@ -229,58 +233,56 @@ class TrackSearch(TrackmanResource):
 
             tracks = tracks.limit(8).all()
 
-        tracks_schema = TrackSchema(many=True)
-        return {
+        return schema.dump({
             'success': True,
-            'results': tracks_schema.dump(tracks),
-        }
+            'results': tracks,
+        })
 
 
 class TrackAutoComplete(TrackmanResource):
-    def get(self):
-        """
-        Search the track database for a particular field
-        ---
-        operationId: autocompleteTracks
-        tags:
-        - trackman
-        - track
-        parameters:
-        - in: query
-          name: artist
-          type: string
-          description: Partial artist name
-        - in: query
-          name: title
-          type: string
-          description: Partial track title
-        - in: query
-          name: album
-          type: string
-          description: Partial album title
-        - in: query
-          name: label
-          type: string
-          description: Partial record label
-        - in: query
-          name: field
-          type: string
-          required: true
-          description: The field to autocomplete
-        responses:
-          200:
-            description: Search results
-            schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-                results:
-                  type: array
-          400:
-            description: Bad request
-        """
+    @swag_from({
+        'operationId': "autocompleteTracks",
+        'tags': ['private', 'track'],
+        'parameters': [
+            {
+                'in': "query",
+                'name': "artist",
+                'type': "string",
+                'description': "Partial artist name",
+            },
+            {
+                'in': "query",
+                'name': "title",
+                'type': "string",
+                'description': "Partial track title",
+            },
+            {
+                'in': "query",
+                'name': "album",
+                'type': "string",
+                'description': "Partial album title",
+            },
+            {
+                'in': "query",
+                'name': "label",
+                'type': "string",
+                'description': "Partial record label",
+            },
+        ],
+        'responses': {
+            200: {
+                'description': "Search results",
+                'schema': TrackSearchResponseSchema,
+            },
+            400: {
+                'description': "Bad request",
+            },
+        },
+    })
 
+    def get(self):
+        """Search the track database for a particular field."""
+        schema = TrackSearchResponseSchema()
         field = request.args['field']
         if field == 'artist':
             base_query = models.Track.query.\
@@ -299,11 +301,11 @@ class TrackAutoComplete(TrackmanResource):
                 with_entities(models.Track.label).\
                 group_by(models.Track.label)
         else:
-            return {
+            return schema.dump({
                 'success': False,
                 'message': "Unknown field provided to use for autocomplete",
                 'results': [],
-            }
+            })
 
         # To verify some data was searched for
         somesearch = False
@@ -336,11 +338,11 @@ class TrackAutoComplete(TrackmanResource):
 
         # This means there was a bad search, stop searching
         if somesearch is False:
-            return {
+            return schema.dump({
                 'success': False,
                 'message': "All provided fields to match against are empty",
                 'results': [],
-            }
+            })
 
         # Check if results
 
@@ -350,57 +352,63 @@ class TrackAutoComplete(TrackmanResource):
         else:
             results = []
 
-        return {
+        return schema.dump({
             'success': True,
             'results': results,
-        }
+        })
+
+
+class TrackCreateResponseSchema(ma.Schema):
+    success = ma.Boolean()
+    track_id = ma.Integer()
 
 
 class TrackList(TrackmanResource):
+    @swag_from({
+        'operationId': "createTrack",
+        'tags': ['private', 'track'],
+        'parameters': [
+            {
+                'in': "form",
+                'name': "artist",
+                'type': "string",
+                'required': True,
+                'description': "Artist name",
+            },
+            {
+                'in': "form",
+                'name': "title",
+                'type': "string",
+                'required': True,
+                'description': "Track title",
+            },
+            {
+                'in': "form",
+                'name': "album",
+                'type': "string",
+                'required': True,
+                'description': "Album title",
+            },
+            {
+                'in': "form",
+                'name': "label",
+                'type': "string",
+                'required': True,
+                'description': "Record label",
+            },
+        ],
+        'responses': {
+            201: {
+                'description': "Track created",
+                'schema': TrackCreateResponseSchema,
+            },
+            400: {
+                'description': "Bad request",
+            },
+        },
+    })
     def post(self):
-        """
-        Create a new track in the database
-        ---
-        operationId: createTrack
-        tags:
-        - trackman
-        - track
-        parameters:
-        - in: form
-          name: artist
-          type: string
-          required: true
-          description: Artist name
-        - in: form
-          name: title
-          type: string
-          required: true
-          description: Track title
-        - in: form
-          name: album
-          type: string
-          required: true
-          description: Album title
-        - in: form
-          name: label
-          type: string
-          required: true
-          description: Record label
-        responses:
-          201:
-            description: Track created
-            schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-                track_id:
-                  type: integer
-                  description: The ID of the track
-          400:
-            description: Bad request
-        """
-
+        """Create a new track in the database."""
         form = TrackAddForm(meta={'csrf': False})
         if form.validate():
             track = find_or_add_track(models.Track(
@@ -409,10 +417,11 @@ class TrackList(TrackmanResource):
                 form.album.data,
                 form.label.data))
 
-            return {
+            schema = TrackCreateResponseSchema()
+            return schema.dump({
                 'success': True,
                 'track_id': track.id,
-            }, 201
+            }), 201
         else:
             abort(400, success=False, errors=form.errors,
                   message="The track information you entered did not validate. Common reasons for this include missing or improperly entered information, especially the label. Please try again. If you continue to get this message after several attempts, and you're sure the information is correct, please contact the IT staff for help.")
