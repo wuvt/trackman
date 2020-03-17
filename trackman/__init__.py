@@ -4,6 +4,7 @@ from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
+from flasgger import Swagger
 import humanize
 import os
 import redis
@@ -95,6 +96,28 @@ csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 ma = Marshmallow(app)
+swagger = Swagger(
+    app,
+    config={
+        'headers': [],
+        'specs': [
+            {
+                'endpoint': 'api_v1',
+                'route': "/api/spec.json",
+                'rule_filter': lambda rule: True,
+                'model_filter': lambda rule: True,
+            },
+        ],
+        'static_url_path': '/apidocs/static',
+        'swagger_ui': True,
+        'specs_route': "/apidocs/",
+    },
+    template={
+        'info': {
+            'title': app.config['TRACKMAN_NAME'],
+            'version': "2.0",
+        },
+    })
 
 from trackman.auth import AuthManager
 auth_manager = AuthManager()

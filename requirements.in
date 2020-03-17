@@ -1,7 +1,9 @@
+apispec
 apscheduler
 Authlib<13.0
 blinker
 click
+flasgger
 Flask
 Flask-Caching
 flask-cors
