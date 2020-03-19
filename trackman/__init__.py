@@ -99,7 +99,9 @@ ma = Marshmallow(app)
 swagger = Swagger(
     app,
     config={
-        'headers': [],
+        'headers': [
+            ('Content-Security-Policy', "default-src 'self' https: data:; script-src 'self'; style-src 'self' https: 'unsafe-inline'; frame-ancestors 'self'"),
+        ],
         'specs': [
             {
                 'endpoint': 'api_v1',
