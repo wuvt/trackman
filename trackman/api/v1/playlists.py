@@ -272,7 +272,7 @@ class PlaylistsByDJ(PlaylistResource):
         'parameters': [
             {
                 'in': "path",
-                'name': "set_id",
+                'name': "dj_id",
                 'type': "integer",
                 'required': True,
                 'description': "The ID of a DJ",
