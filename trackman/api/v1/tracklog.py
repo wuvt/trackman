@@ -170,11 +170,11 @@ class TrackLog(TrackmanOnAirResource):
 class TrackLogList(TrackmanOnAirResource):
     def post(self):
         """
-        Log a track that already exists in the database .
+        Log a track that already exists in the database.
         ---
         operationId: createTrackLog
         tags:
-        - trackman
+        - private
         - tracklog
         - track
         parameters:
