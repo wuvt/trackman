@@ -7,11 +7,11 @@ from .base import TrackmanOnAirResource
 class AutologoutControl(TrackmanOnAirResource):
     def get(self):
         """
-        Get the current autologout status
+        Get the current of the extended session logout timeout status.
         ---
         operationId: getAutologout
         tags:
-        - trackman
+        - private
         - autologout
         responses:
           200:
@@ -32,11 +32,11 @@ class AutologoutControl(TrackmanOnAirResource):
 
     def post(self):
         """
-        Enable/disable the autologout functionality
+        Turn the extended session logout timeout on or off.
         ---
         operationId: setAutologout
         tags:
-        - trackman
+        - private
         - autologout
         parameters:
         - in: form

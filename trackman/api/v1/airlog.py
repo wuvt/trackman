@@ -1,38 +1,36 @@
 import dateutil.parser
+from flasgger import swag_from
 from flask import session
 from flask_restful import abort
-from trackman import db, models, signals
+from trackman import db, models, signals, ma
 from trackman.forms import AirLogForm, AirLogEditForm
 from .base import TrackmanOnAirResource
 
 
 class AirLog(TrackmanOnAirResource):
+    @swag_from({
+        'operationId': "deleteAirLog",
+        'tags': ['private', 'airlog'],
+        'parameters': [
+            {
+                'in': "path",
+                'name': "airlog_id",
+                'type': "integer",
+                'required': True,
+                'description': "AirLog ID",
+            },
+        ],
+        'responses': {
+            200: {
+                'description': "AirLog entry deleted",
+            },
+            404: {
+                'description': "AirLog entry not found",
+            },
+        },
+    })
     def delete(self, airlog_id):
-        """
-        Delete an existing AirLog entry
-        ---
-        operationId: deleteAirLog
-        tags:
-        - trackman
-        - airlog
-        parameters:
-        - in: path
-          name: airlog_id
-          type: integer
-          required: true
-          description: AirLog ID
-        responses:
-          200:
-            description: AirLog entry deleted
-            schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-          404:
-            description: AirLog entry not found
-        """
-
+        """Delete an existing AirLog entry."""
         airlog = models.AirLog.query.get(airlog_id)
         if not airlog:
             abort(404, success=False, message="AirLog entry not found")
@@ -47,46 +45,50 @@ class AirLog(TrackmanOnAirResource):
         signals.airlog_deleted.send(self, airlog)
         return {'success': True}
 
+    @swag_from({
+        'operationId': "modifyAirLog",
+        'tags': ['private', 'airlog'],
+        'parameters': [
+            {
+                'in': "path",
+                'name': "airlog_id",
+                'type': "integer",
+                'required': True,
+                'description': "AirLog ID",
+            },
+            {
+                'in': "form",
+                'name': "airtime",
+                'type': "string",
+                'description': "Air time",
+            },
+            {
+                'in': "form",
+                'name': "logtype",
+                'type': "integer",
+                'description': "Log type",
+            },
+            {
+                'in': "form",
+                'name': "logid",
+                'type': "integer",
+                'description': "Log ID",
+            },
+        ],
+        'responses': {
+            200: {
+                'description': "AirLog entry modified",
+            },
+            400: {
+                'description': "Bad request",
+            },
+            404: {
+                'description': "AirLog entry not found",
+            },
+        },
+    })
     def post(self, airlog_id):
-        """
-        Modify an existing logged AirLog entry
-        ---
-        operationId: modifyAirLog
-        tags:
-        - trackman
-        - airlog
-        parameters:
-        - in: path
-          name: airlog_id
-          type: integer
-          required: true
-          description: AirLog ID
-        - in: form
-          name: airtime
-          type: string
-          description: Air time
-        - in: form
-          name: logtype
-          type: integer
-          description: Log type
-        - in: form
-          name: logid
-          type: integer
-          description: Log ID
-        responses:
-          200:
-            description: AirLog entry modified
-            schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-          400:
-            description: Bad request
-          404:
-            description: AirLog entry not found
-        """
-
+        """Modify an existing logged AirLog entry."""
         airlog = models.AirLog.query.get(airlog_id)
         if not airlog:
             abort(404, success=False, message="AirLog entry not found")
@@ -116,45 +118,53 @@ class AirLog(TrackmanOnAirResource):
         return {'success': True}
 
 
-class AirLogList(TrackmanOnAirResource):
-    def post(self):
-        """
-        Create a new AirLog entry
-        ---
-        operationId: createAirLog
-        tags:
-        - trackman
-        - airlog
-        parameters:
-        - in: form
-          name: djset_id
-          type: integer
-          required: true
-          description: The ID of an existing DJSet
-        - in: form
-          name: logtype
-          type: integer
-          required: true
-          description: Log type
-        - in: form
-          name: logid
-          type: integer
-          description: Log ID
-        responses:
-          201:
-            description: AirLog entry created
-            schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-                airlog_id:
-                  type: integer
-                  description: The ID of the new AirLog entry
-          400:
-            description: Bad request
-        """
+class AirLogCreateResponseSchema(ma.Schema):
+    success = ma.Boolean()
+    airlog_id = ma.Integer()
 
+
+class AirLogList(TrackmanOnAirResource):
+    @swag_from({
+        'operationId': "createAirLog",
+        'tags': ['private', 'airlog'],
+        'parameters': [
+            {
+                'in': "form",
+                'name': "djset_id",
+                'type': "integer",
+                'required': True,
+                'description': "The ID of an existing DJSet",
+            },
+            {
+                'in': "form",
+                'name': "airtime",
+                'type': "string",
+                'description': "Air time",
+            },
+            {
+                'in': "form",
+                'name': "logtype",
+                'type': "integer",
+                'description': "Log type",
+            },
+            {
+                'in': "form",
+                'name': "logid",
+                'type': "integer",
+                'description': "Log ID",
+            },
+        ],
+        'responses': {
+            201: {
+                'description': "AirLog entry created",
+            },
+            400: {
+                'description': "Bad request",
+            },
+        },
+    })
+    def post(self):
+        """Create a new AirLog entry."""
         form = AirLogForm(meta={'csrf': False})
 
         djset_id = form.djset_id.data
@@ -170,7 +180,9 @@ class AirLogList(TrackmanOnAirResource):
             raise
 
         signals.airlog_added.send(self, airlog)
-        return {
+
+        schema = AirLogCreateResponseSchema()
+        return schema.dump({
             'success': True,
             'airlog_id': airlog.id,
-        }, 201
+        }), 201

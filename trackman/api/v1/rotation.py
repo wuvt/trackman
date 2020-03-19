@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from trackman import models, ma
 from .base import TrackmanResource
 
@@ -7,22 +8,18 @@ class RotationListSchema(ma.Schema):
 
 
 class RotationList(TrackmanResource):
+    @swag_from({
+        'operationId': "getRotations",
+        'tags': ['private'],
+        'responses': {
+            200: {
+                'schema': RotationListSchema,
+            },
+        },
+    })
     def get(self):
-        """
-        Get a dictionary of rotations where the rotation ID is the key and the
-        rotation name is the value
-        ---
-        operationId: getRotations
-        tags:
-        - trackman
-        - dj
-        parameters:
-        - in: path
-          name: dj_id
-          type: integer
-          required: true
-          description: The ID of an existing DJ
-        """
+        """Get a dictionary of rotations where the rotation ID is the key and
+        the rotation name is the value."""
         rotations = {}
         for i in models.Rotation.query.filter_by(visible=True).order_by(
                 models.Rotation.id).all():

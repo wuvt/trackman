@@ -27,11 +27,11 @@ class TrackLog(TrackmanOnAirResource):
 
     def delete(self, tracklog_id):
         """
-        Delete an existing logged track entry
+        Delete an existing logged track entry.
         ---
         operationId: deleteTrackLog
         tags:
-        - trackman
+        - private
         - tracklog
         parameters:
         - in: path
@@ -71,11 +71,11 @@ class TrackLog(TrackmanOnAirResource):
 
     def post(self, tracklog_id):
         """
-        Modify an existing logged track entry
+        Modify an existing logged track entry.
         ---
         operationId: modifyTrackLog
         tags:
-        - trackman
+        - private
         - tracklog
         parameters:
         - in: path
@@ -170,7 +170,7 @@ class TrackLog(TrackmanOnAirResource):
 class TrackLogList(TrackmanOnAirResource):
     def post(self):
         """
-        Log a track that already exists in the database
+        Log a track that already exists in the database .
         ---
         operationId: createTrackLog
         tags:

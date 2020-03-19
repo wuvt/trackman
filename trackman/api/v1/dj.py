@@ -10,11 +10,11 @@ from .schemas import DJSchema, DJPrivateSchema
 class DJ(TrackmanResource):
     def get(self, dj_id):
         """
-        Get information about a DJ
+        Get information about a DJ.
         ---
         operationId: getDj
         tags:
-        - trackman
+        - private
         - dj
         parameters:
         - in: path
@@ -34,11 +34,11 @@ class DJ(TrackmanResource):
 
     def post(self, dj_id):
         """
-        Make changes to a DJ
+        Make changes to a DJ.
         ---
         operationId: editDj
         tags:
-        - trackman
+        - private
         - dj
         parameters:
         - in: path

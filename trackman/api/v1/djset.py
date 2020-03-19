@@ -11,11 +11,11 @@ from .schemas import AirLogSchema, TrackLogModifiedSchema
 class DJSet(TrackmanResource):
     def get(self, djset_id):
         """
-        Get information about a DJSet
+        Get information about a DJSet.
         ---
         operationId: getDjsetById
         tags:
-        - trackman
+        - private
         - djset
         parameters:
         - in: path
@@ -65,11 +65,11 @@ class DJSet(TrackmanResource):
 class DJSetEnd(TrackmanResource):
     def post(self, djset_id):
         """
-        End an existing DJSet
+        End an existing DJSet.
         ---
         operation: endDjset
         tags:
-        - trackman
+        - private
         - djset
         responses:
           200:
@@ -131,11 +131,11 @@ class DJSetEnd(TrackmanResource):
 class DJSetList(TrackmanResource):
     def post(self):
         """
-        Create a new DJSet
+        Create a new DJSet.
         ---
         operation: createDjset
         tags:
-        - trackman
+        - private
         - djset
         responses:
           201:

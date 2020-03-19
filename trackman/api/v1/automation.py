@@ -13,12 +13,11 @@ class AutomationLog(TrackmanStudioResource):
 
     def post(self):
         """
-        Log a track played by automation
+        Log a track played by automation.
         ---
         operationId: logAutomationTrack
         tags:
-        - trackman
-        - tracklog
+        - private
         - automation
         parameters:
         - in: form

@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import current_app
 from trackman import lib, pubsub, redis_conn
 from trackman.view_utils import check_request_sig
@@ -9,15 +10,13 @@ class InternalResource(TrackmanResource):
 
 
 class InternalPing(InternalResource):
+    @swag_from({
+        'operationId': "internalPing",
+        'tags': ['internal'],
+        'description': "This should be triggered approximately once per minute. This request is not normally intended to be called by external scripts and all requests made to this endpoint must be signed.",
+    })
     def get(self):
-        """
-        Internal ping used to trigger events such as keepalives.
-        This should be triggered approximately once per minute.
-        ---
-        operationId: internalPing
-        tags:
-        - trackman
-        """
+        """Internal ping used to trigger events such as keepalives."""
         pubsub.publish(
             current_app.config['PUBSUB_PUB_URL_ALL'],
             message={'event': "keepalive"})
