@@ -179,7 +179,7 @@ class AirLogList(TrackmanOnAirResource):
             db.session.rollback()
             raise
 
-        signals.airlog_added.send(self, airlog)
+        signals.airlog_added.send(self, airlog=airlog)
 
         schema = AirLogCreateResponseSchema()
         return schema.dump({
