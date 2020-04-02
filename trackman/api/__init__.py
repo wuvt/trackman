@@ -26,7 +26,15 @@ CORS(api_bp, resources={
     r"/api/charts/*": {"origins": "*"},
 })
 
-api = Api(api_bp)
+errors = {
+    'IPAccessDeniedException': {
+        'success': False,
+        'message': "Forbidden",
+        'status': 403,
+    },
+}
+
+api = Api(api_bp, errors=errors)
 api.add_resource(AutomationLog, '/api/automation/log')
 api.add_resource(DJ, '/api/dj/<int:dj_id>')
 api.add_resource(DJSet, '/api/djset/<int:djset_id>')

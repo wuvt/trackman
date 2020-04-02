@@ -8,6 +8,7 @@ import re
 import unidecode
 from datetime import timedelta
 from urllib.parse import urljoin
+from werkzeug.exceptions import HTTPException
 from . import app, auth_manager
 from .auth.utils import current_user, current_user_roles
 from .lib import perdelta, renew_dj_lease, check_onair
@@ -17,7 +18,7 @@ _punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 _slug_pattern = re.compile(r"[^ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._~:/?#\[\]@!$&'()*+,;=\-]*")
 
 
-class IPAccessDeniedException(Exception):
+class IPAccessDeniedException(HTTPException):
     pass
 
 
