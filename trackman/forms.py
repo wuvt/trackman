@@ -146,6 +146,7 @@ class AutomationTrackLogForm(FlaskForm):
     artist = StringField('Artist', filters=[strip_field])
     album = StringField('Album', filters=[strip_field])
     label = StringField('Label', filters=[strip_field])
+    dj_id = StringField('DJ ID')
 
 
 class TrackLogEditForm(FlaskForm):

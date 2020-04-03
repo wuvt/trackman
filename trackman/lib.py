@@ -36,6 +36,7 @@ def renew_dj_lease(expire=None):
 
 
 def logout_all(send_email=False):
+    redis_conn.delete('onair_dj_id')
     redis_conn.delete('onair_djset_id')
 
     open_djsets = DJSet.query.\
@@ -92,6 +93,7 @@ def disable_automation():
         automation_set_id = redis_conn.get("onair_djset_id")
 
         redis_conn.set("automation_enabled", b"false")
+        redis_conn.delete('onair_dj_id')
         redis_conn.delete('onair_djset_id')
         current_app.logger.info("Trackman: Automation disabled")
 
