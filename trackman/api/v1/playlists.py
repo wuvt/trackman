@@ -122,7 +122,7 @@ class PlaylistsByDay(PlaylistResource):
         schema = PlaylistsByDaySchema()
         return schema.dump({
             'dtstart': dtstart,
-            'sets': djsets_schema.dump(sets),
+            'sets': sets,
         }), status_code
 
 
