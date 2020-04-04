@@ -98,6 +98,7 @@ class DJSetEnd(TrackmanResource):
             })
 
         if check_onair(djset_id):
+            redis_conn.delete('onair_dj_id')
             redis_conn.delete('onair_djset_id')
 
         # Reset the dj activity timeout period
@@ -172,6 +173,7 @@ class DJSetList(TrackmanResource):
             raise
         playlists_cache.clear()
 
+        redis_conn.set('onair_dj_id', dj_id)
         redis_conn.set('onair_djset_id', djset.id)
         session['djset_id'] = djset.id
 

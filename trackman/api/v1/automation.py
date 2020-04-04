@@ -39,6 +39,10 @@ class AutomationLog(TrackmanStudioResource):
           name: label
           type: string
           description: Record label
+        - in: form
+          name: dj_id
+          type: string
+          description: DJ ID to use; will default to 1 if not provided
         responses:
           200:
             description: Track accepted, but not necessarily logged
@@ -120,15 +124,25 @@ class AutomationLog(TrackmanStudioResource):
                 else:
                     track = notauto.first()
 
+        dj_id_str = form.dj_id.data
+        if len(dj_id_str) > 0:
+            dj_id = int(dj_id_str)
+        else:
+            dj_id = 1
+
         # find a DJSet to use
+        onair_dj_id = redis_conn.get('onair_dj_id')
         djset_id = redis_conn.get('onair_djset_id')
-        if djset_id != None:
+
+        if djset_id != None and onair_dj_id == dj_id:
             djset_id = int(djset_id)
         else:
             # find an existing automation DJSet to use or create a new one
-            djset_id = logout_all_except(1)
-            if djset_id is None:
-                automation_set = models.DJSet(1)
+            automation_set = logout_all_except(dj_id)
+            if automation_set is not None:
+                djset_id = automation_set.id
+            else:
+                automation_set = models.DJSet(dj_id)
                 db.session.add(automation_set)
                 try:
                     db.session.commit()
@@ -139,9 +153,10 @@ class AutomationLog(TrackmanStudioResource):
 
                 djset_id = automation_set.id
                 current_app.logger.info(
-                    "Trackman: Automation DJSet ID {0} created".format(
-                        automation_set.id))
+                    "Trackman: Automation DJSet ID {0} created for DJ ID "
+                    "{1}".format(djset_id, dj_id))
 
+            redis_conn.set('onair_dj_id', dj_id)
             redis_conn.set('onair_djset_id', djset_id)
 
         # check again if automation is enabled as the state may have changed
