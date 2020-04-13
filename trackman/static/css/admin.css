@@ -237,3 +237,7 @@ td.row-options {
 .trackman-search-results {
     height: 200px;
 }
+
+tr.queue-row.drag-over {
+    box-shadow: 0 10px #2b4764;
+}
