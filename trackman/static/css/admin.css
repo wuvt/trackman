@@ -114,12 +114,12 @@ td.row-options {
     margin-right: 5px;
 }
 
-.trackman-panel .table {
+.trackman-card .table {
     table-layout: fixed;
 }
 
-.trackman-panel .table th,
-.trackman-panel .table td {
+.trackman-card .table th,
+.trackman-card .table td {
     overflow: hidden;
 }
 
@@ -224,10 +224,6 @@ td.row-options {
 }
 .search-actions {
     min-width: 133px;
-}
-
-.trackman-entry {
-    margin-bottom: 20px;
 }
 
 .trackman-queue {

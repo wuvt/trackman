@@ -1375,7 +1375,7 @@ Trackman.prototype.initEventHandler = function() {
 };
 
 Trackman.prototype.adjustPanelHeights = function() {
-    var rowTableHeight = ($(window).height() - $('nav').height() - $('.trackman-metadata-reminder').height() - $('.trackman-entry').height() - 20 * 8) / 3 - $('#trackman_playlist_panel > .table:first-child').height() - 10;
+    var rowTableHeight = ($(window).height() - $('nav').height() - $('.trackman-metadata-reminder').height() - $('.trackman-entry').height() - 17 * 8) / 3 - $('#trackman_playlist_panel > .table:first-child').height();
 
     // enforce a minimum height of 50 pixels
     if(rowTableHeight < 50) {
