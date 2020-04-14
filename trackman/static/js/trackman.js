@@ -322,6 +322,18 @@ Trackman.prototype.queueTrack = function(ev) {
     $('#artist').focus();
 };
 
+Trackman.prototype.dragQueueDisable = function(ev) {
+    $("table#queue tbody tr").each(function() {
+        $(this).prop('draggable', false);
+    });
+};
+
+Trackman.prototype.dragQueueEnable = function(ev) {
+    $("table#queue tbody tr").each(function() {
+        $(this).prop('draggable', true);
+    });
+};
+
 Trackman.prototype.dropQueueItem = function(ev) {
     var inst = ev.data.instance;
     ev.preventDefault();
@@ -342,7 +354,8 @@ Trackman.prototype.dropQueueItem = function(ev) {
         // since the IDs will have now changed, we need to compensate based
         // on where the dragged item was in the queue
         if(draggedId > targetId) {
-            inst.queue.splice(targetId + 1, 0, draggedItem);
+            var newId = parseInt(targetId) + 1;
+            inst.queue.splice(newId, 0, draggedItem);
         } else {
             inst.queue.splice(targetId, 0, draggedItem);
         }
@@ -1205,6 +1218,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
             inst.queue[id] = track;
 
             row.replaceWith(inst.renderTrackRow(track, 'queue'));
+            inst.dragQueueEnable();
             inst.saveQueue();
             return;
         }
@@ -1214,6 +1228,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
             var track = inst.queue[id];
             track['id'] = id;
             row.replaceWith(inst.renderTrackRow(track, 'queue'));
+            inst.dragQueueEnable();
         });
         $('button.queue-log', row).attr('disabled', 'disabled');
         $('button.queue-delay', row).attr('disabled', 'disabled');
@@ -1238,6 +1253,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
         $(obj).html(input);
     }
 
+    inst.dragQueueDisable();
     row.addClass('editing');
     transformToInput($('.artist', row));
     transformToInput($('.title', row));

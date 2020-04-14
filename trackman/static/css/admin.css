@@ -238,6 +238,10 @@ td.row-options {
     height: 200px;
 }
 
+tr.queue-row[draggable=true] {
+    cursor: grab;
+}
+
 tr.queue-row.drag-over {
     box-shadow: 0 10px #2b4764;
 }
