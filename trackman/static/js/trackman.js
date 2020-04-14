@@ -183,9 +183,41 @@ Trackman.prototype.updateAutologoutError = function(jqXHR, textStatus, errorThro
 // Queue {{{
 Trackman.prototype.initQueue = function() {
     this.queue = [];
+    this.draggedQueueId = null;
+    this.draggedQueueDropId = null;
 
-    $("button#new-queue").bind('click', {'instance': this},
-                               this.queueTrack);
+    $('#queue').on('dragenter', {'instance': this}, function(ev) {
+        var inst = ev.data.instance;
+        var target = ev.target;
+
+        if(target.tagName == "TD") {
+            target = target.parentElement;
+        }
+        if(target.tagName == "TR") {
+            $(target).addClass('drag-over');
+            inst.draggedQueueDropId = $(target).attr('data-queue-id');
+        }
+    });
+    $('#queue').on('dragleave', {'instance': this}, function(ev) {
+        var inst = ev.data.instance;
+        var target = ev.target;
+
+        if(target.tagName == "TD") {
+            target = target.parentElement;
+        }
+        if(target.tagName == "TR") {
+            if($(target).attr('data-queue-id') != inst.draggedQueueDropId) {
+                $(target).removeClass('drag-over');
+            }
+        }
+    });
+    $('#queue').on('dragover', function(ev) {
+        ev.preventDefault();
+    });
+    $('#queue').on('drop', {'instance': this}, this.dropQueueItem);
+
+    $("button#new-queue").on('click', {'instance': this},
+                             this.queueTrack);
 
     if(localStorage.getItem('trackman_queue')) {
         this.loadQueue();
@@ -290,6 +322,54 @@ Trackman.prototype.queueTrack = function(ev) {
     $('#artist').focus();
 };
 
+Trackman.prototype.dragQueueDisable = function(ev) {
+    $("table#queue tbody tr").each(function() {
+        $(this).prop('draggable', false);
+    });
+};
+
+Trackman.prototype.dragQueueEnable = function(ev) {
+    $("table#queue tbody tr").each(function() {
+        $(this).prop('draggable', true);
+    });
+};
+
+Trackman.prototype.dropQueueItem = function(ev) {
+    var inst = ev.data.instance;
+    ev.preventDefault();
+
+    var target = ev.target;
+    if(target.tagName == "TD") {
+        target = target.parentElement;
+    }
+    if(target.tagName == "TR") {
+        var draggedId = inst.draggedQueueId;
+        var draggedItem = inst.queue[inst.draggedQueueId];
+        var targetId = $(target).attr("data-queue-id");
+
+        // remove existing entry for dragged item in queue
+        inst.queue.splice(inst.draggedQueueId, 1);
+
+        // add new entry for dragged item in queue
+        // since the IDs will have now changed, we need to compensate based
+        // on where the dragged item was in the queue
+        if(draggedId > targetId) {
+            var newId = parseInt(targetId) + 1;
+            inst.queue.splice(newId, 0, draggedItem);
+        } else {
+            inst.queue.splice(targetId, 0, draggedItem);
+        }
+
+        // reset dragged item variables
+        inst.draggedQueueId = null;
+        inst.draggedQueueDropId = null;
+
+        // redraw queue and save
+        inst.updateQueue();
+        inst.saveQueue();
+    }
+};
+
 Trackman.prototype.queueFromJson = function(data) {
     return this.queueFromList(JSON.parse(data));
 };
@@ -345,8 +425,8 @@ Trackman.prototype.initPlaylist = function() {
             inst.pauseSearch = true;
         }
     });
-    $("button#new-log").bind('click', {'instance': this}, this.logNewTrack);
-    $("button#clear-form").bind('click', {'instance': this}, this.clearForm);
+    $("button#new-log").on('click', {'instance': this}, this.logNewTrack);
+    $("button#clear-form").on('click', {'instance': this}, this.clearForm);
     $(".trackman-search-results").on('click', function () {
         inst.pauseSearch = true;
     });
@@ -766,19 +846,19 @@ Trackman.prototype.bindSearchListeners = function() {
         ev.data.instance.searchResults[$(ev.target).parents(".search-row").prop("id").substring(1)]['rotation'] = $(ev.target).val();
     }
 
-    $("button.search-queue").bind('click', {'instance': this}, function(ev) { 
+    $("button.search-queue").on('click', {'instance': this}, function(ev) { 
         ev.data.instance.addToQueue($(ev.target).parents(".search-row"));
     });
-    $("button.search-log").bind('click', {'instance': this}, function(ev) {
+    $("button.search-log").on('click', {'instance': this}, function(ev) {
         ev.data.instance.logSearch($(ev.target).parents(".search-row"));
     });
-    $("table#search input[type=checkbox]").bind('change', {'instance': this},
-                                                updateSearchResults);
-    $("table#search select.rotation").bind('change', {'instance': this},
-                                           updateSearchRotation);
+    $("table#search input[type=checkbox]").on('change', {'instance': this},
+                                              updateSearchResults);
+    $("table#search select.rotation").on('change', {'instance': this},
+                                         updateSearchRotation);
 
-    $("table#search button.search-delay").bind('click', {'instance': this},
-                                               function(ev) {
+    $("table#search button.search-delay").on('click', {'instance': this},
+                                             function(ev) {
         var button = getParentIfSpan(ev.target);
         if(button.data('ticking') != true) {
             ev.data.instance.clearTimer('search');
@@ -792,8 +872,8 @@ Trackman.prototype.bindSearchListeners = function() {
         }
     });
 
-    $("table#search button.report").bind('click', {'instance': this},
-                                         function(ev) {
+    $("table#search button.report").on('click', {'instance': this},
+                                       function(ev) {
         search_id = $(ev.target).parents("tr").prop("id").slice(1);
         id = ev.data.instance.searchResults[search_id]['id']
         ev.data.instance.reportTrack(id);
@@ -916,6 +996,15 @@ Trackman.prototype.renderTrackRow = function(track, context) {
     else {
         row.addClass('queue-row');
         row.attr('id', 'p' + track['id']);
+        row.attr('data-queue-id', track['id']);
+
+        row.prop('draggable', true);
+        row.on('dragstart', {'instance': this}, function(ev) {
+            ev.data.instance.draggedQueueId = track['id'];
+        });
+        row.on('dragend', {'instance': this}, function(ev) {
+            ev.data.instance.draggedQueueDropId = null;
+        });
     }
 
     // main text entries
@@ -975,12 +1064,12 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         group.addClass('playlist-actions');
 
         var editBtn = $("<button class='btn btn-secondary btn-sm playlist-edit' title='Edit this track'><span class='oi oi-pencil'></span></button>");
-        editBtn.bind('click', {'instance': this, 'context': 'playlist'},
-                     this.inlineEditTrack);
+        editBtn.on('click', {'instance': this, 'context': 'playlist'},
+                   this.inlineEditTrack);
         group.append(editBtn);
 
         var reportBtn = $("<button class='btn btn-secondary btn-sm report' title='Report this track for editing'><span class='oi oi-flag'></span></button>");
-        reportBtn.bind('click', {'instance': this}, function(ev) {
+        reportBtn.on('click', {'instance': this}, function(ev) {
             playlist_id = $(ev.target).parents("tr").prop("id").slice(1);
             tracklog = $.grep(playlist, function(e){ return e.tracklog_id == playlist_id;})[0];
             id = tracklog['track_id'];
@@ -989,7 +1078,7 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         group.append(reportBtn);
 
         var deleteBtn = $("<button class='btn btn-danger btn-sm playlist-delete' title='Delete this track from playlist'><span class='oi oi-trash'></span></button>");
-        deleteBtn.bind('click', {'instance': this}, function(ev) {
+        deleteBtn.on('click', {'instance': this}, function(ev) {
             ev.data.instance.deleteTrack(row);
         });
         group.append(deleteBtn);
@@ -998,7 +1087,7 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         group.addClass('queue-actions');
 
         var logBtn = $("<button class='btn btn-primary btn-sm queue-log' type='button' title='Log this track now!'><span class='oi oi-media-play'></span></button>");
-        logBtn.bind('click', {'instance': this}, function(ev) {
+        logBtn.on('click', {'instance': this}, function(ev) {
             ev.data.instance.logQueued(row);
             ev.data.instance.clearForm();
             $('#artist').focus();
@@ -1006,7 +1095,7 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         group.append(logBtn);
 
         var logDelayBtn = $("<button class='btn btn-secondary btn-sm queue-delay' type='button' title='Log this track in 30 seconds.'><span class='oi oi-timer'></span></button>");
-        logDelayBtn.bind('click', {'instance': this}, function(ev) {
+        logDelayBtn.on('click', {'instance': this}, function(ev) {
             var button = getParentIfSpan(ev.target);
             if(button.data('ticking') != true) {
                 ev.data.instance.clearTimer('queue');
@@ -1022,12 +1111,12 @@ Trackman.prototype.renderTrackRow = function(track, context) {
         group.append(logDelayBtn);
 
         var editBtn = $("<button class='btn btn-secondary btn-sm queue-edit' title='Edit this track'><span class='oi oi-pencil'></span></button>");
-        editBtn.bind('click', {'instance': this, 'context': 'queue'},
-                     this.inlineEditTrack);
+        editBtn.on('click', {'instance': this, 'context': 'queue'},
+                   this.inlineEditTrack);
         group.append(editBtn);
 
         var deleteBtn = $("<button class='btn btn-danger btn-sm queue-delete' type='button' title='Delete this track from queue'><span class='oi oi-trash'></span></button>");
-        deleteBtn.bind('click', {'instance': this}, function(ev) {
+        deleteBtn.on('click', {'instance': this}, function(ev) {
             ev.data.instance.removeFromQueue(row);
         });
         group.append(deleteBtn);
@@ -1069,7 +1158,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
         cancelBtn.html(cancelGlyph);
         editBtn.after(cancelBtn);
 
-        cancelBtn.bind('click', {'instance': inst, 'id': id}, cancelCallback);
+        cancelBtn.on('click', {'instance': inst, 'id': id}, cancelCallback);
     }
 
     if(context == 'playlist') {
@@ -1129,6 +1218,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
             inst.queue[id] = track;
 
             row.replaceWith(inst.renderTrackRow(track, 'queue'));
+            inst.dragQueueEnable();
             inst.saveQueue();
             return;
         }
@@ -1138,6 +1228,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
             var track = inst.queue[id];
             track['id'] = id;
             row.replaceWith(inst.renderTrackRow(track, 'queue'));
+            inst.dragQueueEnable();
         });
         $('button.queue-log', row).attr('disabled', 'disabled');
         $('button.queue-delay', row).attr('disabled', 'disabled');
@@ -1162,6 +1253,7 @@ Trackman.prototype.inlineEditTrack = function(ev) {
         $(obj).html(input);
     }
 
+    inst.dragQueueDisable();
     row.addClass('editing');
     transformToInput($('.artist', row));
     transformToInput($('.title', row));
@@ -1283,7 +1375,7 @@ Trackman.prototype.initEventHandler = function() {
 };
 
 Trackman.prototype.adjustPanelHeights = function() {
-    var rowTableHeight = ($(window).height() - $('nav').height() - $('.trackman-metadata-reminder').height() - $('.trackman-entry').height() - 20 * 8) / 3 - $('#trackman_playlist_panel > .table:first-child').height() - 10;
+    var rowTableHeight = ($(window).height() - $('nav').height() - $('.trackman-metadata-reminder').height() - $('.trackman-entry').height() - 17 * 8) / 3 - $('#trackman_playlist_panel > .table:first-child').height();
 
     // enforce a minimum height of 50 pixels
     if(rowTableHeight < 50) {

@@ -114,12 +114,12 @@ td.row-options {
     margin-right: 5px;
 }
 
-.trackman-panel .table {
+.trackman-card .table {
     table-layout: fixed;
 }
 
-.trackman-panel .table th,
-.trackman-panel .table td {
+.trackman-card .table th,
+.trackman-card .table td {
     overflow: hidden;
 }
 
@@ -226,14 +226,18 @@ td.row-options {
     min-width: 133px;
 }
 
-.trackman-entry {
-    margin-bottom: 20px;
-}
-
 .trackman-queue {
     height: 200px;
 }
 
 .trackman-search-results {
     height: 200px;
+}
+
+tr.queue-row[draggable=true] {
+    cursor: grab;
+}
+
+tr.queue-row.drag-over {
+    box-shadow: 0 10px #2b4764;
 }
