@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}View Sessions - {{ super() }}{% endblock %}
+{% block content %}
+
+<div class="container">
+    <section>
+        <header>
+            <h2>View Sessions</h2>
+        </header>
+
+        <p>This is a list of devices that have logged into your account. Revoke
+        any session that you do not recognize.</p>
+
+        <div class="list-group">
+{% for sess in sessions %}
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ sess.remote_addr }}</h5>
+                    {% if sess.token == current_session_token %}
+                    <small>Your current session</small>
+                    {% else %}
+                    <form action="{{ url_for('.revoke_session', session_id=sess.id) }}" method="post" class="form-inline">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+                        <button type="submit" class="btn btn-danger btn-sm">Revoke</button>
+                    </form>
+                    {% endif %}
+                </div>
+
+                <p>{{ sess.parse_user_agent().browser|title }} on {{ sess.parse_user_agent().platform|title }}</p>
+                <small class="text-muted">Logged in on {{ sess.login_at|datetime("%Y-%m-%d") }}</small>
+            </div>
+{% endfor %}
+        </div>
+    </section>
+</divg
+{% endblock %}

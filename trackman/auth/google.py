@@ -1,10 +1,9 @@
 import googleapiclient.discovery
 from flask import abort, current_app
 from google.oauth2 import service_account
-from trackman.auth.models import User
-from trackman.auth.utils import login_user, get_user_roles
-from trackman.auth.view_utils import log_auth_success, log_auth_failure, \
-        redirect_back
+from .models import User
+from .utils import login_user, get_user_roles
+from .view_utils import log_auth_success, log_auth_failure, redirect_back
 
 
 def get_groups(user_info):

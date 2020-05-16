@@ -2,10 +2,9 @@ from authlib.client import OAuthClient
 from authlib.jose import jwt, jwk
 from authlib.oidc.core import CodeIDToken, ImplicitIDToken, UserInfo
 from flask import abort, current_app, json
-from trackman.auth.models import User
-from trackman.auth.utils import login_user, get_user_roles
-from trackman.auth.view_utils import log_auth_success, log_auth_failure, \
-        redirect_back
+from .models import User
+from .utils import login_user, get_user_roles
+from .view_utils import log_auth_success, log_auth_failure, redirect_back
 
 
 def create_oidc_backend(name, client_secrets_file=None, scopes=None):

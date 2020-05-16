@@ -63,19 +63,21 @@ class AuthManager(object):
         from . import views
         app.register_blueprint(views.bp, url_prefix='/auth')
 
-    def generate_session_id(self):
+    def generate_session_token(self):
         return base64.urlsafe_b64encode(os.urandom(64)).decode('ascii')
 
     def load_user_session(self):
         ctx = _request_ctx_stack.top
 
-        session_id = session.get('user_session_id')
-        if session_id is None or type(session_id) != str:
+        session_token = session.get('user_session_token')
+        if session_token is None or type(session_token) != str:
             ctx.user = AnonymousUserMixin()
             ctx.user_roles = set([])
         else:
             now = datetime.datetime.utcnow()
-            user_session = UserSession.query.get(session_id)
+            user_session = UserSession.query.filter(
+                UserSession.token == session_token,
+            ).first()
             if user_session is not None and \
                     now > user_session.login_at and now < user_session.expires:
                 ctx.user = User(json.loads(user_session.id_token))
@@ -115,10 +117,10 @@ class AuthManager(object):
         return access_decorator
 
     def login_user(self, user, roles):
-        session_id = self.generate_session_id()
+        session_token = self.generate_session_token()
 
         user_session = UserSession(
-            session_id=session_id,
+            token=session_token,
             id_token=user.id_token,
             expires=datetime.datetime.utcnow() + self.app.permanent_session_lifetime,
             user_agent=str(request.user_agent),
@@ -132,15 +134,15 @@ class AuthManager(object):
             self.db.session.rollback()
             raise
 
-        session['user_session_id'] = session_id
+        session['user_session_token'] = session_token
         _request_ctx_stack.top.user = user
         _request_ctx_stack.top.user_roles = roles
         return True
 
     def logout_user(self):
-        session_id = session.pop('user_session_id', None)
-        if session_id is not None or type(session_id) != str:
-            user_session = UserSession.query.get(session_id)
+        session_token = session.pop('user_session_token', None)
+        if session_token is not None or type(session_token) != str:
+            user_session = UserSession.query.get(session_token)
             if user_session is not None:
                 self.db.session.delete(user_session)
                 try:
