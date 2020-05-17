@@ -2,6 +2,7 @@ import datetime
 from flask import json
 from trackman import db
 from .mixins import UserMixin
+from werkzeug.useragents import UserAgent
 
 
 class User(UserMixin):
@@ -23,7 +24,8 @@ class UserRole(db.Model):
 
 class UserSession(db.Model):
     __tablename__ = "user_session"
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(255), nullable=False)
     sub = db.Column(db.Unicode(255), nullable=False)
     id_token = db.Column(db.UnicodeText)
     login_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
@@ -32,9 +34,9 @@ class UserSession(db.Model):
     remote_addr = db.Column(db.Unicode(100))
     roles_list = db.Column(db.Unicode(1024))
 
-    def __init__(self, session_id, id_token, expires, user_agent, remote_addr,
+    def __init__(self, token, id_token, expires, user_agent, remote_addr,
                  roles):
-        self.id = session_id
+        self.token = token
         self.sub = id_token['sub']
         self.id_token = json.dumps(id_token)
         self.expires = expires
@@ -45,6 +47,9 @@ class UserSession(db.Model):
     @property
     def roles(self):
         return set(self.roles_list.split(','))
+
+    def parse_user_agent(self):
+        return UserAgent(self.user_agent)
 
 
 class GroupRole(db.Model):

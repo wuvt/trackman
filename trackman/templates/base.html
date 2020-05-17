@@ -31,7 +31,7 @@
 
 {% if current_user.is_authenticated %}
                     <span class="navbar-text ml-auto mr-sm-2">
-                        Logged in as {{ current_user.id_token.name }}
+                        Logged in as <a class="text-muted" href="{{ url_for('auth.view_sessions') }}">{{ current_user.id_token.name }}</a></a>
                     </span>
                     <form action="{{ url_for('auth.logout') }}" method="post" class="form-inline">
                         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
