@@ -98,8 +98,7 @@ migrate = Migrate(app, db)
 
 from trackman.auth import AuthManager
 auth_manager = AuthManager()
-auth_manager.db = db
-auth_manager.init_app(app)
+auth_manager.init_app(app, db)
 
 if len(app.config['SENTRY_DSN']) > 0:
     sentry_sdk.init(

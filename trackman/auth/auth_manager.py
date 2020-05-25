@@ -17,13 +17,12 @@ class AuthManager(object):
 
         self.exempt_methods = set(['OPTIONS'])
 
-        if db is not None:
-            self.db = db
-        if app is not None:
-            self.init_app(app)
+        if app is not None and db is not None:
+            self.init_app(app, db)
 
-    def init_app(self, app):
+    def init_app(self, app, db):
         self.app = app
+        self.db = db
 
         app.auth_manager = self
         app.context_processor(_user_context_processor)
