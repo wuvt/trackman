@@ -18,6 +18,14 @@
     <li class="nav-item"><a class="nav-link" href="{{ url_for('trackman_library.fixup') }}">Fixup</a></li>
 </ul>
 
+<!-- TODO beautify -->
+<h2>search<h2>
+    <p>Only searches exact matches</p>
+    <form action=artist>
+	<label for="artist">Artist: </label><input type="text" id="artist" name="artist"/>
+        <input type="submit" value="Search">
+    </form>
+
 <div class="card-body panel-5-columns">
     <div class="list-group-inline">
         {% for letter in letters -%}
