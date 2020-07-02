@@ -19,16 +19,20 @@
     <li class="nav-item"><a class="nav-link" href="{{ url_for('trackman_library.fixup') }}">Fixup</a></li>
 </ul>
 
-<!-- TODO beautify -->
-<h2>search<h2>
+<div class="card-body">
+    <h3>Search</h3>
     <p>Only searches exact matches</p>
-    <form action=label>
-	<label for="label">Label: </label><input type="text" id="label" name="label"/>
-        <input type="submit" value="Search">
+    <form action="{{ url_for('trackman_library.label') }}" method="get" class="form-horizontal" role="form">
+    <div class="form-group row">
+        <label for="artist" class="col-sm-1 control-label col-form-label">Label</label>
+        <div class="col-sm input-group">
+	    <input class="form-control" type="text" id="artist" name="artist">
+            <button type="submit" class="btn btn-primary">Search</button>
+	</div>
+    </div>
     </form>
 
-<div class="card-body panel-5-columns">
-    <div class="list-group-inline">
+    <div class="panel-5-columns list-group-inline">
         {% for letter in letters -%}
         <a href="{{ url_for('trackman_library.labels_letter', letter=letter) }}" class="list-group-item">{{ letter }}</a>
         {% endfor -%}
