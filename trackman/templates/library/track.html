@@ -72,7 +72,7 @@
                     <input type="text" name="artist_mbid" id="id_artist_mbid"
                         value="{{ data.artist_mbid or "" }}"
                         class="form-control"/>
-                    <span class="input-group-btn">
+                    <span class="input-group-append">
                         {% if track.artist_mbid %}
                         <a href="https://musicbrainz.org/artist/{{ track.artist_mbid }}"
                                 rel="external noreferrer"
@@ -96,7 +96,7 @@
                         id="id_recording_mbid"
                         value="{{ data.recording_mbid or "" }}"
                         class="form-control"/>
-                    <span class="input-group-btn">
+                    <span class="input-group-append">
                         {% if track.recording_mbid %}
                         <a href="https://musicbrainz.org/recording/{{ track.recording_mbid }}"
                                 rel="external noreferrer"
@@ -118,7 +118,7 @@
                     <input type="text" name="release_mbid" id="id_release_mbid"
                         value="{{ data.release_mbid or "" }}"
                         class="form-control"/>
-                    <span class="input-group-btn">
+                    <span class="input-group-append">
                         {% if track.release_mbid %}
                         <a href="https://musicbrainz.org/release/{{ track.release_mbid }}"
                                 rel="external noreferrer"
@@ -141,7 +141,7 @@
                         id="id_releasegroup_mbid"
                         value="{{ data.releasegroup_mbid or "" }}"
                         class="form-control"/>
-                    <span class="input-group-btn">
+                    <span class="input-group-append">
                         {% if track.releasegroup_mbid %}
                         <a href="https://musicbrainz.org/release-group/{{ track.releasegroup_mbid }}"
                                 rel="external noreferrer"
