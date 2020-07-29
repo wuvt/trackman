@@ -14,6 +14,11 @@
 <h1>Fixup: {{ title }}</h1>
 
 {{ macros.render_pagination(tracks, 'trackman_library.fixup_tracks', key=key) }}
-{{ macros.library_tracklist(tracks.items) }}
+{{ macros.library_tracklist(tracks.items, edit_from='fixup_tracks') }}
 {{ macros.render_pagination(tracks, 'trackman_library.fixup_tracks', key=key) }}
+{% endblock %}
+
+{% block js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/library.js') }}"></script>
 {% endblock %}

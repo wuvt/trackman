@@ -1,9 +1,29 @@
 from flask import current_app
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, IntegerField, StringField, \
-    ValidationError, validators
+from wtforms import validators, ValidationError
+from wtforms.fields import BooleanField, IntegerField, StringField
+from wtforms.widgets import Select, TextInput
 from .models import DJ
 from .view_utils import slugify
+
+
+class BootstrapWidgetMixin(object):
+    def __call__(self, field, **kwargs):
+        existing_class = kwargs.pop("class", "") or kwargs.pop("class_", "")
+        classes = set(existing_class.split())
+        classes.add("form-control")
+        if field.errors:
+            classes.add("is-invalid")
+        kwargs["class"] = " ".join(classes)
+        return super().__call__(field, **kwargs)
+
+
+class BootstrapSelect(BootstrapWidgetMixin, Select):
+    pass
+
+
+class BootstrapTextInput(BootstrapWidgetMixin, TextInput):
+    pass
 
 
 def strip_field(val):
