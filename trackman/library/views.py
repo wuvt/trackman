@@ -435,11 +435,18 @@ def bulk_edit():
     form_defaults = {}
     for track_id in track_ids:
         track = Track.query.get(track_id)
+
+        # Iterate through the list of fields above
         for field in fields_to_set:
             value = getattr(track, field)
-            if form_defaults.get(field) is None:
+
+            # For each field, check if we already have a default value set.
+            if field not in form_defaults:
+                # No default set, use the first one
                 form_defaults[field] = value
             elif form_defaults.get(field) != value:
+                # Our value is different, reset value to None
+                # We won't be able to display anything here
                 form_defaults[field] = None
 
     form = BulkEditForm(submit=True, **form_defaults)
