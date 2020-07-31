@@ -13,5 +13,10 @@
 
 <h1>Artist: {{ artist }}</h1>
 
-{{ macros.library_tracklist(tracks) }}
+{{ macros.library_tracklist(tracks, edit_from='artist') }}
+{% endblock %}
+
+{% block js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/library.js') }}"></script>
 {% endblock %}

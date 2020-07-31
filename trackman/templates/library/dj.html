@@ -34,6 +34,11 @@
 </dl>
 
 {{ macros.render_pagination(tracks, 'trackman_library.dj', id=dj.id) }}
-{{ macros.library_tracklist(tracks.items) }}
+{{ macros.library_tracklist(tracks.items, edit_from='dj') }}
 {{ macros.render_pagination(tracks, 'trackman_library.dj', id=dj.id) }}
+{% endblock %}
+
+{% block js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/library.js') }}"></script>
 {% endblock %}

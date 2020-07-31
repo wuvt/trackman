@@ -3,11 +3,12 @@ from flask import abort, current_app, flash, render_template, redirect, \
 import string
 import uuid
 
-from trackman import auth_manager, db, format_datetime
+from trackman import auth_manager, db
 from trackman.models import DJ, Track, TrackLog, TrackReport
 from trackman.lib import deduplicate_track_by_id
 from trackman.musicbrainz import musicbrainzngs
 from . import library_bp
+from .forms import BulkEditForm
 
 
 def validate_uuid(uuid_str):
@@ -422,3 +423,56 @@ def track_spins(id):
 
     return render_template('library/track_spins.html', track=track,
                            edit_from=edit_from, tracklogs=tracklogs)
+
+
+@library_bp.route('/bulk-edit', methods=['POST'])
+@auth_manager.check_access('library')
+def bulk_edit():
+    fields_to_set = ('artist', 'title', 'album', 'label', 'artist_mbid',
+                     'recording_mbid', 'release_mbid', 'releasegroup_mbid')
+    track_ids = [int(x) for x in request.form.getlist('track_ids[]')]
+
+    form_defaults = {}
+    for track_id in track_ids:
+        track = Track.query.get(track_id)
+
+        # Iterate through the list of fields above
+        for field in fields_to_set:
+            value = getattr(track, field)
+
+            # For each field, check if we already have a default value set.
+            if field not in form_defaults:
+                # No default set, use the first one
+                form_defaults[field] = value
+            elif form_defaults.get(field) != value:
+                # Our value is different, reset value to None
+                # We won't be able to display anything here
+                form_defaults[field] = None
+
+    form = BulkEditForm(submit=True, **form_defaults)
+
+    if form.validate_on_submit():
+        for track_id in track_ids:
+            track = Track.query.get(track_id)
+
+            for field in fields_to_set:
+                if len(form[field].data) > 0:
+                    setattr(track, field, form[field].data)
+
+        db.session.commit()
+
+        if form.edit_from.data == "artist":
+            return redirect(url_for('trackman_library.artist',
+                                    artist=track.artist))
+        elif form.edit_from.data == "album":
+            return redirect(url_for('trackman_library.album',
+                                    album=track.album))
+        elif form.edit_from.data == 'label':
+            return redirect(url_for('trackman_library.label',
+                                    label=track.label))
+        else:
+            return redirect(url_for('trackman_library.index'))
+
+    return render_template('library/bulk_edit.html',
+                           track_ids=track_ids,
+                           form=form)

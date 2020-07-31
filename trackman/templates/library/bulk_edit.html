@@ -1,0 +1,112 @@
+{% extends "admin/base.html" %}
+{% set page_title="Bulk Edit" %}
+{% block nav_admin_library %}<li class="nav-item "><a class="nav-link active" href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('trackman_library.index') }}">Library</a></li>
+        <li class="breadcrumb-item active">Bulk Edit</li>
+    </ol>
+</nav>
+
+<h1>Bulk Edit</h1>
+
+<div class="card-body">
+    <form method="post" class="form-horizontal" role="form">
+        {{ form.hidden_tag() }}
+
+{% for track_id in track_ids %}
+        <input type="hidden" name="track_ids[]" value="{{ track_id }}"/>
+{% endfor %}
+
+        <div class="form-group row{% if form.artist.errors|length > 0 %} has-error{% endif %}">
+            {{ form.artist.label(class_="col-sm-3 col-form-label control-label") }}
+            <div class="col-sm-9">
+                {{ form.artist }}
+{% for error in form.artist.errors %}
+                <div class="help-block">{{ error }}</div>
+{% endfor %}
+            </div>
+        </div>
+        
+        <div class="form-group row{% if form.title.errors|length > 0 %} has-error{% endif %}">
+            {{ form.title.label(class_="col-sm-3 col-form-label control-label") }}
+            <div class="col-sm-9">
+                {{ form.title }}
+{% for error in form.title.errors %}
+                <div class="help-block">{{ error }}</div>
+{% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group row{% if form.album.errors|length > 0 %} has-error{% endif %}">
+            {{ form.album.label(class_="col-sm-3 col-form-label control-label") }}
+            <div class="col-sm-9">
+                {{ form.album }}
+{% for error in form.album.errors %}
+                <div class="help-block">{{ error }}</div>
+{% endfor %}
+            </div>
+        </div>
+        
+        <div class="form-group row{% if form.label.errors|length > 0 %} has-error{% endif %}">
+            {{ form.label.label(class_="col-sm-3 col-form-label control-label") }}
+            <div class="col-sm-9">
+                {{ form.label }}
+{% for error in form.label.errors %}
+                <div class="help-block">{{ error }}</div>
+{% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group row{% if form.artist_mbid.errors|length > 0 %} has-error{% endif %}">
+            {{ form.artist_mbid.label(class_="col-sm-3 col-form-label control-label") }}
+            <div class="col-sm-9">
+                {{ form.artist_mbid }}
+{% for error in form.artist_mbid.errors %}
+                <div class="help-block">{{ error }}</div>
+{% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group row{% if form.recording_mbid.errors|length > 0 %} has-error{% endif %}">
+            {{ form.recording_mbid.label(class_="col-sm-3 col-form-label control-label") }}
+            <div class="col-sm-9">
+                {{ form.recording_mbid }}
+{% for error in form.recording_mbid.errors %}
+                <div class="help-block">{{ error }}</div>
+{% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group row{% if form.release_mbid.errors|length > 0 %} has-error{% endif %}">
+            {{ form.release_mbid.label(class_="col-sm-3 col-form-label control-label") }}
+            <div class="col-sm-9">
+                {{ form.release_mbid }}
+{% for error in form.release_mbid.errors %}
+                <div class="help-block">{{ error }}</div>
+{% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group row{% if form.releasegroup_mbid.errors|length > 0 %} has-error{% endif %}">
+            {{ form.releasegroup_mbid.label(class_="col-sm-3 col-form-label control-label") }}
+            <div class="col-sm-9">
+                {{ form.releasegroup_mbid }}
+{% for error in form.releasegroup_mbid.errors %}
+                <div class="help-block">{{ error }}</div>
+{% endfor %}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <span class="oi oi-check"></span>
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
