@@ -431,6 +431,8 @@ def bulk_edit():
     form_defaults = {}
     for track_id in track_ids:
         track = Track.query.get(track_id)
+        if track is None:
+            abort(400)
 
         # Iterate through the list of fields above
         for field in fields_to_set:
