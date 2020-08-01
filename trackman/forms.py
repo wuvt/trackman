@@ -165,7 +165,31 @@ class AutomationTrackLogForm(FlaskForm):
     title = StringField('Title', filters=[strip_field])
     artist = StringField('Artist', filters=[strip_field])
     album = StringField('Album', filters=[strip_field])
-    label = StringField('Label', filters=[strip_field])
+    label = StringField(
+        "Label",
+        filters=[strip_field],
+        validators=[validators.Optional()],
+    )
+    artist_mbid = StringField(
+        "Artist MBID",
+        filters=[strip_field],
+        validators=[validators.Optional(), validators.UUID()],
+    )
+    recording_mbid = StringField(
+        "Recording MBID",
+        filters=[strip_field],
+        validators=[validators.Optional(), validators.UUID()],
+    )
+    release_mbid = StringField(
+        "Release MBID",
+        filters=[strip_field],
+        validators=[validators.Optional(), validators.UUID()],
+    )
+    releasegroup_mbid = StringField(
+        "Release Group MBID",
+        filters=[strip_field],
+        validators=[validators.Optional(), validators.UUID()],
+    )
     dj_id = StringField('DJ ID')
 
 

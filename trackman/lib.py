@@ -419,11 +419,35 @@ def cleanup_dj_list():
 
 
 def find_or_add_track(track):
-    match = Track.query.filter(
+    # Search based on MusicBrainz recording and release MBIDs first, if
+    # available
+    if (
+        track.recording_mbid is not None
+        and track.release_mbid is not None
+    ):
+        match = Track.query.filter(
+            Track.recording_mbid == track.recording_mbid,
+            Track.release_mbid == track.release_mbid,
+        ).first()
+        if match is not None:
+            return match
+
+    filter_clause = [
         db.func.lower(Track.artist) == db.func.lower(track.artist),
         db.func.lower(Track.title) == db.func.lower(track.title),
         db.func.lower(Track.album) == db.func.lower(track.album),
-        db.func.lower(Track.label) == db.func.lower(track.label)).first()
+    ]
+
+    # If the label is provided, use it; otherwise we'll just take the first
+    if track.label is not None:
+        filter_clause.append(
+            db.func.lower(Track.label) == db.func.lower(track.label),
+        )
+    else:
+        track.label = "Not Available"
+
+    # Fall back to search using standard metadata
+    match = Track.query.filter(*filter_clause).first()
     if match is None:
         db.session.add(track)
         try:

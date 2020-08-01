@@ -40,6 +40,22 @@ class AutomationLog(TrackmanStudioResource):
           type: string
           description: Record label
         - in: form
+          name: artist_mbid
+          type: string
+          description: Artist MBID
+        - in: form
+          name: recording_mbid
+          type: string
+          description: Recording MBID
+        - in: form
+          name: release_mbid
+          type: string
+          description: Release MBID
+        - in: form
+          name: releasegroup_mbid
+          type: string
+          description: Release Group MBID
+        - in: form
           name: dj_id
           type: string
           description: DJ ID to use; will default to 1 if not provided
@@ -95,34 +111,18 @@ class AutomationLog(TrackmanStudioResource):
             }
 
         label = form.label.data
-        if len(label) > 0:
-            track = find_or_add_track(models.Track(
-                title,
-                artist,
-                album,
-                label))
-        else:
-            # Handle automation not providing a label
+
+        new_track = models.Track(title, artist, album, label)
+        new_track.artist_mbid = form.artist_mbid.data
+        new_track.recording_mbid = form.recording_mbid.data
+        new_track.release_mbid = form.release_mbid.data
+        new_track.releasegroup_mbid = form.releasegroup_mbid.data
+
+        # special handling if label is None
+        if len(label) <= 0:
             label = "Not Available"
-            tracks = models.Track.query.filter(
-                db.func.lower(models.Track.title) == db.func.lower(title),
-                db.func.lower(models.Track.artist) == db.func.lower(artist),
-                db.func.lower(models.Track.album) == db.func.lower(album))
-            if tracks.count() == 0:
-                track = models.Track(title, artist, album, label)
-                db.session.add(track)
-                try:
-                    db.session.commit()
-                except:
-                    db.session.rollback()
-                    raise
-            else:
-                notauto = tracks.filter(models.Track.label != "Not Available")
-                if notauto.count() == 0:
-                    # The only option is "not available label"
-                    track = tracks.first()
-                else:
-                    track = notauto.first()
+
+        track = find_or_add_track(new_track)
 
         dj_id_str = form.dj_id.data
         if len(dj_id_str) > 0:
