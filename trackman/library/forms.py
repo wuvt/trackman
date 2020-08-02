@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import validators
-from wtforms.fields import BooleanField, HiddenField, StringField
+from wtforms.fields import (
+    BooleanField, FieldList, FormField, HiddenField, StringField
+)
 from wtforms.widgets import HiddenInput
 from trackman.forms import BootstrapTextInput, strip_field
 
@@ -60,3 +62,27 @@ class BulkEditForm(FlaskForm):
         validators=[validators.Optional(), validators.UUID()],
         widget=BootstrapTextInput(),
     )
+
+
+class ArtistMusicbrainzAlbumForm(FlaskForm):
+    album = HiddenField(
+        "Album",
+        validators=[validators.InputRequired()],
+    )
+    releasegroup_mbid = HiddenField(
+        "Release Group MBID",
+        filters=[strip_field],
+        validators=[validators.Optional(), validators.UUID()],
+    )
+
+
+class ArtistMusicbrainzForm(FlaskForm):
+    artist = HiddenField(
+        "Artist",
+        validators=[validators.InputRequired()],
+    )
+    artist_mbid = HiddenField(
+        "Artist MBID",
+        validators=[validators.InputRequired(), validators.UUID()],
+    )
+    albums = FieldList(FormField(ArtistMusicbrainzAlbumForm))
