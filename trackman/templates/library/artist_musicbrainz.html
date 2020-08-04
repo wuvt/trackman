@@ -7,11 +7,12 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url_for('trackman_library.index') }}">Library</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Artist: {{ artist }}</li>
+        <li class="breadcrumb-item"><a href="{{ url_for('trackman_library.artist', artist=artist) }}">Artist: {{ artist }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">MusicBrainz Release Groups</li>
     </ol>
 </nav>
 
-<h1>MusicBrainz Release Groups for Artist: {{ artist }}</h1>
+<h1>MusicBrainz Release Groups</h1>
 
 <form action="{{ url_for('trackman_library.artist_musicbrainz') }}" method="post" role="form">
 {{ form.hidden_tag() }}
