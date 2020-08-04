@@ -1,6 +1,6 @@
 {% import "library/macros.html" as macros %}
 {% extends "admin/base.html" %}
-{% set page_title="Artist: " + artist %}
+{% set page_title="MusicBrainz Release Groups for Artist: " + artist %}
 {% block nav_admin_library %}<li class="nav-item "><a class="nav-link active" href="{{ url_for('trackman_library.index') }}">Library</a></li>{% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
     </ol>
 </nav>
 
-<h1>Artist: {{ artist }}</h1>
+<h1>MusicBrainz Release Groups for Artist: {{ artist }}</h1>
 
 <form action="{{ url_for('trackman_library.artist_musicbrainz') }}" method="post" role="form">
 {{ form.hidden_tag() }}
