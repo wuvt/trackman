@@ -65,6 +65,8 @@ class BulkEditForm(FlaskForm):
 
 
 class ArtistMusicbrainzAlbumForm(FlaskForm):
+    """Subform used in ArtistMusicbrainzForm to match albums and release group
+    MBIDs."""
     album = HiddenField(
         "Album",
         validators=[validators.InputRequired()],
@@ -77,6 +79,9 @@ class ArtistMusicbrainzAlbumForm(FlaskForm):
 
 
 class ArtistMusicbrainzForm(FlaskForm):
+    """Form used on the artist "MusicBrainz Release Groups" page to associate
+    release groups with albums. We use a list of ArtistMusicbrainzAlbumForm
+    instances in combination with the artist to do this matching."""
     artist = HiddenField(
         "Artist",
         validators=[validators.InputRequired()],
