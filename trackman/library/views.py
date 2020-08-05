@@ -8,7 +8,7 @@ from trackman.models import DJ, Track, TrackLog, TrackReport
 from trackman.lib import deduplicate_track_by_id
 from trackman.musicbrainz import musicbrainzngs
 from . import library_bp
-from .forms import BulkEditForm
+from .forms import BulkEditForm, ArtistMusicbrainzForm
 
 
 def validate_uuid(uuid_str):
@@ -78,8 +78,88 @@ def artist():
     tracks = Track.query.filter(Track.artist == artist).\
         order_by(Track.album, Track.title).all()
 
-    return render_template('library/artist.html', artist=artist,
-                           tracks=tracks)
+    artist_mbids = Track.query.with_entities(
+        Track.artist_mbid,
+    ).group_by(
+        Track.artist_mbid,
+    ).filter(
+        Track.artist == artist,
+        Track.artist_mbid != None,
+    ).all()
+
+    return render_template(
+        'library/artist.html',
+        artist=artist,
+        tracks=tracks,
+        artist_mbids=[x.artist_mbid for x in artist_mbids],
+    )
+
+
+@library_bp.route('/artist-musicbrainz', methods=['GET', 'POST'])
+@auth_manager.check_access('library')
+def artist_musicbrainz():
+    """This view that displays/handles the "MusicBrainz Release Groups"
+    functionality on the artist page."""
+
+    if request.method == "GET":
+        artist = request.args['artist']
+        artist_mbid = request.args['artist_mbid']
+        form = ArtistMusicbrainzForm(artist=artist, artist_mbid=artist_mbid)
+    else:
+        form = ArtistMusicbrainzForm()
+        artist = form.artist.data
+        artist_mbid = form.artist_mbid.data
+
+    musicbrainzngs.set_hostname(current_app.config['MUSICBRAINZ_HOSTNAME'])
+    musicbrainzngs.set_rate_limit(current_app.config['MUSICBRAINZ_RATE_LIMIT'])
+
+    # This will only return at most 25 release groups
+    result = musicbrainzngs.get_artist_by_id(
+        artist_mbid,
+        includes=["release-groups"],
+    )
+
+    if form.validate_on_submit():
+        releasegroup_to_album_name = {}
+        for r in result["artist"]["release-group-list"]:
+            releasegroup_to_album_name[r["id"]] = r["title"]
+
+        for entry in form.albums.entries:
+            tracks = Track.query.filter(
+                Track.artist == artist,
+                Track.album == entry.data['album'],
+            ).all()
+            for track in tracks:
+                releasegroup_mbid = entry.data['releasegroup_mbid']
+                if len(releasegroup_mbid) > 0:
+                    track.album = releasegroup_to_album_name[releasegroup_mbid]
+                    track.releasegroup_mbid = releasegroup_mbid
+
+            db.session.commit()
+
+        return redirect(url_for('trackman_library.artist', artist=artist))
+
+    # Get list of unique albums for this artist
+    albums = Track.query.with_entities(
+        Track.artist,
+        Track.album,
+    ).group_by(
+        Track.artist,
+        Track.album,
+    ).filter(
+        Track.artist == artist,
+    ).order_by(
+        Track.album,
+    ).all()
+
+    return render_template(
+        'library/artist_musicbrainz.html',
+        artist=artist,
+        artist_mbid=artist_mbid,
+        form=form,
+        albums=albums,
+        mb_releasegroups=result["artist"]["release-group-list"],
+    )
 
 
 @library_bp.route('/labels')
@@ -431,6 +511,8 @@ def bulk_edit():
     form_defaults = {}
     for track_id in track_ids:
         track = Track.query.get(track_id)
+        if track is None:
+            abort(400)
 
         # Iterate through the list of fields above
         for field in fields_to_set:
