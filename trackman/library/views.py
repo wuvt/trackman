@@ -98,6 +98,9 @@ def artist():
 @library_bp.route('/artist-musicbrainz', methods=['GET', 'POST'])
 @auth_manager.check_access('library')
 def artist_musicbrainz():
+    """This view that displays/handles the "MusicBrainz Release Groups"
+    functionality on the artist page."""
+
     if request.method == "GET":
         artist = request.args['artist']
         artist_mbid = request.args['artist_mbid']
