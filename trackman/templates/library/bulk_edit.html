@@ -63,7 +63,20 @@
         <div class="form-group row{% if form.artist_mbid.errors|length > 0 %} has-error{% endif %}">
             {{ form.artist_mbid.label(class_="col-sm-3 col-form-label control-label") }}
             <div class="col-sm-9">
-                {{ form.artist_mbid }}
+                <div class="input-group">
+                    {{ form.artist_mbid }}
+                    <span class="input-group-append">
+                        {% if form.artist_mbid.data %}
+                        <a href="https://musicbrainz.org/artist/{{ form.artist_mbid.data }}"
+                                rel="external noreferrer"
+                                class="btn btn-secondary">
+                        {% else %}
+                        <a href="#" class="btn btn-secondary disabled">
+                        {% endif %}
+                            <span class="oi oi-link-intact"></span>
+                        </a>
+                    </span>
+                </div>
 {% for error in form.artist_mbid.errors %}
                 <div class="help-block">{{ error }}</div>
 {% endfor %}
@@ -73,7 +86,20 @@
         <div class="form-group row{% if form.recording_mbid.errors|length > 0 %} has-error{% endif %}">
             {{ form.recording_mbid.label(class_="col-sm-3 col-form-label control-label") }}
             <div class="col-sm-9">
-                {{ form.recording_mbid }}
+                <div class="input-group">
+                    {{ form.recording_mbid }}
+                    <span class="input-group-append">
+                        {% if form.recording_mbid.data %}
+                        <a href="https://musicbrainz.org/recording/{{ form.recording_mbid.data }}"
+                                rel="external noreferrer"
+                                class="btn btn-secondary">
+                        {% else %}
+                        <a href="#" class="btn btn-secondary disabled">
+                        {% endif %}
+                            <span class="oi oi-link-intact"></span>
+                        </a>
+                    </span>
+                </div>
 {% for error in form.recording_mbid.errors %}
                 <div class="help-block">{{ error }}</div>
 {% endfor %}
@@ -83,7 +109,20 @@
         <div class="form-group row{% if form.release_mbid.errors|length > 0 %} has-error{% endif %}">
             {{ form.release_mbid.label(class_="col-sm-3 col-form-label control-label") }}
             <div class="col-sm-9">
-                {{ form.release_mbid }}
+                <div class="input-group">
+                    {{ form.release_mbid }}
+                    <span class="input-group-append">
+                        {% if form.release_mbid.data %}
+                        <a href="https://musicbrainz.org/release/{{ form.release_mbid.data }}"
+                                rel="external noreferrer"
+                                class="btn btn-secondary">
+                        {% else %}
+                        <a href="#" class="btn btn-secondary disabled">
+                        {% endif %}
+                            <span class="oi oi-link-intact"></span>
+                        </a>
+                    </span>
+                </div>
 {% for error in form.release_mbid.errors %}
                 <div class="help-block">{{ error }}</div>
 {% endfor %}
@@ -93,7 +132,20 @@
         <div class="form-group row{% if form.releasegroup_mbid.errors|length > 0 %} has-error{% endif %}">
             {{ form.releasegroup_mbid.label(class_="col-sm-3 col-form-label control-label") }}
             <div class="col-sm-9">
-                {{ form.releasegroup_mbid }}
+                <div class="input-group">
+                    {{ form.releasegroup_mbid }}
+                    <span class="input-group-append">
+                        {% if form.releasegroup_mbid.data %}
+                        <a href="https://musicbrainz.org/release-group/{{ form.releasegroup_mbid.data }}"
+                                rel="external noreferrer"
+                                class="btn btn-secondary">
+                        {% else %}
+                        <a href="#" class="btn btn-secondary disabled">
+                        {% endif %}
+                            <span class="oi oi-link-intact"></span>
+                        </a>
+                    </span>
+                </div>
 {% for error in form.releasegroup_mbid.errors %}
                 <div class="help-block">{{ error }}</div>
 {% endfor %}
