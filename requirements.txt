@@ -32,7 +32,7 @@ click==7.0
     # via
     #   -r requirements.in
     #   flask
-cryptography==3.2
+cryptography==3.3.2
     # via authlib
 flask-caching==1.7.2
     # via -r requirements.in
