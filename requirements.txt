@@ -66,7 +66,7 @@ google-auth==1.7.2
     # via
     #   google-api-python-client
     #   google-auth-httplib2
-httplib2==0.18.0
+httplib2==0.19.0
     # via
     #   google-api-python-client
     #   google-auth-httplib2
@@ -105,6 +105,8 @@ pycparser==2.19
     # via cffi
 pymysql==0.9.3
     # via -r requirements.in
+pyparsing==2.4.7
+    # via httplib2
 python-dateutil==2.8.1
     # via
     #   -r requirements.in
