@@ -8,6 +8,7 @@ import os
 import redis
 from . import defaults
 import uuid
+import uwsgi
 import datetime
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
@@ -96,7 +97,7 @@ csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from trackman.auth import AuthManager
+from trackman.auth import AuthManager, current_user
 auth_manager = AuthManager()
 auth_manager.init_app(app, db)
 
@@ -113,6 +114,13 @@ if len(app.config['SENTRY_DSN']) > 0:
 @app.context_processor
 def inject_year():
     return {'year': datetime.date.today().strftime("%Y")}
+
+
+@app.after_request
+def add_app_user_logvar(response):
+    if current_user.is_authenticated:
+        uwsgi.set_logvar('app_user', current_user.sub)
+    return response
 
 
 from .cache import ResourceCache
