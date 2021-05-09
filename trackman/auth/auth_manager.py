@@ -5,7 +5,6 @@ from flask import abort, json, make_response, redirect, request, session, \
         url_for, _request_ctx_stack
 from functools import wraps
 
-from .models import GroupRole, User, UserRole, UserSession
 from .mixins import AnonymousUserMixin
 from .utils import current_user, current_user_roles, \
     _user_context_processor, _user_roles_context_processor
@@ -76,19 +75,19 @@ class AuthManager(object):
             ctx.user_roles = set([])
         else:
             now = datetime.datetime.utcnow()
-            user_session = UserSession.query.filter(
-                UserSession.token == session_token,
-            ).first()
+            user_session = self.datastore.get_session_by_token(session_token)
             if user_session is not None and \
                     now > user_session.login_at and now < user_session.expires:
-                ctx.user = User(json.loads(user_session.id_token))
+                ctx.user = user_session.user
                 ctx.user_roles = user_session.roles
+
+                # update remote address for session if it has changed
+                if user_session.remote_addr != request.remote_addr:
+                    user_session.remote_addr = request.remote_addr
+                    self.datastore.commit()
             else:
                 ctx.user = AnonymousUserMixin()
                 ctx.user_roles = set([])
-
-    def load_user(self, id_token):
-        return User(id_token)
 
     def unauthorized(self):
         session['login_target'] = request.url
@@ -117,64 +116,37 @@ class AuthManager(object):
             return access_wrapper
         return access_decorator
 
-    def login_user(self, user, roles):
+    def login_user(self, user_info, roles):
         session_token = self.generate_session_token()
-
-        user_session = UserSession(
-            token=session_token,
-            id_token=user.id_token,
+        user_session = self.datastore.create_session(
+            session_token=session_token,
+            id_token=user_info['id_token'],
             expires=datetime.datetime.utcnow() + self.app.permanent_session_lifetime,
             user_agent=str(request.user_agent),
             remote_addr=request.remote_addr,
             roles=roles)
-        self.db.session.add(user_session)
-
-        try:
-            self.db.session.commit()
-        except:
-            self.db.session.rollback()
-            raise
 
         session['user_session_token'] = session_token
-        _request_ctx_stack.top.user = user
-        _request_ctx_stack.top.user_roles = roles
+        _request_ctx_stack.top.user = user_session.user
+        _request_ctx_stack.top.user_roles = user_session.roles
         return True
 
     def logout_user(self):
         session_token = session.pop('user_session_token', None)
         if session_token is not None or type(session_token) != str:
-            user_session = UserSession.query.filter(
-                UserSession.token == session_token).one()
-            if user_session is not None:
-                self.db.session.delete(user_session)
-                try:
-                    self.db.session.commit()
-                except:
-                    self.db.session.rollback()
-                    raise
+            self.delete_session_by_token(session_token)
 
         _request_ctx_stack.top.user = AnonymousUserMixin()
         _request_ctx_stack.top.user_roles = set([])
         return True
 
     def end_all_sessions_for_user(self, sub):
-        sessions = UserSession.query.filter_by(sub=sub).all()
-        for session in sessions:
-            self.db.session.delete(session)
-        try:
-            self.db.session.commit()
-        except:
-            self.db.session.rollback()
-            raise
-
+        self.datastore.delete_sessions_for_user(sub)
         return True
 
     def cleanup_expired_sessions(self):
-        now = datetime.datetime.utcnow()
-        user_sessions = UserSession.query.filter(UserSession.expires <= now)
-        for user_session in user_sessions:
-            self.db.session.delete(user_session)
-        self.db.session.commit()
+        self.datastore.delete_sessions_by_expiration(
+            datetime.datetime.utcnow())
 
     def get_user_roles(self, user, user_groups=None):
         if user.sub in self.app.config['AUTH_SUPERADMINS']:
@@ -189,13 +161,9 @@ class AuthManager(object):
                     if group in user_groups:
                         user_roles.add(role)
 
-            for group in user_groups:
-                group_roles_db = GroupRole.query.filter(GroupRole.group == group)
-                for entry in group_roles_db:
-                    user_roles.add(entry.role)
+            user_roles.update(
+                self.datastore.get_roles_for_groups(user_groups))
 
-        user_roles_db = UserRole.query.filter(UserRole.sub == user.sub)
-        for entry in user_roles_db:
-            user_roles.add(entry.role)
+        user_roles.update(self.datastore.get_roles_for_user(user.sub))
 
         return list(user_roles)

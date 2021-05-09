@@ -2,7 +2,6 @@ from authlib.jose import jwt, jwk
 from authlib.oauth2.client import OAuth2Client
 from authlib.oidc.core import CodeIDToken, ImplicitIDToken, UserInfo
 from flask import abort, current_app, json
-from .models import User
 from .utils import login_user, get_user_roles
 from .view_utils import log_auth_success, log_auth_failure, redirect_back
 
@@ -86,10 +85,9 @@ def handle_authorize(remote, token, user_info):
         log_auth_failure("oidc", None)
         abort(401)
 
-    user = User(user_info)
     user_groups = user_info.get(
         current_app.config.get('OIDC_GROUPS_CLAIM', 'groups'))
-    login_user(user, get_user_roles(user, user_groups))
+    login_user(user_info, get_user_roles(user, user_groups))
 
     log_auth_success("oidc", user_info['sub'])
 

@@ -53,6 +53,10 @@ class UserSession(db.Model):
         self.roles_list = ','.join(roles)
 
     @property
+    def user(self):
+        return User(self.id_token)
+
+    @property
     def roles(self):
         return set(self.roles_list.split(','))
 

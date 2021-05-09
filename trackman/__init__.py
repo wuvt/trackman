@@ -105,9 +105,10 @@ csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from trackman.auth import AuthManager, current_user
+from trackman.auth import AuthManager, current_user, TrackmanAuthDataStore
+auth_datastore = TrackmanAuthDataStore(db)
 auth_manager = AuthManager()
-auth_manager.init_app(app, db)
+auth_manager.init_app(app, auth_datastore)
 
 if len(app.config['SENTRY_DSN']) > 0:
     sentry_sdk.init(
