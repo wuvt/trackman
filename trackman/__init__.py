@@ -159,11 +159,11 @@ def init_app():
     cache_redis_url = app.config.get('CACHE_REDIS_URL',
                                      app.config['REDIS_URL'])
     playlists_cache.init_app(app, config={
-        'CACHE_TYPE': "redis",
+        'CACHE_TYPE': "RedisCache",
         'CACHE_REDIS_URL': cache_redis_url,
     })
     charts_cache.init_app(app, config={
-        'CACHE_TYPE': "redis",
+        'CACHE_TYPE': "RedisCache",
         'CACHE_REDIS_URL': cache_redis_url,
     })
 

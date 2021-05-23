@@ -4,7 +4,7 @@
 #   Copyright (c) 2016 by Peter Justin.
 
 from collections import OrderedDict
-from flask_caching import Cache, get_arg_names, get_arg_default, iteritems, \
+from flask_caching import Cache, get_arg_names, get_arg_default, \
     function_namespace
 
 
@@ -88,5 +88,5 @@ class ResourceCache(Cache):
             new_args.append(arg)
 
         return tuple(new_args), OrderedDict(sorted(
-            (k, v) for k, v in iteritems(kwargs) if k in kw_keys_remaining
+            (k, v) for k, v in kwargs.items() if k in kw_keys_remaining
         ))
