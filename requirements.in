@@ -1,6 +1,7 @@
 apscheduler
-Authlib<13.0
+Authlib
 click
+email_validator
 Flask
 Flask-Caching
 flask-cors

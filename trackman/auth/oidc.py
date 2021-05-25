@@ -1,5 +1,5 @@
-from authlib.client import OAuthClient
 from authlib.jose import jwt, jwk
+from authlib.oauth2.client import OAuth2Client
 from authlib.oidc.core import CodeIDToken, ImplicitIDToken, UserInfo
 from flask import abort, current_app, json
 from .models import User
@@ -24,7 +24,7 @@ def create_oidc_backend(name, client_secrets_file=None, scopes=None):
     }
     issuer_url = client_secrets['web']['issuer']
 
-    class OpenIDConnectBackend(OAuthClient):
+    class OpenIDConnectBackend(OAuth2Client):
         OAUTH_TYPE = '2.0,oidc'
         OAUTH_NAME = name
         OAUTH_CONFIG = config

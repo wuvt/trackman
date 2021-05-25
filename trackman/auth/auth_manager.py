@@ -31,20 +31,21 @@ class AuthManager(object):
         if app.config.get('AUTH_METHOD') == 'google':
             app.config.setdefault('GOOGLE_ALLOWED_DOMAINS', [])
 
-            from authlib.flask.client import OAuth
+            from authlib.integrations.flask_client import OAuth
             self.oauth = OAuth(app)
 
             from loginpass import create_flask_blueprint
             from loginpass.google import Google
             from .google import handle_authorize
 
-            google_bp = create_flask_blueprint(Google, self.oauth,
+            google_bp = create_flask_blueprint([Google], self.oauth,
                                                handle_authorize)
-            app.register_blueprint(google_bp, url_prefix='/auth/google')
+            app.register_blueprint(google_bp, url_prefix='/auth')
 
-            self.login_view = 'loginpass_google.login'
+            self.login_view = 'loginpass.login'
+            self.login_view_kwargs = {'name': "google"}
         else:
-            from authlib.flask.client import OAuth
+            from authlib.integrations.flask_client import OAuth
             self.oauth = OAuth(app)
 
             from loginpass import create_flask_blueprint
@@ -53,11 +54,12 @@ class AuthManager(object):
             backend = create_oidc_backend('oidc',
                                           app.config['OIDC_CLIENT_SECRETS'],
                                           app.config.get('OIDC_SCOPES'))
-            oidc_bp = create_flask_blueprint(backend, self.oauth,
+            oidc_bp = create_flask_blueprint([backend], self.oauth,
                                              handle_authorize)
-            app.register_blueprint(oidc_bp, url_prefix='/auth/oidc')
+            app.register_blueprint(oidc_bp, url_prefix='/auth')
 
-            self.login_view = 'loginpass_oidc.login'
+            self.login_view = 'loginpass.login'
+            self.login_view_kwargs = {'name': "oidc"}
 
         from . import views
         app.register_blueprint(views.bp, url_prefix='/auth')
@@ -90,7 +92,7 @@ class AuthManager(object):
 
     def unauthorized(self):
         session['login_target'] = request.url
-        return redirect(url_for(self.login_view))
+        return redirect(url_for(self.login_view, **self.login_view_kwargs))
 
     def check_access(self, *roles):
         roles = set(roles)
@@ -141,7 +143,8 @@ class AuthManager(object):
     def logout_user(self):
         session_token = session.pop('user_session_token', None)
         if session_token is not None or type(session_token) != str:
-            user_session = UserSession.query.get(session_token)
+            user_session = UserSession.query.filter(
+                UserSession.token == session_token).one()
             if user_session is not None:
                 self.db.session.delete(user_session)
                 try:
