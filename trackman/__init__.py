@@ -1,5 +1,6 @@
 from dateutil import tz
 from flask import Flask, Request
+from flask_caching import Cache
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
@@ -130,11 +131,10 @@ def add_app_user_logvar(response):
     return response
 
 
-from .cache import ResourceCache
-playlists_cache = ResourceCache(config={
+playlists_cache = Cache(config={
     'CACHE_KEY_PREFIX': "trackman_playlists_",
 })
-charts_cache = ResourceCache(config={
+charts_cache = Cache(config={
     'CACHE_DEFAULT_TIMEOUT': 14400,
     'CACHE_KEY_PREFIX': "trackman_charts_",
 })

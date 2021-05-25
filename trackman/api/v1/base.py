@@ -24,8 +24,16 @@ class TrackmanStudioResource(TrackmanResource):
 
 
 class PlaylistResource(Resource):
-    method_decorators = {'get': [playlists_cache.memoize()]}
+    method_decorators = {
+        'get': [
+            playlists_cache.memoize(args_to_ignore=['self', 'cls']),
+        ],
+    }
 
 
 class ChartResource(Resource):
-    method_decorators = {'get': [charts_cache.memoize()]}
+    method_decorators = {
+        'get': [
+            charts_cache.memoize(args_to_ignore=['self', 'cls']),
+        ],
+    }
