@@ -91,7 +91,7 @@ app.jinja_env.filters.update({
 app.static_folder = 'static'
 
 if app.config['PROXY_FIX']:
-    from werkzeug.contrib.fixers import ProxyFix
+    from werkzeug.middleware.proxy_fix import ProxyFix
     app.wsgi_app = ProxyFix(app.wsgi_app,
                             num_proxies=app.config['PROXY_FIX_NUM_PROXIES'])
 
