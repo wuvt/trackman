@@ -82,6 +82,6 @@ def get(cache_key, query, limit=CHART_PER_PAGE):
             last_value = result[-1]
             ranking += increment
             increment = 1
-        results.append(result + (ranking,))
+        results.append(list(result) + [ranking])
 
     return results
