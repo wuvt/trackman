@@ -4,6 +4,7 @@ from authlib.jose import jwt, jwk
 from flask import abort, current_app
 from google.oauth2 import service_account
 from .utils import login_user, get_user_roles
+from .models import User
 from .view_utils import log_auth_success, log_auth_failure, redirect_back
 
 
@@ -32,10 +33,11 @@ def handle_authorize(remote, token, user_info):
         log_auth_failure("google", user_info['sub'])
         abort(401)
 
+    user = User(user_info)
     user_groups = get_groups(user_info)
-    login_user(user_info, get_user_roles(user, user_groups))
+    login_user(user, get_user_roles(user, user_groups))
 
-    log_auth_success("google", user_info['sub'])
+    log_auth_success("google", user.sub)
 
     return redirect_back('admin.index')
 

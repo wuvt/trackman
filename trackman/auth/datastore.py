@@ -32,14 +32,11 @@ class TrackmanAuthDataStore(object):
 
         return group_roles
 
-    # TODO: I'm not sure taking id_token is the best thing here, reevaluate?
-    # TODO: should return a proper UserMixin? or what?
-    # maybe I should make a UserSessionMixin with user and role properties
-    def create_session(self, session_token, id_token, expires, user_agent,
+    def create_session(self, session_token, user, expires, user_agent,
                        remote_addr, roles):
         user_session = UserSession(
             token=session_token,
-            id_token=id_token,
+            user=user,
             expires=expires,
             user_agent=user_agent,
             remote_addr=remote_addr,
@@ -87,7 +84,7 @@ class TrackmanAuthDataStore(object):
 
     def commit(self):
         try:
-            db.session.commit()
+            self.db.session.commit()
         except:
             db.session.rollback()
             raise

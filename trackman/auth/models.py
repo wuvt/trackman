@@ -1,7 +1,7 @@
 import datetime
 from flask import json
 from trackman import db
-from .mixins import UserMixin
+from .mixins import UserMixin, AnonymousUserMixin
 from werkzeug.useragents import UserAgent
 
 
@@ -41,12 +41,13 @@ class UserSession(db.Model):
     user_agent = db.Column(db.Unicode(512))
     remote_addr = db.Column(db.Unicode(100))
     roles_list = db.Column(db.Unicode(1024))
+    _user = None
 
-    def __init__(self, token, id_token, expires, user_agent, remote_addr,
-                 roles):
+    def __init__(self, token, user, expires, user_agent, remote_addr, roles):
         self.token = token
-        self.sub = id_token['sub']
-        self.id_token = json.dumps(id_token)
+        self.sub = user.sub
+        self._user = user
+        self.id_token = json.dumps(user.id_token)
         self.expires = expires
         self.user_agent = user_agent
         self.remote_addr = remote_addr
@@ -54,7 +55,13 @@ class UserSession(db.Model):
 
     @property
     def user(self):
-        return User(self.id_token)
+        if self._user is not None:
+            return self._user
+        elif len(self.id_token) > 0:
+            self._user = User(json.loads(self.id_token))
+            return self._user
+        else:
+            return AnonymousUserMixin()
 
     @property
     def roles(self):

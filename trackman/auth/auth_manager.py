@@ -11,17 +11,17 @@ from .utils import current_user, current_user_roles, \
 
 
 class AuthManager(object):
-    def __init__(self, app=None, db=None):
+    def __init__(self, app=None, datastore=None):
         self.all_roles = set()
 
         self.exempt_methods = set(['OPTIONS'])
 
-        if app is not None and db is not None:
-            self.init_app(app, db)
+        if app is not None and datastore is not None:
+            self.init_app(app, datastore)
 
-    def init_app(self, app, db):
+    def init_app(self, app, datastore):
         self.app = app
-        self.db = db
+        self.datastore = datastore
 
         app.auth_manager = self
         app.context_processor(_user_context_processor)
@@ -116,11 +116,11 @@ class AuthManager(object):
             return access_wrapper
         return access_decorator
 
-    def login_user(self, user_info, roles):
+    def login_user(self, user, roles):
         session_token = self.generate_session_token()
         user_session = self.datastore.create_session(
             session_token=session_token,
-            id_token=user_info['id_token'],
+            user=user,
             expires=datetime.datetime.utcnow() + self.app.permanent_session_lifetime,
             user_agent=str(request.user_agent),
             remote_addr=request.remote_addr,
