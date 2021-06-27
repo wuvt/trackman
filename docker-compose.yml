@@ -22,7 +22,7 @@ services:
     - APP_CONFIG_PATH=/data/config/config.json
     - USE_EMBEDDED_DB
     volumes:
-    - ../trackman-config:/data/config
+    - ./config:/data/config
     external_links:
     - postgres
     depends_on:
