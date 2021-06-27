@@ -7,16 +7,16 @@ from werkzeug.useragents import UserAgent
 
 class User(UserMixin):
     def __init__(self, id_token):
-        self.sub = id_token['sub']
+        self.sub = id_token["sub"]
         self.id_token = id_token
 
     @property
     def name(self):
-        return self.id_token['name']
+        return self.id_token["name"]
 
     @property
     def email(self):
-        return self.id_token['email']
+        return self.id_token["email"]
 
 
 class UserRole(db.Model):
@@ -51,7 +51,7 @@ class UserSession(db.Model):
         self.expires = expires
         self.user_agent = user_agent
         self.remote_addr = remote_addr
-        self.roles_list = ','.join(roles)
+        self.roles_list = ",".join(roles)
 
     @property
     def user(self):
@@ -65,7 +65,7 @@ class UserSession(db.Model):
 
     @property
     def roles(self):
-        return set(self.roles_list.split(','))
+        return set(self.roles_list.split(","))
 
     def parse_user_agent(self):
         return UserAgent(self.user_agent)

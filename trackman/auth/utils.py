@@ -1,8 +1,7 @@
 # Portions of this file are taken from Flask-Login
 # Flask-Login is Copyright (c) 2011 Matthew Frasier
 
-from flask import current_app, has_request_context, request, \
-    _request_ctx_stack
+from flask import current_app, has_request_context, request, _request_ctx_stack
 from functools import wraps
 from werkzeug.local import LocalProxy
 
@@ -12,18 +11,17 @@ current_user_roles = LocalProxy(lambda: _get_user_roles())
 
 
 def _get_user():
-    if has_request_context() and not hasattr(_request_ctx_stack.top, 'user'):
+    if has_request_context() and not hasattr(_request_ctx_stack.top, "user"):
         current_app.auth_manager.load_user_session()
 
-    return getattr(_request_ctx_stack.top, 'user', None)
+    return getattr(_request_ctx_stack.top, "user", None)
 
 
 def _get_user_roles():
-    if has_request_context() and \
-            not hasattr(_request_ctx_stack.top, 'user_roles'):
+    if has_request_context() and not hasattr(_request_ctx_stack.top, "user_roles"):
         current_app.auth_manager.load_user_session()
 
-    return getattr(_request_ctx_stack.top, 'user_roles', None)
+    return getattr(_request_ctx_stack.top, "user_roles", None)
 
 
 def _user_context_processor():
@@ -42,6 +40,7 @@ def login_required(f):
         elif not current_user.is_authenticated:
             return current_app.auth_manager.unauthorized()
         return f(*args, **kwargs)
+
     return login_required_wrapper
 
 
