@@ -8,8 +8,6 @@ class AuthDataStore(abc.ABC):
     def get_session_by_token(self, session_token: str):
         return NotImplemented
 
-    # TODO: we call user_id sub now, what should it actually be?
-    # or should this take a user rather than user_id?
     @abc.abstractmethod
     def get_roles_for_user(self, user_id: str):
         return NotImplemented
@@ -30,7 +28,6 @@ class AuthDataStore(abc.ABC):
     ):
         return NotImplemented
 
-    # TODO: we call user_id sub now, what should it actually be?
     @abc.abstractmethod
     def list_sessions_for_user(self, user_id: str):
         return NotImplemented
@@ -39,12 +36,10 @@ class AuthDataStore(abc.ABC):
     def delete_session_by_token(self, session_token: str):
         return NotImplemented
 
-    # TODO: we call user_id sub now, what should it actually be?
     @abc.abstractmethod
     def delete_session_for_user_by_id(self, user_id: str, session_id: int):
         return NotImplemented
 
-    # TODO: we call user_id sub now, what should it actually be?
     @abc.abstractmethod
     def delete_sessions_for_user(self, user_id: str):
         return NotImplemented

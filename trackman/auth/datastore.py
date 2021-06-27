@@ -8,15 +8,12 @@ class TrackmanAuthDataStore(AuthDataStore):
     def __init__(self, db):
         self.db = db
 
-    # TODO: should return a proper UserMixin and a list a roles
     def get_session_by_token(self, session_token: str):
         user_session = UserSession.query.filter(
             UserSession.token == session_token,
         ).one()
         return user_session
 
-    # TODO: we call user_id sub now, what should it actually be?
-    # or should this take a user rather than user_id?
     def get_roles_for_user(self, user_id: str):
         user_roles = set([])
         user_roles_db = UserRole.query.filter(UserRole.sub == user_id)
@@ -25,7 +22,6 @@ class TrackmanAuthDataStore(AuthDataStore):
 
         return user_roles
 
-    # TODO: not sure whether this is ideal or not
     def get_roles_for_groups(self, group_ids: list):
         group_roles = set([])
         group_roles_db = GroupRole.query.filter(GroupRole.group.in_(group_ids))
@@ -56,7 +52,6 @@ class TrackmanAuthDataStore(AuthDataStore):
 
         return user_session
 
-    # TODO: we call user_id sub now, what should it actually be?
     def list_sessions_for_user(self, user_id: str):
         sessions = UserSession.query.filter(
             UserSession.sub == user_id,
@@ -81,7 +76,6 @@ class TrackmanAuthDataStore(AuthDataStore):
         self.commit()
         return user_session
 
-    # TODO: we call user_id sub now, what should it actually be?
     def delete_sessions_for_user(self, user_id: str):
         sessions = UserSession.query.filter_by(sub=user_id).all()
         for session in sessions:
