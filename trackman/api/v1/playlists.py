@@ -198,7 +198,7 @@ class PlaylistsByDJ(PlaylistResource):
         """
         dj = DJ.query.get_or_404(dj_id)
         sets = DJSet.query.filter(DJSet.dj_id == dj_id).order_by(
-            DJSet.dtstart).all()
+            DJSet.dtstart.desc()).all()
         return {
             'dj': dj.serialize(),
             'sets': [s.serialize() for s in sets],
