@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
             optipng \
             uuid-dev
 
-RUN pip install --no-cache-dir uWSGI==2.0.17
+RUN pip install --no-cache-dir uWSGI==2.0.20
 
 WORKDIR /usr/src/app
 
