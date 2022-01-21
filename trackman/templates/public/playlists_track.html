@@ -1,0 +1,52 @@
+{% extends "public/base.html" %}
+{% set page_title="Track: " + track.title + " - " + track.album + " - " + track.artist %}
+{% block content %}
+<section>
+    <header>
+        <h2>Track: {{ track.title }}</h2>
+    </header>
+
+<div class="card mb-2">
+    <div class="card-body">
+        <dl>
+            <dt>Track</dt>
+            <dd>{{ track.title }}
+
+            <dt>Artist</dt>
+            <dd>{{ track.artist }}</dd>
+
+            <dt>Album</dt>
+            <dd>{{ track.album }}</dd>
+        </dl>
+
+        {% if track.recording_mbid %}
+        <p><a href="https://musicbrainz.org/recording/{{ track.recording_mbid }}" target="_blank" rel="external noopener">See more information about this recording on MusicBrainz</a></p>
+        {% endif %}
+
+{% if 'library' in current_user_roles %}
+        <a href="{{ url_for('trackman_library.track', id=track.id) }}" class="btn btn-primary">Edit</a>
+{% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        Spins ({{ tracklogs|length }})
+    </div>
+
+    <div class="card-body">
+        {% for year, year_tracklogs in tracklogs|groupby('played.year') %}
+        <details>
+            <summary id="year_{{ year }}">{{ year }}</summary>
+            <ul id="year_{{ year }}_data">
+                {%- for tracklog in year_tracklogs %}
+                {%- if tracklog.djset_id is not none and tracklog.djset_id > 0 %}
+                <li><a href="{{ url_for('public.playlist', set_id=tracklog.djset_id) }}"><time datetime="{{ tracklog.played|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ tracklog.played|datetime("%Y-%m-%d %H:%M") }}</time></a> by <a href="{{ url_for('public.playlists_dj_sets', dj_id=tracklog.dj.id) }}">{{ tracklog.dj.airname }}</a></li>
+                {%- endif %}
+                {%- endfor %}
+            </ul>
+        </details>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

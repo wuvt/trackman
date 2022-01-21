@@ -1,0 +1,29 @@
+{% extends "public/base.html" %}
+{% block content %}
+{% if current_user.is_authenticated %}
+<div class="mb-2">
+    <a href="{{ url_for('trackman_private.login') }}" class="btn btn-primary btn-lg">Return to DJ Interface</a>
+</div>
+{% endif %}
+
+<h2>Now Playing</h2>
+
+<dl>
+    <dt>Track</dt>
+    <dd id="now_playing_track"><a href="{{ url_for('public.playlists_track', track_id=track.track.id) }}">{{ track.track.title }}</a></dd>
+
+    <dt>Artist</dt>
+    <dd id="now_playing_artist">{{ track.track.artist }}</dd>
+
+    <dt>Album</dt>
+    <dd id="now_playing_album">{{ track.track.album }}</dd>
+
+    <dt>DJ</dt>
+    <dd id="now_playing_dj"><a href="{{ url_for('public.playlists_dj_sets', dj_id=track.dj.id) }}">{{ track.dj.airname }}</a></dd>
+</dl>
+{% endblock %}
+
+{% block js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/now_playing.js') }}"></script>
+{% endblock %}

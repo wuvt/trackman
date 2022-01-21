@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+
+        <title>{% if page_title %}{{ page_title }} &ndash; {% endif %}{{ config.TRACKMAN_NAME }}</title>
+
+        {# FIXME: this probably shouldn't have a dark theme -#}
+        {# FIXME: ideally colors would be customizeable -#}
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-darkly.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css', v=4) }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='open-iconic/font/css/open-iconic-bootstrap.min.css') }}" />
+
+        {% block css %}
+        {% endblock %}
+
+        <link rel="shortcut icon"
+            href="{{ url_for('static', filename='img/favicon.ico') }}" />
+        <link rel="apple-touch-icon"
+            href="{{ url_for('static', filename='img/icon.png') }}" />
+    </head>
+    <body>
+{% block header %}
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
+            <div class="container">
+                <a class="navbar-brand" href="{{ url_for('public.playlists_index') }}">{{ config.TRACKMAN_NAME }}</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#trackman-top-navbar" aria-controls="trackman-top-navbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="trackman-top-navbar">
+                    <ul class="nav navbar-nav">
+                        {% block nav_last15 %}<li class="nav-item"><a class="nav-link" href="{{ url_for('public.last15') }}">Last 15 Tracks</a></li>{% endblock %}
+                        {% block nav_playlists_date %}<li class="nav-item"><a class="nav-link" href="{{ url_for('public.playlists_date') }}">Playlists by Date</a></li>{% endblock %}
+                        {% block nav_playlists_dj %}<li class="nav-item"><a class="nav-link" href="{{ url_for('public.playlists_dj') }}">Playlists by DJ</a></li>{% endblock %}
+                        {% block nav_charts %}<li class="nav-item"><a class="nav-link" href="{{ url_for('public.charts_index') }}">Charts</a></li>{% endblock %}
+                    </ul>
+
+{% if current_user.is_authenticated %}
+                    <span class="navbar-text ml-auto mr-sm-2">
+                        Logged in as <a class="text-muted" href="{{ url_for('auth.view_sessions') }}">{{ current_user.id_token.name }}</a></a>
+                    </span>
+                    <form action="{{ url_for('auth.logout') }}" method="post" class="form-inline">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+                        <button type="submit" class="btn btn-outline-secondary">
+                            <span class="oi oi-account-logout"></span>
+                            Logout
+                        </button>
+                    </form>
+{% endif %}
+                </div>
+            </div>
+        </nav>
+{% endblock %}
+
+<div class="container">
+    {% for msg in get_flashed_messages() %}
+    <div class="alert alert-info">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ msg }}
+    </div>
+    {% endfor %}
+</div>
+
+<div class="container">
+    {% block content %}
+    {% endblock %}
+</div>
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+<script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/public.js') }}"></script>
+{% endblock %}
+    </body>
+</html>

@@ -1,0 +1,61 @@
+{% extends "public/base.html" %}
+{% set page_title=date|datetime("%Y-%m-%d") + " - Playlists by Date" %}
+{% block nav_playlists_date %}<li class="nav-item"><a class="nav-link active" href="{{ url_for('public.playlists_date') }}">Playlists by Date</a></li>{% endblock %}
+
+{% block content %}
+<section>
+    <header>
+        <h2>Playlists by Date</h2>
+    </header>
+
+    <div class="card mb-2">
+        <div class="card-body">
+            <h5 class="card-title"><time datetime="{{ date|isodatetime }}" data-format="YYYY-MM-DD">{{ date|datetime("%Y-%m-%d") }}</time></h5>
+
+            {% if sets|length > 0 -%}
+            <ul>
+                {% for set in sets %}
+                <li><a href="{{ url_for('public.playlist', set_id=set.id) }}"><time datetime="{{ set.dtstart|isodatetime }}" data-format="HH:mm">{{ set.dtstart|datetime("%H:%M") }}</time>-{% if set.dtend %}<time datetime="{{ set.dtend|isodatetime }}" data-format="HH:mm">>{{ set.dtend|datetime("%H:%M") }}</time>{% endif %}: {{ set.dj.airname }}</a></li>
+                {% endfor %}
+            </ul>
+            {% else -%}
+            <p>There are no playlists available for this day.</p>
+            {% endif %}
+
+{% if prev_url or next_url %}
+            <nav>
+                <ul class="pagination">
+                    {% if prev_url -%}
+                    <li class="page-item"><a href="{{ prev_url }}" class="page-link">
+                        <span aria-hidden="true">«</span>
+                        Previous Day
+                    </a></li>
+                    {% endif -%}
+
+                    {% if next_url -%}
+                    <li class="page-item"><a href="{{ next_url }}" class="page-link">
+                        Next Day
+                        <span aria-hidden="true">»</span>
+                    </a></li>
+                    {% endif -%}
+                </ul>
+            </nav>
+{% endif %}
+        </div>
+    </div>
+</section>
+
+<div class="card">
+    <div class="card-header">
+        Jump to a Date
+    </div>
+
+    <div class="card-body">
+        <form action="{{ url_for('.playlists_date_jump') }}" method="post" class="form-inline">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}" />
+            <input type="date" name="date" id="date_entry" class="form-control" value="" placeholder="yyyy-mm-dd" />
+            <button class="btn btn-primary" type="submit">Jump</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
