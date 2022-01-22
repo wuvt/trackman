@@ -5,11 +5,10 @@
 
         <title>{% if page_title %}{{ page_title }} &ndash; {% endif %}{{ config.TRACKMAN_NAME }}</title>
 
-        {# FIXME: this probably shouldn't have a dark theme -#}
-        {# FIXME: ideally colors would be customizeable -#}
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-darkly.min.css') }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css', v=4) }}" />
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='open-iconic/font/css/open-iconic-bootstrap.min.css') }}" />
+        <link rel="alternate" type="application/atom+xml" href="{{ url_for('public.last15_feed') }}" title="Last 15 Tracks Feed"  />
 
         {% block css %}
         {% endblock %}

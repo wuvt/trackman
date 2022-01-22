@@ -1,12 +1,12 @@
 # NOTE: the .php filenames are kept so old URLs keep working
 
 from flask import (
-        jsonify, make_response, render_template,
-        redirect, request, url_for, Response
+        current_app, jsonify, make_response, render_template,
+        redirect, request, url_for, Response,
 )
 import datetime
 import re
-#from werkzeug.contrib.atom import AtomFeed
+from feedwerk.atom import AtomFeed
 
 from ..api.v1.charts import (
         AlbumCharts,
@@ -31,6 +31,7 @@ from ..api.v1.playlists import (
 )
 from . import bp
 from .view_utils import (
+        make_external,
         tracklog_serialize,
         tracklog_full_serialize,
 )
@@ -56,39 +57,36 @@ def last15():
             'tracks': [tracklog_full_serialize(t) for t in result['tracks']],
         })
 
-# FIXME
-    return render_template('public/last15.html', tracklogs=result['tracks']) #,
-#                           feedlink=url_for('.last15_feed'))
+    return render_template('public/last15.html', tracklogs=result['tracks'])
 
 
-# FIXME
-#@bp.route('/last15.atom')
-#def last15_feed():
-#    result = Last15Tracks().get()
-#    tracks = result['tracks']
-#    feed = AtomFeed(
-#        "{0}: Last 15 Tracks".format(current_app.config['STATION_SHORT_NAME']),
-#        feed_url=request.url,
-#        url=make_external(url_for('.last15')))
-#
-#    for tracklog in tracks:
-#        feed.add(
-#            "{artist}: '{title}'".format(
-#                artist=tracklog['track']['artist'],
-#                title=tracklog['track']['title']),
-#            "'{title}' by {artist} on {album} spun by {dj}".format(
-#                album=tracklog['track']['album'],
-#                artist=tracklog['track']['artist'],
-#                title=tracklog['track']['title'],
-#                dj=tracklog['dj']['airname']),
-#            url=make_external(url_for('.playlist',
-#                                      set_id=tracklog['djset_id'],
-#                                      _anchor="t{}".format(tracklog['id']))),
-#            author=tracklog['dj']['airname'],
-#            updated=dateutil.parser.parse(tracklog['played']),
-#            published=dateutil.parser.parse(tracklog['played']))
-#
-#    return feed.get_response()
+@bp.route('/last15.atom')
+def last15_feed():
+    result = Last15Tracks().get()
+    tracks = result['tracks']
+    feed = AtomFeed(
+        "{0}: Last 15 Tracks".format(current_app.config['TRACKMAN_NAME']),
+        feed_url=request.url,
+        url=make_external(url_for('.last15')))
+
+    for tracklog in tracks:
+        feed.add(
+            "{artist}: '{title}'".format(
+                artist=tracklog['track']['artist'],
+                title=tracklog['track']['title']),
+            "'{title}' by {artist} on {album} spun by {dj}".format(
+                album=tracklog['track']['album'],
+                artist=tracklog['track']['artist'],
+                title=tracklog['track']['title'],
+                dj=tracklog['dj']['airname']),
+            url=make_external(url_for('.playlist',
+                                      set_id=tracklog['djset_id'],
+                                      _anchor="t{}".format(tracklog['id']))),
+            author=tracklog['dj']['airname'],
+            updated=tracklog['played'],
+            published=tracklog['played'])
+
+    return feed.get_response()
 
 
 @bp.route('/playlists/latest_track')
