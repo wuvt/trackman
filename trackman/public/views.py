@@ -1,15 +1,14 @@
 # NOTE: the .php filenames are kept so old URLs keep working
 
-from flask import current_app, jsonify, make_response, render_template, \
+from flask import (
+        jsonify, make_response, render_template,
         redirect, request, url_for, Response
+)
 import datetime
-import dateutil.parser
 import re
-import requests
 #from werkzeug.contrib.atom import AtomFeed
 
 from ..api.v1.charts import (
-        Charts,
         AlbumCharts,
         DJAlbumCharts,
         ArtistCharts,
@@ -24,7 +23,6 @@ from ..api.v1.playlists import (
         Last15Tracks,
         LatestTrack,
         PlaylistsByDay,
-        PlaylistsByDateRange,
         PlaylistDJs,
         PlaylistAllDJs,
         PlaylistsByDJ,
@@ -33,11 +31,9 @@ from ..api.v1.playlists import (
 )
 from . import bp
 from .view_utils import (
-        make_external,
         tracklog_serialize,
         tracklog_full_serialize,
 )
-
 
 
 #############################################################################
