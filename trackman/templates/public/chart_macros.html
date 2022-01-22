@@ -1,10 +1,12 @@
 {% macro render_chart_albums(results) %}
 <table class="table tracklist tracklist-ranked chart">
     <thead>
-        <th scope="col">#</th>
-        <th scope="col">Artist</th>
-        <th scope="col">Album</th>
-        <th scope="col" class="text-right">Spins</th>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Artist</th>
+            <th scope="col">Album</th>
+            <th scope="col" class="text-right">Spins</th>
+        </tr>
     </thead>
     <tbody>
     {% for artist, album, spins, ranking in results %}
