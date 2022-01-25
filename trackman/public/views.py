@@ -1,7 +1,5 @@
-# NOTE: the .php filenames are kept so old URLs keep working
-
 from flask import (
-        current_app, jsonify, make_response, render_template,
+        current_app, make_response, render_template,
         redirect, request, url_for, Response,
 )
 import datetime
@@ -30,11 +28,7 @@ from ..api.v1.playlists import (
         PlaylistTrack,
 )
 from . import bp
-from .view_utils import (
-        make_external,
-        tracklog_serialize,
-        tracklog_full_serialize,
-)
+from .view_utils import make_external
 
 
 #############################################################################
@@ -51,12 +45,6 @@ def playlists_index():
 @bp.route('/last15')
 def last15():
     result = Last15Tracks().get()
-
-    if request.wants_json():
-        return jsonify({
-            'tracks': [tracklog_full_serialize(t) for t in result['tracks']],
-        })
-
     return render_template('public/last15.html', tracklogs=result['tracks'])
 
 
@@ -90,18 +78,13 @@ def last15_feed():
 
 
 @bp.route('/playlists/latest_track')
-@bp.route('/playlists/latest_track.php')
 def latest_track():
     track = LatestTrack().get()
-    if request.wants_json():
-        return jsonify(track)
-
     return Response("{artist} - {title}".format(**track),
                     mimetype="text/plain")
 
 
 @bp.route('/playlists/latest_track_clean')
-@bp.route('/playlists/latest_track_clean.php')
 def latest_track_clean():
     naughty_word_re = re.compile(
         r'shit|piss|fuck|cunt|cocksucker|tits|twat|asshole',
@@ -112,15 +95,11 @@ def latest_track_clean():
         if type(v) == str or type(v) == str:
             track[k] = naughty_word_re.sub('****', v)
 
-    if request.wants_json():
-        return jsonify(track)
-
     output = "{artist} - {title} [DJ: {dj}]".format(**track)
     return Response(output, mimetype="text/plain")
 
 
 @bp.route('/playlists/latest_track_stream')
-@bp.route('/playlists/latest_track_stream.php')
 def latest_track_stream():
     track = LatestTrack().get()
     return Response("""\
@@ -171,9 +150,6 @@ def playlists_date_sets(year, month, day):
         'next_url': next_url,
     })
 
-    if request.wants_json():
-        return jsonify(results), status_code
-
     return render_template(
         'public/playlists_date_sets.html',
         date=results['dtstart'],
@@ -194,30 +170,19 @@ def playlists_date_jump():
 @bp.route('/playlists/dj')
 def playlists_dj():
     results = PlaylistDJs().get()
-
-    if request.wants_json():
-        return jsonify(results)
-
     return render_template('public/playlists_dj_list.html', djs=results['djs'])
 
 
 @bp.route('/playlists/dj/all')
 def playlists_dj_all():
     results = PlaylistAllDJs().get()
-
-    if request.wants_json():
-        return jsonify(results)
-
-    return render_template('public/playlists_dj_list_all.html', djs=results['djs'])
+    return render_template('public/playlists_dj_list_all.html',
+                           djs=results['djs'])
 
 
 @bp.route('/playlists/dj/<int:dj_id>')
 def playlists_dj_sets(dj_id):
     results = PlaylistsByDJ().get(dj_id)
-
-    if request.wants_json():
-        return jsonify(results)
-
     return render_template('public/playlists_dj_sets.html',
                            dj=results['dj'], sets=results['sets'])
 # }}}
@@ -243,10 +208,6 @@ def charts_albums(period=None, year=None, month=None):
         return redirect(url_for('.charts_albums_dj', dj_id=year))
 
     results = AlbumCharts().get(period, year, month)
-
-    if request.wants_json():
-        return jsonify(results)
-
     return render_template('public/chart_albums.html',
                            start=results['start'],
                            end=results['end'],
@@ -256,10 +217,6 @@ def charts_albums(period=None, year=None, month=None):
 @bp.route('/playlists/charts/dj/<int:dj_id>/albums')
 def charts_albums_dj(dj_id):
     results = DJAlbumCharts().get(dj_id)
-
-    if request.wants_json():
-        return jsonify(results)
-
     return render_template('public/chart_albums_dj.html',
                            dj=results['dj'],
                            results=results['results'])
@@ -274,10 +231,6 @@ def charts_artists(period=None, year=None, month=None):
         return redirect(url_for('.charts_artists_dj', dj_id=year))
 
     results = ArtistCharts().get(period, year, month)
-
-    if request.wants_json():
-        return jsonify(results)
-
     return render_template('public/chart_artists.html',
                            start=results['start'],
                            end=results['end'],
@@ -287,10 +240,6 @@ def charts_artists(period=None, year=None, month=None):
 @bp.route('/playlists/charts/dj/<int:dj_id>/artists')
 def charts_artists_dj(dj_id):
     results = DJArtistCharts().get(dj_id)
-
-    if request.wants_json():
-        return jsonify(results)
-
     return render_template('public/chart_artists_dj.html',
                            dj=results['dj'],
                            results=results['results'])
@@ -305,10 +254,6 @@ def charts_tracks(period=None, year=None, month=None):
         return redirect(url_for('.charts_tracks_dj', dj_id=year))
 
     results = TrackCharts().get(period, year, month)
-
-    if request.wants_json():
-        return jsonify(results)
-
     return render_template('public/chart_tracks.html',
                            start=results['start'],
                            end=results['end'],
@@ -318,10 +263,6 @@ def charts_tracks(period=None, year=None, month=None):
 @bp.route('/playlists/charts/dj/<int:dj_id>/tracks')
 def charts_tracks_dj(dj_id):
     results = DJTrackCharts().get(dj_id)
-
-    if request.wants_json():
-        return jsonify(results)
-
     return render_template('public/chart_tracks_dj.html',
                            dj=results['dj'],
                            results=results['results'])
@@ -330,10 +271,6 @@ def charts_tracks_dj(dj_id):
 @bp.route('/playlists/charts/dj/spins')
 def charts_dj_spins():
     results = DJSpinCharts().get()
-
-    if request.wants_json():
-        return jsonify(results)
-
     return render_template('public/chart_dj_spins.html',
                            results=results['results'])
 
@@ -341,10 +278,6 @@ def charts_dj_spins():
 @bp.route('/playlists/charts/dj/vinyl_spins')
 def charts_dj_vinyl_spins():
     results = DJVinylSpinCharts().get()
-
-    if request.wants_json():
-        return jsonify(results)
-
     return render_template('public/chart_dj_vinyl_spins.html',
                            results=results['results'])
 # }}}
@@ -353,15 +286,6 @@ def charts_dj_vinyl_spins():
 @bp.route('/playlists/set/<int:set_id>')
 def playlist(set_id):
     results = Playlist().get(set_id)
-
-    if request.wants_json():
-        results.update({
-            'archives': [a[0] for a in results['archives']],
-            'tracks': [
-                tracklog_full_serialize(t) for t in results['tracks']],
-        })
-        return jsonify(results)
-
     return render_template('public/playlist.html',
                            archives=results['archives'],
                            djset=results,
@@ -371,12 +295,6 @@ def playlist(set_id):
 @bp.route('/playlists/track/<int:track_id>')
 def playlists_track(track_id):
     results = PlaylistTrack().get(track_id)
-
-    if request.wants_json():
-        results['added'] = str(results['added'])
-        results['plays'] = [tracklog_serialize(tl) for tl in results['plays']]
-        return jsonify(results)
-
     return render_template('public/playlists_track.html',
                            track=results,
                            tracklogs=results['plays'])
