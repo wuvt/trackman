@@ -1,0 +1,59 @@
+{% extends "public/base.html" %}
+{% set page_title="Playlist: " + djset.dj.airname + " / " + djset.dtstart|datetime("%Y-%m-%d %H:%M") %}
+
+{% block content %}
+<section>
+<header>
+    <h2>
+        Playlist:
+        <a href="{{ url_for('public.playlists_dj_sets', dj_id=djset.dj.id) }}">{{ djset.dj.airname }}</a> / <time datetime="{{ djset.dtstart|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ djset.dtstart|datetime("%Y-%m-%d %H:%M") }}</time>
+    </h2>
+</header>
+
+{% if archives|length > 0 %}
+<div class="card" id="listen_online_card">
+    <div class="card-header" id="listen_online_heading">
+        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#listen_online_collapse" aria-expanded="true" aria-controls="listen_online_collapse">
+            Listen Online
+        </button>
+    </div>
+    <div id="listen_online_collapse" class="collapse show" aria-labelledby="listen_online_heading" data-parent="#listen_online_card">
+        <div class="card-body">
+            <ol>
+                {% for link, start, end in archives %}
+                <li><a href="{{ link }}" target="_blank" rel="external noopener noreferrer"><time datetime="{{ start|isodatetime }}" data-format="YYYY-MM-DD HH:00">{{ start|datetime("%Y-%m-%d %H:00") }}</time> - <time datetime="{{ end|isodatetime }}" data-format="YYYY-MM-DD HH:00">{{ end|datetime("%Y-%m-%d %H:00") }}</time></a></li>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<table id="tracktable" class="table tracklist">
+    <thead>
+        <tr>
+            <th scope="col">Time</th>
+            <th scope="col"></th>
+            <th scope="col">Artist</th>
+            <th scope="col">Track</th>
+            <th scope="col">Album</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for track in tracklogs %}
+        <tr id="t{{ track.id }}">
+            <td><time datetime="{{ track.played|isodatetime }}" data-format="HH:mm:ss">{{ track.played|datetime("%H:%M:%S") }}</time></td>
+            <td>{% if track.new %}<span class="glyphicon glyphicon-fire new-track" title="New"></span>{% endif %}</td>
+            <td>{{ track.track.artist }}</td>
+            <td><a href="{{ url_for('public.playlists_track', track_id=track.track.id) }}">{{ track.track.title }}</a></td>
+            <td>{{ track.track.album }}</td>
+            <td>{% if track.request %}<span class="glyphicon glyphicon-earphone" title="Request"></span>{% endif %}</td>
+            <td>{% if track.vinyl %}<span class="glyphicon glyphicon-cd" title="Vinyl"></span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</section>
+{% endblock %}

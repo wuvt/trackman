@@ -2,6 +2,7 @@ apscheduler
 Authlib
 click
 email_validator
+feedwerk
 Flask
 Flask-Caching
 flask-cors

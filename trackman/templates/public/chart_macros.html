@@ -1,0 +1,83 @@
+{% macro render_chart_albums(results) %}
+<table class="table tracklist tracklist-ranked chart">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Artist</th>
+            <th scope="col">Album</th>
+            <th scope="col" class="text-right">Spins</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for artist, album, spins, ranking in results %}
+        <tr>
+            <th scope="row">{{ ranking }}</th>
+            <td>{{ artist }}</td>
+            <td>{{ album }}</td>
+            <td class="text-right">{{ spins }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endmacro %}
+
+{% macro render_chart_artists(results) %}
+<table class="table tracklist tracklist-ranked chart">
+    <thead>
+        <th scope="col"></th>
+        <th scope="col">Artist</th>
+        <th scope="col" class="text-right">Spins</th>
+    </thead>
+    <tbody>
+    {% for artist, spins, ranking in results %}
+        <tr>
+            <th scope="row">{{ ranking }}</th>
+            <td>{{ artist }}</td>
+            <td class="text-right">{{ spins }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endmacro %}
+
+{% macro render_chart_tracks(results) %}
+<table class="table tracklist tracklist-ranked chart">
+    <thead>
+        <th scope="col">#</th>
+        <th scope="col">Artist</th>
+        <th scope="col">Track</th>
+        <th scope="col">Album</th>
+        <th scope="col" class="text-right">Spins</th>
+    </thead>
+    <tbody>
+    {% for track, spins, ranking in results %}
+        <tr>
+            <th scope="row">{{ ranking }}</th>
+            <td>{{ track.artist }}</td>
+            <td><a href="{{ url_for('public.playlists_track', track_id=track.id) }}">{{ track.title }}</a></td>
+            <td>{{ track.album }}</td>
+            <td class="text-right">{{ spins }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endmacro %}
+
+{% macro render_chart_dj(results) %}
+<table class="table tracklist tracklist-ranked chart">
+    <thead>
+        <th scope="col">#</th>
+        <th scope="col">DJ</th>
+        <th scope="col" class="text-right">Spins</th>
+    </thead>
+    <tbody>
+    {% for dj, spins, ranking in results %}
+        <tr>
+            <th scope="row">{{ ranking }}</th>
+            <td><a href="{{ url_for('public.playlists_dj_sets', dj_id=dj.id) }}">{{ dj.airname }}</a></td>
+            <td class="text-right">{{ spins }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endmacro %}

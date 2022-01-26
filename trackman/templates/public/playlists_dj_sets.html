@@ -1,0 +1,37 @@
+{% extends "public/base.html" %}
+{% set page_title=dj.airname + " - Playlists by DJ" %}
+{% block nav_playlists_dj %}<li class="nav-item"><a class="nav-link active" href="{{ url_for('public.playlists_dj') }}">Playlists by DJ</a></li>{% endblock %}
+
+{% block content %}
+<section>
+    <header>
+        <h2>Playlists by DJ: {{ dj.airname }}</h2>
+    </header>
+
+    <div class="mb-2">
+{% for year, year_sets in sets|groupby('dtstart.year')|reverse %}
+        <details>
+            <summary id="year_{{ year }}">{{ year }}</summary>
+            <ul id="year_{{ year }}_data">
+                {%- for set in year_sets %}
+                <li><a href="{{ url_for('public.playlist', set_id=set.id) }}"><time datetime="{{ set.dtstart|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ set.dtstart|datetime("%Y-%m-%d %H:%M") }}</time>{% if set.dtend %}-<time datetime="{{ set.dtend|isodatetime }}" data-format="YYYY-MM-DD HH:mm">{{ set.dtend|datetime("%Y-%m-%d %H:%M") }}</time>{% endif %}</a></li>
+                {%- endfor %}
+            </ul>
+        </details>
+{% endfor %}
+    </div>
+</section>
+
+<div class="card">
+    <div class="card-header">
+        Charts
+    </div>
+    <div class="card-body">
+        <ul>
+            <li><a href="{{ url_for('public.charts_albums_dj', dj_id=dj.id) }}">Top albums for this DJ</a></li>
+            <li><a href="{{ url_for('public.charts_artists_dj', dj_id=dj.id) }}">Top artists for this DJ</a></li>
+            <li><a href="{{ url_for('public.charts_tracks_dj', dj_id=dj.id) }}">Top tracks for this DJ</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -159,6 +159,9 @@ def init_app():
     app.register_blueprint(api_bp)
     app.register_blueprint(library_bp, url_prefix='/library')
 
+    from .public import bp as public_bp
+    app.register_blueprint(public_bp)
+
     cache_redis_url = app.config.get('CACHE_REDIS_URL',
                                      app.config['REDIS_URL'])
     playlists_cache.init_app(app, config={
