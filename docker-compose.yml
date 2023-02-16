@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.dev
     environment:
     - APP_CONFIG_PATH=/data/config/config.json
-    - USE_EMBEDDED_DB
+    - USE_EMBEDDED_DB=1 #DON'T USE FOR PRODUCTION
     volumes:
     - ./config:/data/config
     external_links:
