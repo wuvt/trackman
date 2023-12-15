@@ -1,8 +1,9 @@
-from flask import request, session
+from flask import request, session, current_app
 from flask_restful import abort
 from trackman import db, models
 from trackman.forms import TrackAddForm
 from trackman.lib import find_or_add_track
+from trackman.musicbrainz import musicbrainzngs
 from .base import TrackmanResource, TrackmanDJResource
 
 
@@ -152,6 +153,10 @@ class TrackSearch(TrackmanResource):
             description: Bad request
         """
 
+        musicbrainzngs.set_hostname(current_app.config['MUSICBRAINZ_HOSTNAME'])
+        musicbrainzngs.set_rate_limit(current_app.config['MUSICBRAINZ_RATE_LIMIT'])
+        musicbrainz_search = {}
+
         base_query = models.Track.query.outerjoin(models.TrackLog).\
             order_by(models.Track.plays)
 
@@ -167,18 +172,21 @@ class TrackSearch(TrackmanResource):
             somesearch = True
             tracks = tracks.filter(
                 db.func.lower(models.Track.artist) == db.func.lower(artist))
+            musicbrainz_search['artist'] = artist
 
         title = request.args.get('title', '').strip()
         if len(title) > 0:
             somesearch = True
             tracks = tracks.filter(
                 db.func.lower(models.Track.title) == db.func.lower(title))
+            musicbrainz_search['recording'] = title
 
         album = request.args.get('album', '').strip()
         if len(album) > 0:
             somesearch = True
             tracks = tracks.filter(
                 db.func.lower(models.Track.album) == db.func.lower(album))
+            musicbrainz_search['release'] = album
 
         label = request.args.get('label', '').strip()
         if len(label) > 0:
@@ -194,43 +202,61 @@ class TrackSearch(TrackmanResource):
                 'results': [],
             }
 
-        # Check if results
+        results = []
 
-        tracks = tracks.limit(8).all()
-        if len(tracks) == 0:
-            tracks = base_query
+        # Search MusicBrainz
+        mb_results = musicbrainzngs.search_recordings(**musicbrainz_search)
+        for result in mb_results['recording-list']:
 
-            # if there are too few results, append some similar results
-            artist = request.args.get('artist', '').strip()
-            if len(artist) > 0:
-                somesearch = True
-                tracks = tracks.filter(
-                    models.Track.artist.ilike(''.join(['%', artist, '%'])))
+            for release in result['recording']['release-list']:
+                t = models.Track(
+                    title=result['recording']['title'],
+                    album=result['title'],
+                    artist=result['artist-credit-phrase'],
+                    recording_mbid=result['recording']['id'],
+                    release_mbid=result['release']['id'],
+                    releasegroup_mbid=result['release']['release-group']['id'])
 
-            title = request.args.get('title', '').strip()
-            if len(title) > 0:
-                somesearch = True
-                tracks = tracks.filter(
-                    models.Track.title.ilike(''.join(['%', title, '%'])))
+                artist_credits = result.get('artist-credit', [])
+                if len(artist_credits) == 1:
+                    t.artist_mbid = artist_credits[0]['artist']['id']
+            results.append(t)
+            pass
 
-            album = request.args.get('album', '').strip()
-            if len(album) > 0:
-                somesearch = True
-                tracks = tracks.filter(
-                    models.Track.album.ilike(''.join(['%', album, '%'])))
-
-            label = request.args.get('label', '').strip()
-            if len(label) > 0:
-                somesearch = True
-                tracks = tracks.filter(
-                    models.Track.label.ilike(''.join(['%', label, '%'])))
-
-            tracks = tracks.limit(8).all()
-
-        if len(tracks) > 0:
-            results = [t.serialize() for t in tracks]
-        else:
-            results = []
+#        # Search local database
+#        tracks = tracks.limit(8).all()
+#        if len(tracks) == 0:
+#            tracks = base_query
+#
+#            # if there are too few results, append some similar results
+#            artist = request.args.get('artist', '').strip()
+#            if len(artist) > 0:
+#                somesearch = True
+#                tracks = tracks.filter(
+#                    models.Track.artist.ilike(''.join(['%', artist, '%'])))
+#
+#            title = request.args.get('title', '').strip()
+#            if len(title) > 0:
+#                somesearch = True
+#                tracks = tracks.filter(
+#                    models.Track.title.ilike(''.join(['%', title, '%'])))
+#
+#            album = request.args.get('album', '').strip()
+#            if len(album) > 0:
+#                somesearch = True
+#                tracks = tracks.filter(
+#                    models.Track.album.ilike(''.join(['%', album, '%'])))
+#
+#            label = request.args.get('label', '').strip()
+#            if len(label) > 0:
+#                somesearch = True
+#                tracks = tracks.filter(
+#                    models.Track.label.ilike(''.join(['%', label, '%'])))
+#
+#            tracks = tracks.limit(8).all()
+#
+#        if len(tracks) > 0:
+#            results += [t.serialize() for t in tracks]
 
         return {
             'success': True,

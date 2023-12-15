@@ -1,4 +1,4 @@
 import musicbrainzngs
 
-musicbrainzngs.set_useragent("Trackman", "20200802",
+musicbrainzngs.set_useragent("Trackman", "20231215",
                              "https://github.com/wuvt/trackman")
