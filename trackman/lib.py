@@ -419,11 +419,15 @@ def cleanup_dj_list():
 
 
 def find_or_add_track(track):
-    match = Track.query.filter(
-        db.func.lower(Track.artist) == db.func.lower(track.artist),
-        db.func.lower(Track.title) == db.func.lower(track.title),
-        db.func.lower(Track.album) == db.func.lower(track.album),
-        db.func.lower(Track.label) == db.func.lower(track.label)).first()
+    if track.recording_mbid is not None:
+        match = Track.query.filter(
+            Track.recording_mbid == track.recording_mbid).first()
+    else:
+        match = Track.query.filter(
+            db.func.lower(Track.artist) == db.func.lower(track.artist),
+            db.func.lower(Track.title) == db.func.lower(track.title),
+            db.func.lower(Track.album) == db.func.lower(track.album),
+            db.func.lower(Track.label) == db.func.lower(track.label)).first()
     if match is None:
         db.session.add(track)
         try:
