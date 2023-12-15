@@ -197,6 +197,41 @@ class TrackLogForm(FlaskForm):
     played = StringField('Played')
 
 
+class TrackLogAddForm(FlaskForm):
+    djset_id = IntegerField('DJSet ID')
+    title = StringField('Title', filters=[strip_field],
+                        validators=[validators.DataRequired()])
+    artist = StringField('Artist', filters=[strip_field],
+                         validators=[artist_validate,
+                                     validators.DataRequired()])
+    album = StringField('Album', filters=[strip_field],
+                        validators=[validators.DataRequired()])
+    label = StringField('Label', filters=[strip_field],
+                        validators=[label_validate,
+                                    validators.DataRequired()])
+    artist_mbid = StringField('Artist MBID',
+                              filters=[strip_field],
+                              validators=[validators.Optional(),
+                                          validators.UUID()])
+    release_mbid = StringField('Release MBID',
+                               filters=[strip_field],
+                               validators=[validators.Optional(),
+                                           validators.UUID()])
+    releasegroup_mbid = StringField('Release Group MBID',
+                                    filters=[strip_field],
+                                    validators=[validators.Optional(),
+                                                validators.UUID()])
+    recording_mbid = StringField('Recording MBID',
+                                 filters=[strip_field],
+                                 validators=[validators.Optional(),
+                                             validators.UUID()])
+    request = BooleanField('Request')
+    vinyl = BooleanField('Vinyl')
+    new = BooleanField('New')
+    rotation = IntegerField('Rotation', default=1)
+    played = StringField('Played')
+
+
 class AirLogEditForm(FlaskForm):
     airtime = StringField('Air Time')
     logtype = IntegerField('Log Type', default=0)

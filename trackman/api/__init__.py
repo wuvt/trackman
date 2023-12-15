@@ -10,7 +10,7 @@ from .v1.djset import DJSet, DJSetEnd, DJSetList
 from .v1.rotation import RotationList
 from .v1.track import Track, TrackReport, TrackSearch, TrackAutoComplete, \
     TrackList
-from .v1.tracklog import TrackLog, TrackLogList
+from .v1.tracklog import TrackLog, TrackLogList, TrackLogAdd
 from .v1.charts import Charts, AlbumCharts, DJAlbumCharts, ArtistCharts, \
     DJArtistCharts, TrackCharts, DJTrackCharts, DJSpinCharts, DJVinylSpinCharts
 from .v1.playlists import NowPlaying, Last15Tracks, LatestTrack, \
@@ -39,6 +39,7 @@ api.add_resource(TrackAutoComplete, '/api/autocomplete')
 api.add_resource(TrackList, '/api/track')
 api.add_resource(TrackLog, '/api/tracklog/edit/<int:tracklog_id>')
 api.add_resource(TrackLogList, '/api/tracklog')
+api.add_resource(TrackLogAdd, '/api/tracklog/add')
 api.add_resource(AutologoutControl, '/api/autologout')
 api.add_resource(AirLog, '/api/airlog/edit/<int:airlog_id>')
 api.add_resource(AirLogList, '/api/airlog')

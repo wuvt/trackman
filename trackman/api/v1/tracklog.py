@@ -2,7 +2,7 @@ import dateutil.parser
 from flask import session
 from flask_restful import abort
 from trackman import db, models
-from trackman.forms import TrackLogForm, TrackLogEditForm
+from trackman.forms import TrackLogForm, TrackLogEditForm, TrackLogAddForm
 from trackman.lib import fixup_current_track, log_track, find_or_add_track
 from .base import TrackmanOnAirResource
 
@@ -237,4 +237,130 @@ class TrackLogList(TrackmanOnAirResource):
         return {
             'success': True,
             'tracklog_id': tracklog.id,
+        }, 201
+
+
+class TrackLogAdd(TrackmanOnAirResource):
+    def put(self):
+        """
+        Log a track automatically
+
+        This function automatically determines whether the underlying Track
+        entry already exists in the system or needs to be created.
+        ---
+        operationId: createTrackLog
+        tags:
+        - trackman
+        - tracklog
+        - track
+        parameters:
+        - in: form
+          name: artist
+          type: string
+          required: true
+          description: Artist name
+        - in: form
+          name: title
+          type: string
+          required: true
+          description: Track title
+        - in: form
+          name: album
+          type: string
+          required: true
+          description: Album title
+        - in: form
+          name: label
+          type: string
+          required: true
+          description: Record label
+        - in: form
+          name: artist_mbid
+          type: uuid
+          required: false
+          description: Artist MBID
+        - in: form
+          name: release_mbid
+          type: uuid
+          required: false
+          description: Release MBID
+        - in: form
+          name: releasegroup_mbid
+          type: uuid
+          required: false
+          description: Release Group MBID
+        - in: form
+          name: recording_mbid
+          type: uuid
+          required: false
+          description: Recording MBID
+        - in: form
+          name: djset_id
+          type: integer
+          required: true
+          description: The ID of an existing DJSet
+        responses:
+          201:
+            description: Track logged
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                tracklog_id:
+                  type: integer
+                  description: The ID of the logged track
+                track_id:
+                  type: integer
+                  description: The ID of the track
+          400:
+            description: Bad request
+          401:
+            description: Session expired
+        """
+
+        form = TrackLogAddForm(meta={'csrf': False})
+        if not form.validate():
+            abort(400, success=False, errors=form.errors,
+                  message="The track information you entered did not validate. Common reasons for this include missing or improperly entered information, especially the label. Please try again. If you continue to get this message after several attempts, and you're sure the information is correct, please contact the IT staff for help.")
+
+        track = find_or_add_track(models.Track(
+            form.title.data,
+            form.artist.data,
+            form.album.data,
+            form.label.data,
+            artist_mbid=form.artist_mbid.data,
+            release_mbid=form.release_mbid.data,
+            releasegroup_mbid=form.releasegroup_mbid.data,
+            recording_mbid=form.recording_mbid.data))
+        djset_id = form.djset_id.data
+
+        if djset_id != session['djset_id']:
+            abort(403, success=False)
+
+        rotation = form.rotation.data
+        if rotation is not None:
+            rotation = models.Rotation.query.get(int(rotation))
+
+        # check to be sure the DJSet exists
+        djset = models.DJSet.query.get(djset_id)
+        if not djset:
+            abort(400, success=False,
+                  message="DJSet does not exist")
+
+        if djset.dtend is not None:
+            abort(401, success=False,
+                  message="Session expired, please login again")
+
+        tracklog = log_track(track.id, djset_id,
+                             request=form.request.data,
+                             vinyl=form.vinyl.data,
+                             new=form.new.data,
+                             rotation=rotation,
+                             track=track)
+
+        return {
+            'success': True,
+            'tracklog_id': tracklog.id,
+            'track_id': track.id,
         }, 201
