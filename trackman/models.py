@@ -254,11 +254,17 @@ class Track(db.Model):
     release_mbid = db.Column(UUIDType())
     releasegroup_mbid = db.Column(UUIDType())
 
-    def __init__(self, title, artist, album, label):
+    def __init__(self, title, artist, album, label, artist_mbid=None,
+                 recording_mbid=None, release_mbid=None,
+                 releasegroup_mbid=None):
         self.title = title
         self.artist = artist
         self.album = album
         self.label = label
+        self.artist_mbid = artist_mbid
+        self.recording_mbid = recording_mbid
+        self.release_mbid = release_mbid
+        self.releasegroup_mbid = releasegroup_mbid
 
     def serialize(self):
         return {

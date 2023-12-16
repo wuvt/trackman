@@ -6,8 +6,6 @@ var clockspan = "<span class='oi oi-timer'></span>";
 var playlisttrue = "<span class='oi oi-check green'></span>";
 var playlistfalse = "";
 
-// origin: 0 if newly entered, 1 if from history
-
 function getParentIfSpan(target) {
     if($(target).prop("tagName") == "SPAN") {
         return $(target).parent();
@@ -274,13 +272,7 @@ Trackman.prototype.logQueued = function(element) {
         this.updatePlaylist();
     };
 
-    // Delete it from the queue if it's there
-    if(track['origin'] == 1) {
-        this.logTrack(track, postLog);
-    }
-    else if(track['origin'] == 0) {
-        this.createTrack(track, postLog);
-    }
+    this.logTrack(track, postLog);
 };
 
 Trackman.prototype.clearQueue = function() {
@@ -312,7 +304,6 @@ Trackman.prototype.queueTrack = function(ev) {
     if(!inst.validateTrack(track)) {
         return false;
     }
-    track['origin'] = 0;
     inst.queue.push(track);
 
     inst.saveQueue();
@@ -378,7 +369,6 @@ Trackman.prototype.queueFromList = function(tracks) {
     for(i in tracks) {
         var track = tracks[i];
         if(this.validateTrack(track)) {
-            track['origin'] = 0;
             this.queue.push(track);
         }
     }
@@ -436,18 +426,35 @@ Trackman.prototype.initPlaylist = function() {
 
 Trackman.prototype.logTrack = function(track, callback) {
     if(this.djsetId != null) {
+        data = {
+            "djset_id": this.djsetId,
+            "artist":   track['artist'],
+            "album":    track['album'],
+            "title":    track['title'],
+            "label":    track['label'],
+            "vinyl":    track['vinyl'],
+            "request":  track['request'],
+            "new":      track['new'],
+            "rotation": track['rotation'],
+        };
+        if(typeof track['recording_mbid'] != "undefined") {
+            data['recording_mbid'] = track['recording_mbid'];
+        }
+        if(typeof track['release_mbid'] != "undefined") {
+            data['release_mbid'] = track['release_mbid'];
+        }
+        if(typeof track['releasegroup_mbid'] != "undefined") {
+            data['releasegroup_mbid'] = track['releasegroup_mbid'];
+        }
+        if(typeof track['artistt_mbid'] != "undefined") {
+            data['artist_mbid'] = track['artist_mbid'];
+        }
+
         $.ajax({
-            url: this.baseUrl + "/api/tracklog",
-            data: {
-                "track_id": track['id'],
-                "djset_id": this.djsetId,
-                "vinyl":    track['vinyl'],
-                "request":  track['request'],
-                "new":      track['new'],
-                "rotation": track['rotation'],
-            },
+            url: this.baseUrl + "/api/tracklog/add",
+            data: data,
             context: this,
-            type: "POST",
+            type: "PUT",
             success: callback,
             error: function(jqXHR, statusText, errorThrown) {
                 if(jqXHR.responseJSON['onair'] == false) {
@@ -515,6 +522,7 @@ Trackman.prototype.createTrack = function(track, callback) {
     });
 };
 
+// FIXME: combine this with logTrack
 Trackman.prototype.logNewTrack = function(ev) {
     var inst = ev.data.instance;
 
@@ -522,7 +530,6 @@ Trackman.prototype.logNewTrack = function(ev) {
     if(!inst.validateTrack(track)) {
         return false;
     }
-    track['origin'] = 0;
     function post_log(data) {
         if(data['success'] == false) {
             alert(data['message']);
@@ -746,7 +753,6 @@ Trackman.prototype.searchHistory = function() {
             results = data['results'];
             inst.searchResults = [];
             for (var i = 0; i < results.length; i++) {
-                results[i]['origin'] = 1;
                 inst.searchResults.push(results[i])
             }
             inst.updateHistory();
@@ -1214,7 +1220,6 @@ Trackman.prototype.inlineEditTrack = function(ev) {
             }
 
             track['id'] = id;
-            track['origin'] = 0;
             inst.queue[id] = track;
 
             row.replaceWith(inst.renderTrackRow(track, 'queue'));

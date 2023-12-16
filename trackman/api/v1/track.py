@@ -195,6 +195,7 @@ class TrackSearch(TrackmanResource):
                 db.func.lower(models.Track.label) == db.func.lower(label))
 
         # This means there was a bad search, stop searching
+        # FIXME: MusicBrainz cannot search on label
         if somesearch is False:
             return {
                 'success': False,
@@ -206,22 +207,21 @@ class TrackSearch(TrackmanResource):
 
         # Search MusicBrainz
         mb_results = musicbrainzngs.search_recordings(**musicbrainz_search)
-        for result in mb_results['recording-list']:
-
-            for release in result['recording']['release-list']:
+        for recording in mb_results['recording-list']:
+            for release in recording['release-list']:
                 t = models.Track(
-                    title=result['recording']['title'],
-                    album=result['title'],
-                    artist=result['artist-credit-phrase'],
-                    recording_mbid=result['recording']['id'],
-                    release_mbid=result['release']['id'],
-                    releasegroup_mbid=result['release']['release-group']['id'])
+                    title=recording['title'],
+                    album=release['title'],
+                    artist=recording['artist-credit-phrase'],
+                    label="Not Available")
+                t.recording_mbid = recording['id']
+                t.release_mbid = release['id']
+                t.releasegroup_mbid = release['release-group']['id']
 
-                artist_credits = result.get('artist-credit', [])
+                artist_credits = recording.get('artist-credit', [])
                 if len(artist_credits) == 1:
                     t.artist_mbid = artist_credits[0]['artist']['id']
-            results.append(t)
-            pass
+                results.append(t.serialize())
 
 #        # Search local database
 #        tracks = tracks.limit(8).all()

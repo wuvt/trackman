@@ -1,4 +1,5 @@
 import dateutil.parser
+import uuid
 from flask import session
 from flask_restful import abort
 from trackman import db, models
@@ -324,15 +325,22 @@ class TrackLogAdd(TrackmanOnAirResource):
             abort(400, success=False, errors=form.errors,
                   message="The track information you entered did not validate. Common reasons for this include missing or improperly entered information, especially the label. Please try again. If you continue to get this message after several attempts, and you're sure the information is correct, please contact the IT staff for help.")
 
-        track = find_or_add_track(models.Track(
+        search_track = models.Track(
             form.title.data,
             form.artist.data,
             form.album.data,
-            form.label.data,
-            artist_mbid=form.artist_mbid.data,
-            release_mbid=form.release_mbid.data,
-            releasegroup_mbid=form.releasegroup_mbid.data,
-            recording_mbid=form.recording_mbid.data))
+            form.label.data)
+        if len(form.artist_mbid.data) > 0:
+            search_track.artist_mbid = uuid.UUID(form.artist_mbid.data)
+        if len(form.release_mbid.data) > 0:
+            search_track.release_mbid = uuid.UUID(form.release_mbid.data)
+        if len(form.releasegroup_mbid.data) > 0:
+            search_track.releasegroup_mbid = uuid.UUID(
+                form.releasegroup_mbid.data)
+        if len(form.recording_mbid.data) > 0:
+            search_track.recording_mbid = uuid.UUID(form.recording_mbid.data)
+
+        track = find_or_add_track(search_track)
         djset_id = form.djset_id.data
 
         if djset_id != session['djset_id']:

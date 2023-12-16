@@ -419,9 +419,19 @@ def cleanup_dj_list():
 
 
 def find_or_add_track(track):
-    if track.recording_mbid is not None:
+    if (track.recording_mbid is not None and
+        (track.release_mbid is not None or
+         track.releasegroup_mbid is not None)):
         match = Track.query.filter(
-            Track.recording_mbid == track.recording_mbid).first()
+            Track.recording_mbid == track.recording_mbid)
+
+        if track.release_mbid is not None:
+            match = match.filter(Track.release_mbid == track.release_mbid)
+        if track.releasegroup_mbid is not None:
+            match = match.filter(
+                Track.releasegroup_mbid == track.releasegroup_mbid)
+
+        match = match.first()
     else:
         match = Track.query.filter(
             db.func.lower(Track.artist) == db.func.lower(track.artist),
