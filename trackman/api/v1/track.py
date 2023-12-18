@@ -1,5 +1,6 @@
 from flask import request, session, current_app
 from flask_restful import abort
+from thefuzz import fuzz, process
 from trackman import db, models
 from trackman.forms import TrackAddForm
 from trackman.lib import find_or_add_track
@@ -188,14 +189,15 @@ class TrackSearch(TrackmanResource):
                 db.func.lower(models.Track.album) == db.func.lower(album))
             musicbrainz_search['release'] = album
 
-        label = request.args.get('label', '').strip()
-        if len(label) > 0:
-            somesearch = True
-            tracks = tracks.filter(
-                db.func.lower(models.Track.label) == db.func.lower(label))
+        # FIXME: disabled since MusicBrainz cannot search by label
+        #label = request.args.get('label', '').strip()
+        #if len(label) > 0:
+        #    somesearch = True
+        #    tracks = tracks.filter(
+        #        db.func.lower(models.Track.label) == db.func.lower(label))
 
         # This means there was a bad search, stop searching
-        # FIXME: MusicBrainz cannot search on label
+        # FIXME: MusicBrainz cannot search by label
         if somesearch is False:
             return {
                 'success': False,
@@ -205,10 +207,23 @@ class TrackSearch(TrackmanResource):
 
         results = []
 
+        def process_release(r):
+            if type(r) == dict:
+                return r['title']
+            else:
+                return r
+
         # Search MusicBrainz
         mb_results = musicbrainzngs.search_recordings(**musicbrainz_search)
         for recording in mb_results['recording-list']:
-            for release in recording['release-list']:
+            all_releases = [r for r in recording['release-list']]
+            if len(album) > 0:
+                releases = process.extract(album, all_releases,
+                                           processor=process_release)
+            else:
+                releases = [(r, 0) for r in all_releases]
+
+            for release, _ in releases:
                 t = models.Track(
                     title=recording['title'],
                     album=release['title'],
