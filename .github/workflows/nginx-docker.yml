@@ -8,6 +8,8 @@ jobs:
     - uses: actions/checkout@v1
     - name: Publish to GitHub Package Registry
       uses: elgohr/Publish-Docker-Github-Action@master
+      env:
+        DOCKER_BUILDKIT: "1"
       with:
         name: wuvt/trackman-nginx
         username: wuvt
