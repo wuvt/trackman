@@ -172,6 +172,9 @@ def init_app():
         'CACHE_TYPE': "RedisCache",
         'CACHE_REDIS_URL': cache_redis_url,
     })
-
-
+#this command is sketchy, but it made running trackman locally work for me
+@app.before_first_request
+def create_tables():
+    db.create_all()
+#end sketchy
 init_app()
