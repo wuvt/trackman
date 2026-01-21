@@ -32,7 +32,7 @@ click==7.1.2
     # via
     #   -r requirements.in
     #   flask
-cryptography==3.4.7
+cryptography==39.0.1
     # via authlib
 dnspython==2.1.0
     # via email-validator
