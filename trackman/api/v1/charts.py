@@ -186,3 +186,22 @@ class DJVinylSpinCharts(ChartResource):
         return {
             'results': [(x[0].serialize(), x[1], x[2]) for x in results],
         }
+
+
+class DJRequestCharts(ChartResource):
+    def get(self):
+        subquery = TrackLog.query.\
+            with_entities(TrackLog.dj_id,
+                          db.func.count(TrackLog.id).label('count')).\
+            filter(TrackLog.request == True).\
+            group_by(TrackLog.dj_id).subquery()
+
+        results = charts.get(
+            'dj_requests',
+            DJ.query.with_entities(DJ, subquery.c.count).
+            join(subquery).filter(DJ.visible == True).
+            order_by(db.desc(subquery.c.count)))
+
+        return {
+            'results': [(x[0].serialize(), x[1], x[2]) for x in results],
+        }

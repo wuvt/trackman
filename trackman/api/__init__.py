@@ -12,7 +12,8 @@ from .v1.track import Track, TrackReport, TrackSearch, TrackAutoComplete, \
     TrackList
 from .v1.tracklog import TrackLog, TrackLogList
 from .v1.charts import Charts, AlbumCharts, DJAlbumCharts, ArtistCharts, \
-    DJArtistCharts, TrackCharts, DJTrackCharts, DJSpinCharts, DJVinylSpinCharts
+    DJArtistCharts, TrackCharts, DJTrackCharts, DJSpinCharts, \
+    DJVinylSpinCharts, DJRequestCharts
 from .v1.playlists import NowPlaying, Last15Tracks, LatestTrack, \
     PlaylistsByDay, PlaylistsByDateRange, PlaylistsTrackLogsByDateRange, \
     PlaylistDJs, PlaylistAllDJs, PlaylistsByDJ, Playlist, PlaylistTrack
@@ -64,6 +65,7 @@ api.add_resource(TrackCharts,
 api.add_resource(DJTrackCharts, '/api/charts/dj/<int:dj_id>/tracks')
 api.add_resource(DJSpinCharts, '/api/charts/dj/spins')
 api.add_resource(DJVinylSpinCharts, '/api/charts/dj/vinyl_spins')
+api.add_resource(DJRequestCharts, '/api/charts/dj/requests')
 api.add_resource(NowPlaying, '/api/now_playing')
 api.add_resource(Last15Tracks, '/api/playlists/last15')
 api.add_resource(LatestTrack, '/api/playlists/latest_track')
