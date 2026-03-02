@@ -15,6 +15,7 @@ from ..api.v1.charts import (
         DJTrackCharts,
         DJSpinCharts,
         DJVinylSpinCharts,
+        DJRequestCharts,
 )
 from ..api.v1.playlists import (
         NowPlaying,
@@ -279,6 +280,13 @@ def charts_dj_spins():
 def charts_dj_vinyl_spins():
     results = DJVinylSpinCharts().get()
     return render_template('public/chart_dj_vinyl_spins.html',
+                           results=results['results'])
+
+
+@bp.route('/playlists/charts/dj/requests')
+def charts_dj_requests():
+    results = DJRequestCharts().get()
+    return render_template('public/chart_dj_requests.html',
                            results=results['results'])
 # }}}
 
