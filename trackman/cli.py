@@ -4,7 +4,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from . import app, db_utils, lib, pubsub, tasks
 
 
-@app.cli.command()
+@app.cli.command('init_embedded_db')
 def init_embedded_db():
     """Initialize and seed the embedded database with sample data."""
 
