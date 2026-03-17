@@ -101,10 +101,11 @@ mako==1.1.4
     # via alembic
 markdown==3.3.4
     # via -r requirements.in
-markupsafe==1.1.1
+markupsafe==2.1.2
     # via
     #   jinja2
     #   mako
+    #   werkzeug
     #   wtforms
 netaddr==0.8.0
     # via -r requirements.in
@@ -189,7 +190,7 @@ urllib3==1.26.5
     # via
     #   requests
     #   sentry-sdk
-werkzeug==1.0.1
+werkzeug==2.2.3
     # via
     #   feedwerk
     #   flask
